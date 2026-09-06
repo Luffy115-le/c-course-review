@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="utf-8"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Day1 计算机基础知识</title>
+
+<script>
+
+MathJax = {
+
+  tex: {
+
+    inlineMath: [['$', '$'], ['\(', '\)']],
+
+    displayMath: [['$$', '$$'], ['\[', '\]']]
+
+  }
+
+};
+
+</script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+
+<style>
+
+/* === ExamPass Shared Styles === */
+
+/* Paper-like warm background, clean typography, responsive */
+
+
+
+:root {
+
+  --paper: #fdf6e3;
+
+  --paper-dark: #f5ecd7;
+
+  --ink: #2c2c2c;
+
+  --ink-light: #555;
+
+  --accent: #2563eb;
+
+  --accent-hover: #1d4ed8;
+
+  --divider: #d6c8a8;
+
+  --card-bg: #fef9ef;
+
+  --card-border: #e8dcc8;
+
+  --correct: #22c55e;
+
+  --correct-bg: #f0fdf4;
+
+  --wrong: #ef4444;
+
+  --wrong-bg: #fef2f2;
+
+  --tag-bg: #fef3c7;
+
+  --tag-text: #92400e;
+
+  --radius: 6px;
+
+}
+
+
+
+* { box-sizing: border-box; }
+
+
+
+body {
+
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+
+  background: var(--paper);
+
+}
+
+
+
+@media print {
+
+  body { font-size: 10.5pt; background: #fff; }
+
+  .no-print { display: none !important; }
+
+  h1, h2, h3 { page-break-after: avoid; }
+
+}
+
+
+
+/* ── Header ── */
+
+#exampass-header {
+
+  display: flex; justify-content: space-between; align-items: baseline;
+
+  padding: 6px 0; margin-bottom: 0;
+
+}
+
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+
+.header-url  { font-size: 0.78em; color: #999; }
+
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+
+
+/* ── Typography ── */
+
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+
+a { color: var(--accent); text-decoration: none; }
+
+a:hover { text-decoration: underline; }
+
+
+
+/* ── Tables ── */
+
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+
+th { background: var(--paper-dark); font-weight: 700; }
+
+
+
+/* ── Knowledge point vs explanation ── */
+
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+
+
+/* ── Block elements ── */
+
+blockquote {
+
+  border-left: 3px solid #c0392b; background: #fef9ef;
+
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+
+}
+
+/* Modern monospace stack — avoids the ugly Courier New fallback on Windows. */
+
+:root {
+
+  --mono: "Cascadia Code", "JetBrains Mono", "Fira Code", "Source Code Pro",
+
+          Consolas, "SF Mono", Menlo, "DejaVu Sans Mono", monospace;
+
+}
+
+code {
+
+  font-family: var(--mono);
+
+  background: #eee8d8; color: #8a4b1e;
+
+  padding: 1px 5px; border-radius: 4px; font-size: 0.9em;
+
+}
+
+pre {
+
+  font-family: var(--mono);
+
+  background: #2d2a26; color: #ece6da;
+
+  padding: 14px 16px; border-radius: var(--radius);
+
+  overflow-x: auto; line-height: 1.6; font-size: 0.9em;
+
+  border: 1px solid #3d3934; tab-size: 2;
+
+}
+
+pre code {
+
+  background: none; color: inherit; padding: 0; font-size: 1em; border-radius: 0;
+
+}
+
+/* kp/exp spans inside <pre> must inherit the light code color, not their own dark color */
+
+pre .kp, pre .exp { color: inherit; }
+
+
+
+/* ── Long display formulas: scroll inside their column, never overflow ── */
+
+mjx-container[display="true"] {
+
+  max-width: 100%;
+
+  overflow-x: auto;
+
+  overflow-y: hidden;
+
+}
+
+
+
+/* ── TOC ── */
+
+div.toc {
+
+  background: var(--card-bg); padding: 14px 18px;
+
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+
+}
+
+div.toc ul { padding-left: 18px; }
+
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+
+
+/* ── Priority tags ── */
+
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+
+/* ── Checkpoint self-test ── */
+
+.checkpoint {
+
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius);
+
+  padding: 10px 16px; margin: 18px 0;
+
+  font-size: 0.95em;
+
+}
+
+.checkpoint::before {
+
+  content: '🧠 自测：';
+
+  font-weight: 700; color: #1e40af;
+
+}
+
+.checkpoint .cp-answer { margin-top: 10px; border-top: 1px dashed #bfdbfe; padding-top: 8px; }
+
+.checkpoint .cp-answer summary {
+
+  cursor: pointer; color: #1e40af; font-weight: 600; user-select: none;
+
+  list-style: none;
+
+}
+
+.checkpoint .cp-answer summary::before { content: '💡 '; }
+
+.checkpoint .cp-answer summary::-webkit-details-marker { display: none; }
+
+.checkpoint .cp-answer[open] summary { margin-bottom: 6px; }
+
+.checkpoint .cp-answer ol, .checkpoint .cp-answer p { font-weight: 400; color: var(--ink); }
+
+
+
+/* ── TL;DR summary ── */
+
+.tldr {
+
+  background: #fefce8; border-left: 3px solid #eab308;
+
+  padding: 8px 14px; margin: 10px 0;
+
+  font-weight: 600; font-size: 0.95em;
+
+}
+
+
+
+/* ── Responsive ── */
+
+@media (max-width: 640px) {
+
+  body { max-width: 100%; padding: 12px 10px 40px; font-size: 11pt; }
+
+  h1 { font-size: 1.3em; }
+
+  h2 { font-size: 1.12em; }
+
+  table { font-size: 0.85em; }
+
+  td, th { padding: 4px 6px; }
+
+  pre { font-size: 0.85em; padding: 6px; }
+
+}
+
+@media (max-width: 400px) {
+
+  body { padding: 8px 6px 32px; font-size: 10.5pt; }
+
+}
+
+
+
+
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<header id="exampass-header">
+
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+
+</header>
+
+<hr class="header-divider">
+
+
+
+<h1>Day1 计算机基础知识</h1>
+
+<div class="toc">
+
+<h2>目录</h2>
+
+<ul>
+
+<li><a href="#s12175200">1. 计算机系统与硬件</a></li>
+
+  <li><a href="#s14685460">1.1 计算机系统的层次结构 </a></li>
+
+  <li><a href="#s82937327">1.2 计算机的组成 </a></li>
+
+  <li><a href="#s41005404">1.3 CPU 的结构 </a></li>
+
+<li><a href="#s22272506">2. 计算机的进制与数据表示</a></li>
+
+  <li><a href="#s73140172">2.1 为什么计算机用二进制 </a></li>
+
+<li><a href="#s89925291">3. 什么是程序</a></li>
+
+  <li><a href="#s60732107">3.1 程序的定义 </a></li>
+
+<li><a href="#s12778853">4. 编程语言的发展过程</a></li>
+
+  <li><a href="#s16318684">4.1 三个阶段 </a></li>
+
+  <li><a href="#s41346763">4.2 为什么要学 C 语言 </a></li>
+
+  <li><a href="#s81024901">4.3 计算机发展趋势 </a></li>
+
+</ul>
+
+</div>
+
+<div class="tldr"><strong>TL;DR：</strong>计算机由硬件与软件协同工作，所有数据以 0/1 高低电平存储；CPU 是大脑，运算器+控制器构成 CPU；程序是为解决某问题编写的一系列有序指令集合。</div>
+
+
+
+<h2 id="s12175200">1. 计算机系统与硬件</h2>
+
+<h3 id="s14685460">1.1 计算机系统的层次结构 <span class="pg-chip" data-page="2">页2</span></h3>
+
+<p><span class="kp">计算机系统 = 硬件(Hardware) + 操作系统(OS) + 应用软件(APP)</span>。<span class="exp">操作系统统一管理软硬件资源，并为 APP 开发者提供应用接口；单片机(stm32、51)等简单系统可不使用操作系统。</span></p>
+
+<blockquote>易错：不要把「操作系统」与「应用软件」混为一谈——OS 直接管理硬件，APP 通过 OS 提供的接口间接使用硬件。</blockquote>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s82937327">1.2 计算机的组成 <span class="pg-chip" data-page="7-9">页7</span></h3>
+
+<p><span class="kp">五大部件：输入设备、输出设备、存储器、运算器、控制器</span>。<span class="exp">输入设备(键盘/鼠标/摄像头)把外部信号转为电信号；输出设备(显示器/打印机)把电信号转为其它形式；存储器分主存(内存，掉电丢失)、外存(硬盘，掉电不丢失)、寄存器(CPU 内部高速存储)。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s41005404">1.3 CPU 的结构 <span class="pg-chip" data-page="9-10">页9</span></h3>
+
+<p><span class="kp">CPU = 运算器 + 控制器</span>。<span class="exp">运算器负责算术/逻辑运算（工厂里干活的工人）；控制器是指挥中心，控制 CPU 执行程序（工厂的老板）。现代 PC 通常一个 CPU 含多核心。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h2 id="s22272506">2. 计算机的进制与数据表示</h2>
+
+<h3 id="s73140172">2.1 为什么计算机用二进制 <span class="pg-chip" data-page="5">页5</span></h3>
+
+<p><span class="kp">计算机中数据存储、运算、传输都以高低电平方式表示，高电平(5V)=1，低电平(0V)=0</span>。<span class="exp">数字电路用高低电平表示逻辑 1 和 0，因此二进制是硬件最自然的表达。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h2 id="s89925291">3. 什么是程序</h2>
+
+<h3 id="s60732107">3.1 程序的定义 <span class="pg-chip" data-page="5">页5</span></h3>
+
+<p><span class="kp">程序 = 为让计算机执行某些操作或解决某个问题而编写的一系列有序指令的集合</span>。<span class="exp">编写程序的过程叫编程，编写者叫程序员；程序存储在磁盘上，被加载到内存中执行。</span></p>
+
+<span class="tag-must">必考</span>
+
+<div class="checkpoint">广义上「程序」的含义是什么？<details class="cp-answer"><summary>参考答案</summary>为了达到某个目的而计划的一系列行为（如把大象关冰箱、包饺子），计算机程序是其子集。</details></div>
+
+
+
+<h2 id="s12778853">4. 编程语言的发展过程</h2>
+
+<h3 id="s16318684">4.1 三个阶段 <span class="pg-chip" data-page="5-11">页5</span></h3>
+
+ 汇编语言 → 高级语言</span>。<span class="exp">机器语言是 0/1 序列，CPU 直接识别但难记；汇编用 add/move 等助记符，与机器码一一对应；高级语言(C/C++/Java/Python)接近自然语言，一条语句对应多条机器指令，开发效率高。</span></p>
+
+<blockquote>易错：汇编语言与机器语言<strong>移植性都差</strong>——不同 CPU 体系结构(x86/ARM)指令不同，机器码和汇编代码都不同。</blockquote>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s41346763">4.2 为什么要学 C 语言 <span class="pg-chip" data-page="12">页12</span></h3>
+
+<p><span class="kp">C 既是高级语言，又是系统级底层语言</span>。<span class="exp">几乎所有上层语言的底层都用 C 实现；Unix/Linux/Android/iOS/鸿蒙系统内核均用 C 编写；C 可直接操作硬件、编写驱动，是合格程序员的必经之路。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s81024901">4.3 计算机发展趋势 <span class="pg-chip" data-page="11">页11</span></h3>
+
+<p><span class="kp">两级分化：微型化(网络化/高性能/多用途) 与 巨型化(超高速/并行处理/智能化)</span>。</p>
+
+<span class="tag-info">了解</span>
+
+
+
+
+
+</body>
+
+</html>
+
