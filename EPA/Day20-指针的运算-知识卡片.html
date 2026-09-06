@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day20 指针的运算 · 知识卡片</title>
+
+<style>
+
+  :root {
+
+    --bg: #f0f3f8;
+
+    --card-bg: #ffffff;
+
+    --text: #2d3436;
+
+    --text-secondary: #636e72;
+
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.14);
+
+    --radius: 14px;
+
+    --syntax: #2E86DE;
+
+    --error: #EE5253;
+
+    --operator: #6C5CE7;
+
+    --concept: #FF9F43;
+
+    --application: #10AC84;
+
+    --memory: #0984E3;
+
+    --summary: #FDCB6E;
+
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    min-height: 100vh;
+
+  }
+
+  .header {
+
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+
+    color: #fff;
+
+    padding: 28px 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+  }
+
+  .header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px; }
+
+  .header .badge { font-size: 0.8rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+
+  .main-layout { display: flex; gap: 24px; padding: 24px 40px; max-width: 1500px; margin: 0 auto; }
+
+  .content-area { flex: 1; min-width: 0; }
+
+  .filter-bar {
+
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+
+  }
+
+  .filter-btn {
+
+    padding: 7px 18px; border-radius: 20px; border: 1.5px solid #dfe6e9;
+
+    background: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+
+    color: var(--text-secondary); transition: var(--transition);
+
+    white-space: nowrap;
+
+  }
+
+  .filter-btn:hover { border-color: #74b9ff; color: #0984e3; }
+
+  .filter-btn.active { background: #0984e3; color: #fff; border-color: #0984e3; }
+
+  .card-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+
+    gap: 18px;
+
+  }
+
+  .card {
+
+    background: var(--card-bg);
+
+    border-radius: var(--radius);
+
+    padding: 22px 24px;
+
+    box-shadow: var(--shadow);
+
+    transition: var(--transition);
+
+    border-left: 5px solid #ccc;
+
+    position: relative;
+
+    overflow: hidden;
+
+    cursor: default;
+
+    animation: fadeIn 0.4s ease both;
+
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+
+  .card.hidden { display: none; }
+
+  .card .card-header {
+
+    display: flex; align-items: center; justify-content: space-between;
+
+    margin-bottom: 10px;
+
+  }
+
+  .card .card-cat {
+
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+
+    letter-spacing: 0.5px; opacity: 0.8;
+
+  }
+
+  .card .card-level {
+
+    font-size: 0.7rem; font-weight: 700; padding: 2px 10px;
+
+    border-radius: 10px; background: #ffeaa7; color: #d63031;
+
+  }
+
+  .card .card-level.key { background: #fab1a0; color: #b71c1c; }
+
+  .card .card-level.important { background: #ffeaa7; color: #d63031; }
+
+  .card .card-name {
+
+    font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;
+
+    color: var(--text);
+
+  }
+
+  .card .card-key {
+
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "Courier New", monospace;
+
+    font-size: 0.88rem; background: #f8f9fa; padding: 6px 10px;
+
+    border-radius: 6px; color: #2d3436; margin-bottom: 10px;
+
+    display: inline-block; word-break: break-all;
+
+  }
+
+  .card .card-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px; }
+
+  .card .card-memo {
+
+    font-size: 0.8rem; padding: 8px 12px; background: #fff9e6; border-radius: 8px;
+
+    border-left: 3px solid #f9ca24; color: #6d5c00; line-height: 1.5;
+
+  }
+
+  .card .card-memo.error-memo { background: #fff0f0; border-left-color: #e74c3c; color: #8b0000; }
+
+  .card .card-memo.warn-memo { background: #fff8e1; border-left-color: #ff9800; color: #6d4c00; }
+
+  /* right panel */
+
+  .side-panel {
+
+    width: 260px; flex-shrink: 0;
+
+    position: sticky; top: 100px; align-self: flex-start;
+
+  }
+
+  .panel-card {
+
+    background: var(--card-bg); border-radius: var(--radius);
+
+    padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px;
+
+  }
+
+  .panel-card h3 { font-size: 0.95rem; margin-bottom: 14px; color: #2d3436; }
+
+  .stat-row {
+
+    display: flex; justify-content: space-between; align-items: center;
+
+    padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem;
+
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+
+  .stat-num { font-weight: 700; }
+
+  .reset-btn {
+
+    width: 100%; padding: 10px; border: 1.5px solid #dfe6e9; border-radius: 10px;
+
+    background: #fff; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary);
+
+    transition: var(--transition); margin-top: 8px;
+
+  }
+
+  .reset-btn:hover { border-color: #0984e3; color: #0984e3; }
+
+  @media (max-width: 1100px) {
+
+    .main-layout { flex-direction: column; padding: 16px; }
+
+    .side-panel { width: 100%; position: static; display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .side-panel .panel-card { flex: 1; min-width: 200px; margin-bottom: 0; }
+
+    .card-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+
+  }
+
+  @media (max-width: 600px) {
+
+    .header { padding: 20px; }
+
+    .header h1 { font-size: 1.2rem; }
+
+    .card-grid { grid-template-columns: 1fr; }
+
+    .side-panel .panel-card { flex: 1 1 100%; }
+
+  }
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<div class="header">
+
+  <div>
+
+    <h1>Day20 · 指针的运算</h1>
+
+    <span class="badge">共 <span id="totalCount">18</span> 张卡片</span>
+
+  </div>
+
+</div>
+
+
+
+<div class="main-layout">
+
+  <div class="content-area">
+
+    <div class="filter-bar" id="filterBar">
+
+      <button class="filter-btn active" data-filter="all">全部</button>
+
+      <button class="filter-btn" data-filter="concept" style="--c: #FF9F43">概念/规则</button>
+
+      <button class="filter-btn" data-filter="syntax" style="--c: #2E86DE">语法/代码</button>
+
+      <button class="filter-btn" data-filter="operator" style="--c: #6C5CE7">运算符优先级</button>
+
+      <button class="filter-btn" data-filter="error" style="--c: #EE5253">易错/禁忌</button>
+
+      <button class="filter-btn" data-filter="application" style="--c: #10AC84">应用/实战</button>
+
+      <button class="filter-btn" data-filter="memory" style="--c: #0984E3">内存/底层</button>
+
+      <button class="filter-btn" data-filter="summary" style="--c: #FDCB6E">总结/对比</button>
+
+    </div>
+
+    <div class="card-grid" id="cardGrid"></div>
+
+  </div>
+
+
+
+  <aside class="side-panel" id="sidePanel">
+
+    <div class="panel-card">
+
+      <h3>📊 分类统计</h3>
+
+      <div id="statsContainer"></div>
+
+      <button class="reset-btn" id="resetBtn">🔄 重置筛选</button>
+
+    </div>
+
+    <div class="panel-card">
+
+      <h3>🔑 考试等级</h3>
+
+      <div class="stat-row"><span><span class="stat-dot" style="background:#b71c1c"></span>必考</span><span class="stat-num" id="statKey">0</span></div>
+
+      <div class="stat-row"><span><span class="stat-dot" style="background:#d63031"></span>重点</span><span class="stat-num" id="statImportant">0</span></div>
+
+    </div>
+
+  </aside>
+
+</div>
+
+
+
+<script>
+
+const cardsData = [
+
+    {cat:'concept',level:'必考',key:'p+n = 地址 + n×sizeof(类型)',name:'指针加法规则',desc:'指针加整数不是简单的地址值加减，而是根据指针类型跳过相应字节数。p+1对int*跳4字节，对char*跳1字节，对double*跳8字节。',memo:'🔴 指针+1 ≠ 地址值+1，跳到下一个元素位置'},
+
+    {cat:'concept',level:'必考',key:'q - p = 元素个数差',name:'指针差值',desc:'两个指针相减的结果是它们之间相差的元素个数，不是字节数。前提是两个指针必须指向同一数组，否则结果无意义。',memo:'⚠️ 指针相减的前提：指向同一数组'},
+
+    {cat:'syntax',level:'必考',key:'a[i] ⇔ *(p+i) ⇔ p[i]',name:'数组与指针等价',desc:'a[i]、*(a+i)、*(p+i)、p[i] 四种写法完全等价，都可以访问数组第i个元素。理解这个等价关系是指针与数组的核心。',memo:'💡 四种写法等价，编译器会生成一样的代码'},
+
+    {cat:'error',level:'必考',key:'(*p)++ ≠ *p++',name:'*p++与(*p)++区别',desc:'(*p)++是值自增（a[i]++），*p++是地址自增（先*p再p++）。++优先级高于*，所以*p++等价于*(p++)。括号不能省！',memo:'🔴 最易混淆！(*p)++值自增，*p++地址自增'},
+
+    {cat:'operator',level:'必考',key:'*p++ = *(p++)',name:'运算符优先级',desc:'++的优先级高于*，所以*p++等价于*(p++)——先取*p的值，然后p指针自增。*++p等价于*(++p)——先p自增，再取*p。',memo:'🔴 ++优先级 > *优先级，牢记！'},
+
+    {cat:'operator',level:'重点',key:'*++p vs ++*p',name:'前置自增区别',desc:'*++p：先++p（指针后移），再*p（取值），得下一个元素的值。++*p：先*p（取值），再++（值自增），得当前元素值+1。',memo:'🟡 *++p：移指针再取值；++*p：取值再自增'},
+
+    {cat:'syntax',level:'重点',key:'q = p++;',name:'后置自增赋值',desc:'q = p++ 的执行顺序：先 q = p（赋值），然后 p = p + 1（p自增）。结果：q指向原位置，p指向下一个元素。',memo:'💡 后置++：先赋值，后自增'},
+
+    {cat:'syntax',level:'重点',key:'*p++ = 3;',name:'*p++赋值应用',desc:'*p++ = 3 等价于：*p = 3; p++。这是一种常见的数组赋值并移动指针的写法，简洁但需要理解。',memo:'💡 常见写法：*p++ = 值; 赋值后自动移动指针'},
+
+    {cat:'error',level:'必考',key:'数组名是常量指针',name:'数组名 vs 指针变量',desc:'数组名a是常量指针（指向首元素），不能修改（a++错误）。指针变量p可以修改（p++正确）。p = a后p可以自增，但a本身不能。',memo:'🔴 a++ ❌错误！p++ ✅正确！'},
+
+    {cat:'error',level:'重点',key:'指针遍历后要重置',name:'指针重置',desc:'用p++遍历完数组后，p已指向数组末尾。再次使用前必须重置 p = a; 否则p指向越界位置，成为野指针。',memo:'⚠️ 遍历完数组记得 p = a 重置'},
+
+    {cat:'application',level:'重点',key:'p = a; q = &a[n-1];',name:'指针实现数组逆序',desc:'用两个指针p（头）和q（尾）交换元素，p++、q--向中间靠拢。while(p < q)比for循环更直观，不依赖下标计算。',memo:'💡 while(p < q) 实现逆序，比for更优雅'},
+
+    {cat:'memory',level:'重点',key:'小端：低位存低地址',name:'大小端模式',desc:'小端（x86/x64）：低位字节存低地址。大端（网络字节序）：高位字节存低地址。可用char*指针逐字节查看int的存储验证。',memo:'🟡 网络编程需要大小端转换（htonl/ntohl）'},
+
+    {cat:'memory',level:'重点',key:'char *p = (char *)&a;',name:'用char*逐字节查看',desc:'将int*强制转为char*，可以逐字节读取int的内存布局。通过++p依次查看每个字节的值，验证大小端模式。',memo:'💡 (char*)&a 逐字节查看内存'},
+
+    {cat:'syntax',level:'重点',key:'scanf("%d", p);',name:'指针输入',desc:'scanf("%d", p)直接用指针p（不需要&），因为p已经是地址。p++后p指向下一个元素，循环输入整个数组。',memo:'💡 scanf用指针输入时不需要&，p本身就是地址'},
+
+    {cat:'error',level:'重点',key:'(*--p)++ 复合分析',name:'复杂表达式分析',desc:'(*--p)++ 按优先级分析：1.--p（p前移）2.*p（取原值）3.赋值给y（后置++先返回原值）4.(*p)++（值自增）。复合表达式需逐步分析。',memo:'🔴 复杂表达式按优先级和结合性逐步分析'},
+
+4, char*→1, double*→8, short*→2'},
+
+    {cat:'summary',level:'必考',key:'指针运算对比总结',name:'表达式对比总结',desc:'(*p)++值自增(鱼缸里的鱼长大了)；*p++地址自增(换到下一个鱼缸)；*++p先移指针再取值(先去下一个鱼缸再看鱼)；++*p先取值再自增(先看鱼再让鱼长大)。',memo:'💡 鱼缸类比：值自增vs地址自增，形象理解！'},
+
+    {cat:'application',level:'重点',key:'while(p < q) 逆序',name:'指针比较逆序',desc:'while(p < q)实现数组逆序：p从头部开始，q从尾部开始，交换*p和*q的值，然后p++、q--。当p >= q时停止，无需下标计算。',memo:'💡 指针比较 p < q 可用于循环条件'},
+
+];
+
+
+
+const catColors = {
+
+    syntax: '#2E86DE',
+
+    error: '#EE5253',
+
+    operator: '#6C5CE7',
+
+    concept: '#FF9F43',
+
+    application: '#10AC84',
+
+    memory: '#0984E3',
+
+    summary: '#FDCB6E'
+
+};
+
+
+
+const catNames = {
+
+    syntax: '语法/代码',
+
+    error: '易错/禁忌',
+
+    operator: '运算符优先级',
+
+    concept: '概念/规则',
+
+    application: '应用/实战',
+
+    memory: '内存/底层',
+
+    summary: '总结/对比'
+
+};
+
+
+
+let currentFilter = 'all';
+
+
+
+function renderCards() {
+
+    const grid = document.getElementById('cardGrid');
+
+    grid.innerHTML = '';
+
+    let visibleCount = 0;
+
+    cardsData.forEach((c, i) => {
+
+        const card = document.createElement('div');
+
+        card.className = 'card';
+
+        card.style.borderLeftColor = catColors[c.cat];
+
+        card.style.animationDelay = (i * 0.03) + 's';
+
+        card.dataset.cat = c.cat;
+
+        if (currentFilter !== 'all' && c.cat !== currentFilter) {
+
+            card.classList.add('hidden');
+
+        } else {
+
+            visibleCount++;
+
+        }
+
+
+
+        const levelClass = c.level === '必考' ? 'key' : 'important';
+
+        const memoClass = c.cat === 'error' ? 'error-memo' : (c.cat === 'operator' ? 'warn-memo' : '');
+
+
+
+        card.innerHTML = `
+
+            <div class="card-header">
+
+                <span class="card-cat" style="color:${catColors[c.cat]}">${catNames[c.cat]}</span>
+
+                <span class="card-level ${levelClass}">${c.level}</span>
+
+            </div>
+
+            <div class="card-name">${c.name}</div>
+
+            <div class="card-key">${c.key}</div>
+
+            <div class="card-desc">${c.desc}</div>
+
+            <div class="card-memo ${memoClass}">${c.memo}</div>
+
+        `;
+
+        grid.appendChild(card);
+
+    });
+
+    document.getElementById('totalCount').textContent = visibleCount;
+
+    updateStats();
+
+    updateLevelStats();
+
+}
+
+
+
+function updateStats() {
+
+    const container = document.getElementById('statsContainer');
+
+    const counts = {};
+
+    cardsData.forEach(c => {
+
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+
+            counts[c.cat] = (counts[c.cat] || 0) + 1;
+
+        }
+
+    });
+
+    let html = '';
+
+    for (const [cat, name] of Object.entries(catNames)) {
+
+        const n = counts[cat] || 0;
+
+        html += `<div class="stat-row"><span><span class="stat-dot" style="background:${catColors[cat]}"></span>${name}</span><span class="stat-num">${n}</span></div>`;
+
+    }
+
+    container.innerHTML = html;
+
+}
+
+
+
+function updateLevelStats() {
+
+    let keyCount = 0, impCount = 0;
+
+    cardsData.forEach(c => {
+
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+
+            if (c.level === '必考') keyCount++;
+
+            else impCount++;
+
+        }
+
+    });
+
+    document.getElementById('statKey').textContent = keyCount;
+
+    document.getElementById('statImportant').textContent = impCount;
+
+}
+
+
+
+document.getElementById('filterBar').addEventListener('click', e => {
+
+    const btn = e.target.closest('.filter-btn');
+
+    if (!btn) return;
+
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+
+    btn.classList.add('active');
+
+    currentFilter = btn.dataset.filter;
+
+    renderCards();
+
+});
+
+
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+
+    currentFilter = 'all';
+
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+
+    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+
+    renderCards();
+
+});
+
+
+
+renderCards();
+
+</script>
+
+
+
+</body>
+
+</html>
