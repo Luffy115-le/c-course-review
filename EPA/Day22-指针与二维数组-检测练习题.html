@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day22 指针与二维数组 - 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#4CAF50}
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+.difficulty-mid{background:#fff3e0;color:#e65100}
+.difficulty-hard{background:#ffebee;color:#c62828}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+.code-editor:focus{outline:none;border-color:#4CAF50}
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+.hint-box.show{display:block}
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+.test-result.show{display:block}
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+.answer-display.show{display:block}
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#4CAF50;color:white}
+.btn-primary:hover{background:#45a049}
+.btn-secondary{background:#2196F3;color:white}
+.btn-secondary:hover{background:#1976D2}
+.btn-warn{background:#ff9800;color:white}
+.btn-warn:hover{background:#f57c00}
+.btn-vscode{background:#007ACC;color:white}
+.btn-vscode:hover{background:#005A9E}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#4CAF50}
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.vscode-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#1565c0}
+.vscode-info code{background:#bbdefb;padding:2px 6px;border-radius:3px;font-family:Consolas,monospace}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day22 指针与二维数组 - 检测练习题</h1>
+<p>二维数组内存布局 · 行指针与元素指针 · 数组指针vs指针数组 · *(*(a+i)+j)等价转换</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 14 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list')">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge')">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day22';
+const DAY_NUM = 22;
+
+const allQuestions = [
+  {"id":1,"type":"single","kp":"二维数组内存布局","text":"int a[3][4] 在内存中的存储方式是？","options":["A. 按列优先存储","B. 按行优先存储","C. 随机存储","D. 按对角线存储"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>C语言中二维数组按行优先(row-major)存储。a[0][0],a[0][1],...a[0][3],a[1][0],a[1][1]...连续存储。"},
+  {"id":2,"type":"single","kp":"二维数组名含义","text":"int a[3][4]; 则 a+1 跳过多少字节？","options":["A. 4字节","B. 8字节","C. 12字节","D. 16字节"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>a是行指针，a+1跳过一行。一行有4个int，每个int=4字节，所以跳过4×4=16字节。"},
+  {"id":3,"type":"single","kp":"a+1 vs *a+1","text":"int a[3][4]; 以下说法正确的是？","options":["A. a+1和*a+1跳过的字节数相同","B. a+1跳过一行，*a+1跳过一个元素","C. a+1跳过一个元素，*a+1跳过一行","D. a+1和*a+1都是跳过一行"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>a是行指针，a+1跳过一行(16字节)。*a是元素指针，*a+1跳过一个元素(4字节)。这是最核心的易错点！"},
+  {"id":4,"type":"single","kp":"指针访问","text":"int a[3][4]; 以下哪个表达式与 a[1][2] 等价？","options":["A. *(a+1)+2","B. *(*(a+1)+2)","C. *(a+1+2)","D. *a+1+2"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>a[i][j]等价于*(*(a+i)+j)。所以a[1][2]等价于*(*(a+1)+2)。*(a+1)+2是地址不是值。"},
+  {"id":5,"type":"single","kp":"数组指针vs指针数组","text":"以下哪个是数组指针（行指针）的定义？","options":["A. int *p[4];","B. int (*p)[4];","C. int p[4];","D. int *(p[4]);"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>int (*p)[4]是数组指针：p是指针，指向含4个int的数组。int *p[4]是指针数组：p是数组含4个指针。括号位置决定含义！"},
+  {"id":6,"type":"single","kp":"数组指针vs指针数组","text":"int *p[4]; 中 p 的本质是什么？","options":["A. 一个指针","B. 一个数组，含4个指针","C. 一个int变量","D. 指向含4个int的数组的指针"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>int *p[4]是指针数组。p是数组名，含4个int*类型的指针元素。sizeof(p)=32（4×8）。"},
+  {"id":7,"type":"single","kp":"数组指针","text":"int a[3][4]; int (*p)[4] = a; 以下哪个与 a[2][3] 等价？","options":["A. p[2][3]","B. *(p+2)+3","C. *p[2][3]","D. p+2+3"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>int (*p)[4]=a后，p可以像a一样使用。p[i][j]等价于a[i][j]。所以p[2][3]等价于a[2][3]。"},
+  {"id":8,"type":"single","kp":"二维数组名含义","text":"int a[3][4]; 则 **a 的值是什么？","options":["A. a[0][0]的地址","B. a[0][0]的值","C. a的地址","D. 编译错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>a=第0行地址，*a=第0行第0列地址，**a=第0行第0列的值，即a[0][0]。每层解引用降一级。"},
+  {"id":9,"type":"single","kp":"sizeof","text":"int a[3][4]; int (*p)[4] = a; 则 sizeof(a) 和 sizeof(p) 的值分别是？","options":["A. 48, 48","B. 48, 8","C. 12, 8","D. 8, 48"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>sizeof(a)=3×4×4=48（整个数组）。sizeof(p)=8（指针大小，64位系统）。数组得整个数组大小，指针只得指针大小。"},
+  {"id":10,"type":"single","kp":"一维指针遍历","text":"int a[3][4]; 要用一维指针遍历所有元素，正确的初始化是？","options":["A. int *p = a;","B. int *p = *a;","C. int *p = &a[0][0];","D. B和C都正确"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>*a等价于&a[0][0]，所以int *p=*a和int *p=&a[0][0]都正确。但int *p=a会警告，因为a是行指针类型不匹配。"},
+  {"id":11,"type":"judge","kp":"二维数组内存布局","text":"int a[3][4]在内存中是按行优先连续存储的，共占48字节。","options":["A. 正确","B. 错误"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>正确。3×4=12个int，每个int=4字节，共48字节。按行优先存储：a[0][0]到a[0][3]，然后a[1][0]到a[1][3]..."},
+  {"id":12,"type":"judge","kp":"数组指针vs指针数组","text":"int (*p)[4] 和 int *p[4] 是完全相同的类型。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。int (*p)[4]是数组指针(1个指针，sizeof=8)。int *p[4]是指针数组(4个指针，sizeof=32)。完全不同！"},
+  {"id":13,"type":"judge","kp":"a+1 vs *a+1","text":"int a[3][4]; 则 a+1 和 *a+1 跳过的字节数相同。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。a+1跳过一行(4×4=16字节)，*a+1跳过一个元素(4字节)。完全不同！"},
+  {"id":14,"type":"judge","kp":"指针访问","text":"*(*(a+i)+j) 等价于 a[i][j]。","options":["A. 正确","B. 错误"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>正确。a+i是第i行地址，*(a+i)是第i行第0列地址，*(a+i)+j是第i行第j列地址，*(*(a+i)+j)是a[i][j]的值。"}
+];
+
+const codingQuestions = [
+  {"id":101,"type":"coding","kp":"一维指针遍历","difficulty":"入门","title":"一维指针遍历二维数组","desc":"定义int a[3][4]={{1,2,3,4},{5,6,7,8},{9,10,11,12}}，用一维指针int *p=&a[0][0]遍历并打印所有元素。","hint":"int *p = &a[0][0]; for(i=0;i<12;i++){printf(\"%d \",*p); p++;}","answer":"#include <stdio.h>\n\nint main() {\n    int a[3][4] = {{1,2,3,4},{5,6,7,8},{9,10,11,12}};\n    int *p = &a[0][0];\n    int i;\n    for (i = 0; i < 12; i++) {\n        printf(\"%d \", *p);\n        p++;\n    }\n    printf(\"\\n\");\n    return 0;\n}","test_input":"","expected_output":"1 2 3 4 5 6 7 8 9 10 11 12"},
+  {"id":102,"type":"coding","kp":"数组指针","difficulty":"入门","title":"数组指针遍历二维数组","desc":"定义int a[3][4]={{1,2,3,4},{5,6,7,8},{9,10,11,12}}，用数组指针int (*p)[4]=a遍历并打印所有元素。","hint":"int (*p)[4] = a; for(i=0;i<3;i++) for(j=0;j<4;j++) printf(\"%d \", p[i][j]);","answer":"#include <stdio.h>\n\nint main() {\n    int a[3][4] = {{1,2,3,4},{5,6,7,8},{9,10,11,12}};\n    int (*p)[4] = a;\n    int i, j;\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 4; j++) {\n            printf(\"%d \", p[i][j]);\n        }\n    }\n    printf(\"\\n\");\n    return 0;\n}","test_input":"","expected_output":"1 2 3 4 5 6 7 8 9 10 11 12"},
+  {"id":103,"type":"coding","kp":"指针遍历","difficulty":"中等","title":"二维数组元素求和","desc":"定义int a[3][4]={{1,2,3,4},{5,6,7,8},{9,10,11,12}}，用一维指针遍历所有元素并求和，打印sum。","hint":"int *p=&a[0][0]; int sum=0; for(i=0;i<12;i++){sum+=*p; p++;} printf(\"sum=%d\\n\",sum);","answer":"#include <stdio.h>\n\nint main() {\n    int a[3][4] = {{1,2,3,4},{5,6,7,8},{9,10,11,12}};\n    int *p = &a[0][0];\n    int sum = 0;\n    int i;\n    for (i = 0; i < 12; i++) {\n        sum += *p;\n        p++;\n    }\n    printf(\"sum = %d\\n\", sum);\n    return 0;\n}","test_input":"","expected_output":"sum = 78"}
+];
+
+const kpMap = {
+  "二维数组内存布局":{"title":"行优先连续存储","content":"C语言二维数组按<strong>行优先</strong>连续存储。<br>• <code>int a[3][4]</code>共12个int，占48字节<br>• 存储顺序：a[0][0], a[0][1], ..., a[0][3], a[1][0], ...<br>• 内存连续，可用一维指针遍历"},
+  "二维数组名含义":{"title":"a是行指针","content":"对于<code>int a[3][4]</code>：<br>• <code>a</code> = 第0行地址（行指针）<br>• <code>*a</code> = 第0行第0列地址（元素指针）<br>• <code>**a</code> = a[0][0]的值<br>• <code>a+i</code> = 第i行地址，跳过一整行"},
+  "a+1 vs *a+1":{"title":"行跳 vs 元素跳","content":"<strong>核心易错点！</strong><br>• <code>a + 1</code>：行指针+1，跳过<strong>一整行</strong>（4×4=16字节）<br>• <code>*a + 1</code>：元素指针+1，跳过<strong>一个元素</strong>（4字节）<br>🔴 必考区别！"},
+ 第i行地址<br>2. <code>*(a+i)</code> → 第i行第0列地址<br>3. <code>*(a+i)+j</code> → 第i行第j列地址<br>4. <code>*(*(a+i)+j)</code> → a[i][j]的值"},
+  "数组指针vs指针数组":{"title":"int (*p)[4] vs int *p[4]","content":"<strong>括号位置决定含义！</strong><br>• <code>int (*p)[4]</code> = <strong>数组指针</strong>：p是一个指针，指向含4个int的数组，sizeof(p)=8<br>• <code>int *p[4]</code> = <strong>指针数组</strong>：p是数组含4个int*指针，sizeof(p)=32"},
+  "数组指针":{"title":"int (*p)[4] = a","content":"数组指针指向二维数组的一行：<br><code>int (*p)[4] = a;</code><br>• <code>p[i][j]</code> 等价于 <code>a[i][j]</code><br>• <code>p + 1</code> 跳过一行<br>• 可以像a一样使用"},
+  "一维指针遍历":{"title":"一维指针遍历二维数组","content":"利用内存连续性：<br><code>int *p = &a[0][0];</code><br><code>for(i=0; i<12; i++){...*p++;}</code><br>• <code>*a</code> 等价于 <code>&a[0][0]</code><br>• 遍历所有行×列个元素"},
+  "sizeof":{"title":"sizeof(a) vs sizeof(p)","content":"<code>int a[3][4]; int (*p)[4] = a;</code><br>• <code>sizeof(a)</code> = 48（整个数组：3×4×4）<br>• <code>sizeof(p)</code> = 8（指针大小）<br>• <code>sizeof(*p)</code> = 16（一行：4×4）<br>🔴 数组得整个数组大小，指针只得指针大小"}
+};
+
+const extraQuestions = [];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(function(x){return x.id===q.id})){
+    bank.push({
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+      options:q.options,correct:q.correct,correctText:q.correctText,
+      expl:q.expl,userAns:userAns,time:Date.now()
+    });
+    saveWrongBank(bank);
+  }
+}
+function saveProgress(){
+  if(currentMode==='review') return;
+  const prog = {
+    mode:currentMode, index:currentQIndex, answers:answers,
+    ids:currentQuestions.map(function(q){return q.id}), time:Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+}
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+}
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+function shuffle(arr){
+  const a=[];
+  for(let i=0;i<arr.length;i++) a.push(arr[i]);
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+function openInVSCode(q) {
+  const code = q.answer || q.hint || '// 请在此编写代码';
+  const blob = new Blob([code], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Day'+DAY_NUM+'_'+q.id+'.c';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  const info = document.createElement('div');
+  info.className = 'vscode-info';
+ Open File → 选择下载的 '+a.download+'</code><br>或按快捷键 <code>Ctrl+O</code>';
+  const container = document.getElementById('quizContainer');
+  const oldInfo = container.querySelector('.vscode-info');
+  if (oldInfo) oldInfo.remove();
+  container.querySelector('.question-card').appendChild(info);
+}
+
+function startQuiz(mode){
+  clearProgress();
+  currentMode = mode;
+  currentQIndex = 0;
+  answers = {};
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('reviewArea').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+  if(mode==='coding'){
+    currentQuestions = [];
+    for(let i=0;i<codingQuestions.length;i++) currentQuestions.push(codingQuestions[i]);
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      switchMode('normal');
+      return;
+    }
+    currentQuestions = bank.map(function(w){return Object.assign({},w,{isWrongRedo:true})});
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，先去做题吧！');
+      switchMode('normal');
+      return;
+    }
+    const weakKps = [];
+    const seen={};
+    for(let i=0;i<bank.length;i++){if(!seen[bank[i].kp]){weakKps.push(bank[i].kp);seen[bank[i].kp]=true;}}
+    let pool = allQuestions.filter(function(q){return weakKps.indexOf(q.kp)>=0 && !bank.find(function(w){return w.id===q.id})});
+    if(pool.length<5) pool = allQuestions.filter(function(q){return !bank.find(function(w){return w.id===q.id})});
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  } else {
+    currentQuestions = [];
+    for(let i=0;i<allQuestions.length;i++) currentQuestions.push(allQuestions[i]);
+  }
+
+  if(currentQuestions.length===0){
+    alert('没有题目！');
+    return;
+  }
+  renderQuestion();
+}
+
+function switchMode(mode){
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+    currentMode='review';
+    renderReview();
+    return;
+  }
+  startQuiz(mode);
+}
+
+function renderQuestion(){
+  saveProgress();
+  const q = currentQuestions[currentQIndex];
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = '第 '+(currentQIndex+1)+' / '+total+' 题';
+
+  let html = '<div class="question-card">';
+  html += '<span class="question-num">第 '+(currentQIndex+1)+' 题</span>';
+  html += '<span class="question-tag">'+q.kp+'</span>';
+  if(q.type==='coding'){
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+    html += '<span class="difficulty-tag '+(diffMap[q.difficulty]||'')+'">'+q.difficulty+'</span>';
+  }
+  if(q.type==='coding'){
+    html += '<div class="question-text"><strong>'+q.title+'</strong></div>';
+    html += '<div class="question-desc">'+q.desc.replace(/\n/g,'<br>')+'</div>';
+    html += '<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>';
+    html += '<div class="btn-group">';
+    html += '<button class="btn btn-vscode" onclick="openInVSCode(currentQuestions[currentQIndex])">📂 在VSCode中打开</button>';
+    html += '<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>';
+    html += '<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>';
+    html += '</div>';
+    html += '<div class="hint-box" id="hintBox">💡 '+q.hint+'</div>';
+    html += '<div class="test-result" id="testResult"></div>';
+    html += '<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>'+q.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre></div>';
+  } else {
+    html += '<div class="question-text">'+q.text+'</div>';
+    if(q.type==='single' || q.type==='judge'){
+      html += '<div class="options">';
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      q.options.forEach(function(opt,i){
+        const sel = answers[q.id]===labels[i]?'selected':'';
+        html += '<div class="option '+sel+'" onclick="selectOption(\''+labels[i]+'\', event)"><span class="option-label">'+labels[i]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    } else if(q.type==='fill'){
+      html += '<div class="question-text">'+q.text+'</div>';
+    }
+  }
+  html += '<div class="explanation" id="expl"><div class="explanation-title">📖 解析</div>'+(q.expl||'')+'</div>';
+  html += '<div class="btn-group">';
+  if(currentQIndex>0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if(q.type==='coding'){
+</button>';
+  } else {
+    html += '<button class="btn btn-primary" onclick="submitQ(event)">提交答案</button>';
+</button>';
+    else html += '<button class="btn btn-secondary" onclick="finishQuiz()" id="finishBtn" style="display:none">🏁 完成答题</button>';
+  }
+  html += '</div></div>';
+  document.getElementById('quizContainer').innerHTML = html;
+}
+
+function selectOption(label, e){
+  const q = currentQuestions[currentQIndex];
+  answers[q.id] = label;
+  document.querySelectorAll('.option').forEach(function(o){o.classList.remove('selected')});
+  e.currentTarget.classList.add('selected');
+}
+
+function showHint(){
+  document.getElementById('hintBox').classList.toggle('show');
+}
+function showAnswerCoding(){
+  document.getElementById('answerDisplay').classList.toggle('show');
+}
+
+function submitQ(e){
+  const q = currentQuestions[currentQIndex];
+  let userAns = answers[q.id];
+  let isCorrect = false;
+
+  if(q.type==='fill'){
+    const inputs = document.querySelectorAll('.fill-blank');
+    userAns = Array.from(inputs).map(function(i){return i.value.trim()});
+    isCorrect = q.correct.every(function(c,i){return userAns[i] && userAns[i].toLowerCase()===c.toLowerCase()});
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+  } else {
+    if(!userAns){
+      alert('请先选择一个答案！');
+      return;
+    }
+    isCorrect = userAns===q.correct;
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+  }
+
+  if(q.type==='single' || q.type==='judge'){
+    document.querySelectorAll('.option').forEach(function(o,i){
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      if(labels[i]===q.correct) o.classList.add('correct');
+      else if(labels[i]===userAns) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+    });
+  } else if(q.type==='fill'){
+    document.querySelectorAll('.fill-blank').forEach(function(inp,i){
+      inp.disabled = true;
+      if(inp.value.trim().toLowerCase()===q.correct[i].toLowerCase()){
+        inp.style.background='#d4edda';inp.style.borderColor='#27ae60';
+      } else {
+        inp.style.background='#f8d7da';inp.style.borderColor='#e74c3c';
+        inp.title = '正确答案: '+q.correct[i];
+      }
+    });
+  }
+
+  document.getElementById('expl').classList.add('show');
+  const nb = document.getElementById('nextBtn');
+  const fb = document.getElementById('finishBtn');
+  if(nb) nb.removeAttribute('style');
+  if(fb) fb.removeAttribute('style');
+  e.currentTarget.style.display='none';
+  saveProgress();
+}
+
+function prevQ(){
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+}
+function nextQ(){
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+  else finishQuiz();
+}
+
+function finishQuiz(){
+  saveProgress();
+  let correct=0, wrongList=[];
+  currentQuestions.forEach(function(q){
+    if(q.type==='coding') return;
+    const ua = answers[q.id];
+    let ok=false;
+    if(q.type==='fill'){
+      const ual = (ua||[]);
+      ok = Array.isArray(ual) && q.correct.every(function(c,i){return ual[i] && ual[i].toLowerCase()===c.toLowerCase()});
+    } else { ok = ua===q.correct; }
+    if(ok) correct++; else wrongList.push({q:q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+  });
+
+  const total = currentQuestions.filter(function(q){return q.type!=='coding'}).length;
+  const wrong = total - correct;
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+  document.getElementById('quizArea').style.display='none';
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('score').textContent = score;
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(wrongList.length>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    let html='';
+    wrongList.forEach(function(w){
+      html += '<div class="wrong-item"><div class="wq">'+w.q.kp+': '+w.q.text.substring(0,50)+'...</div><div class="wa">你的答案: '+w.userAns+'</div><div class="wc">正确答案: '+(w.q.correctText||w.q.correct)+'</div></div>';
+    });
+    document.getElementById('wrongPreviewList').innerHTML = html;
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+  clearProgress();
+}
+
+function renderReview(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  switchReviewTab('list');
+}
+
+function switchReviewTab(tab){
+  document.querySelectorAll('.review-tab').forEach(function(t){t.classList.remove('active')});
+  if(event&&event.target) event.target.classList.add('active');
+  else document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+  if(tab==='list') renderWrongList();
+  else renderKnowledgeReview();
+}
+
+function renderWrongList(){
+  const bank = getWrongBank();
+  const el = document.getElementById('wrongBankList');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+  let html='';
+  bank.sort(function(a,b){return b.time-a.time}).forEach(function(w,i){
+    html += '<div class="kp-section" style="border-left-color:#e74c3c">';
+    html += '<div class="kp-header"><div class="kp-title">'+(i+1)+'. '+w.kp+'</div>';
+    html += '<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong('+w.id+')">删除</button></div>';
+    html += '<div class="kp-content">'+w.text+'</div>';
+    if(w.options){
+      html += '<div class="options" style="margin-top:8px">';
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+      w.options.forEach(function(opt,j){
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+        html += '<div class="option '+cls+'" style="cursor:default;pointer-events:none"><span class="option-label">'+labels[j]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div class="explanation show"><div class="explanation-title">📖 解析</div>'+(w.expl||'')+'</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function removeWrong(id){
+  if(!confirm('确定删除这道错题吗？')) return;
+  const bank = getWrongBank().filter(function(w){return w.id!==id});
+  saveWrongBank(bank);
+  renderReview();
+}
+
+function clearWrongBank(){
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+  saveWrongBank([]);
+  renderReview();
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const el = document.getElementById('knowledgeReview');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  const kpCount = {};
+  bank.forEach(function(w){kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+  const sorted = Object.keys(kpCount).map(function(k){return [k,kpCount[k]]}).sort(function(a,b){return b[1]-a[1]});
+
+  let html = '<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 '+sorted.length+' 个薄弱知识点</p>';
+  sorted.forEach(function(entry){
+    const kp=entry[0],count=entry[1];
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+    const related = bank.filter(function(w){return w.kp===kp});
+    html += '<div class="kp-section">';
+    html += '<div class="kp-header"><div class="kp-title">'+info.title+'</div><span class="kp-badge">错 '+count+' 次</span></div>';
+    html += '<div class="kp-content">'+info.content+'</div>';
+    html += '<div class="kp-wrong-list">相关错题：<br>';
+    related.forEach(function(r){
+      html += '• '+r.text.substring(0,60)+(r.text.length>60?'...':'')+'<br>';
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+window.addEventListener('beforeunload', saveProgress);
+
+(function(){
+  const p = loadProgress();
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+      currentMode = p.mode;
+      currentQIndex = p.index;
+      answers = p.answers || {};
+      let pool;
+      if(p.mode==='coding') pool = codingQuestions;
+      else pool = allQuestions;
+      currentQuestions = p.ids.map(function(id){return pool.find(function(q){return q.id===id})}).filter(Boolean);
+      if(currentQuestions.length>0){
+        document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+        const tm = {normal:0,coding:1,wrongredo:2};
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+        renderQuestion();
+        return;
+      }
+    }
+    clearProgress();
+  }
+  startQuiz('normal');
+})();
+</script>
+</body>
+</html>
