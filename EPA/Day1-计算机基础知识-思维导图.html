@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Day1 计算机基础知识 - 思维导图</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+#wrap{width:100%;height:100%;cursor:grab;overflow:hidden}
+#wrap.dragging{cursor:grabbing}
+#stage{position:relative;width:100%;height:100%;transform-origin:center center}
+svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.node{position:absolute;padding:8px 14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;user-select:none;transition:transform .15s,box-shadow .15s;white-space:nowrap;font-size:13px;font-weight:500;line-height:1.4}
+.node:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.node.root{background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;font-size:16px;font-weight:700;padding:12px 22px;border-radius:14px}
+.node.trunk{color:#fff;font-size:14px;font-weight:600}
+.node.branch{background:#fff;color:#2c3e50;border:2px solid #e1e8ed;font-size:12px}
+.node.leaf{background:#f8f9fa;color:#7f8c8d;border:1px solid #e1e8ed;font-size:11px}
+.node .toggle{display:inline-block;width:16px;height:16px;line-height:14px;text-align:center;border-radius:50%;background:#ecf0f1;color:#2c3e50;font-size:12px;margin-right:4px;font-weight:700}
+.node.root .toggle{background:rgba(255,255,255,.2);color:#fff}
+.toolbar{position:fixed;top:15px;left:15px;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-radius:14px;padding:12px 18px;box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toolbar h2{font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+.toolbar button{padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500}
+.toolbar button:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+.toolbar .info{font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+.toolbar .legend{font-size:11px;color:#7f8c8d;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day1 计算机基础知识 - 思维导图</h2>
+  <button onclick="zi()">放大 +</button>
+  <button onclick="zo()">缩小 -</button>
+  <button onclick="fs()">适应屏幕</button>
+  <span class="info">主干 4 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动 · 点击节点折叠</span>
+</div>
+<div id="wrap"><div id="stage"></div></div>
+<script>
+var TREE={"text":"Day1 计算机基础知识","children":[{"text":"计算机系统概述","children":[{"text":"层次结构","children":[{"text":"硬件+OS+APP","children":[]},{"text":"操作系统：管家","children":[]},{"text":"应用软件：工具","children":[]}]},{"text":"五大组成部件","children":[{"text":"输入设备","children":[]},{"text":"输出设备","children":[]},{"text":"存储器","children":[]},{"text":"运算器","children":[]},{"text":"控制器","children":[]}]},{"text":"CPU的结构","children":[{"text":"运算器=干活","children":[]},{"text":"控制器=指挥","children":[]},{"text":"现代CPU：多核","children":[]}]}]},{"text":"数据在计算机中的表示","children":[{"text":"为什么用二进制","children":[{"text":"硬件易实现","children":[]},{"text":"运算规则简单","children":[]},{"text":"可靠性高","children":[]}]}]},{"text":"什么是程序","children":[{"text":"程序的定义","children":[{"text":"有序指令集合","children":[]},{"text":"存外存，运行入内存","children":[]}]}]},{"text":"编程语言的发展","children":[{"text":"三个发展阶段","children":[{"text":"机器语言：0/1","children":[]},{"text":"汇编语言：助记符","children":[]},{"text":"高级语言：近自然","children":[]}]},{"text":"为什么要学C语言","children":[{"text":"高级+底层","children":[]},{"text":"操作系统用C写","children":[]},{"text":"直接操作硬件","children":[]}]},{"text":"发展趋势","children":[{"text":"微型化","children":[]},{"text":"巨型化","children":[]}]}]}]};
+var COLORS=['#FF9F43','#2E86DE','#10AC84','#EE5253','#6C5CE7','#FDCB6E','#0984E3','#E17055'];
+var scale=1,tx=0,ty=0,isDragging=false,startX=0,startY=0,startTx=0,startTy=0,collapsed={};
+var stage=document.getElementById('stage'),wrap=document.getElementById('wrap');
+var svgNS='http://www.w3.org/2000/svg',svg;
+function drawLine(x1,y1,x2,y2,color,width){if(!svg){svg=document.createElementNS(svgNS,'svg');svg.setAttribute('width','10000');svg.setAttribute('height','10000');svg.style.transform='translate(-5000px,-5000px)';stage.insertBefore(svg,stage.firstChild);}var path=document.createElementNS(svgNS,'path');var mx=(x1+x2)/2;var d='M'+x1+','+y1+' C'+mx+','+y1+' '+mx+','+y2+' '+x2+','+y2;path.setAttribute('d',d);path.setAttribute('stroke',color);path.setAttribute('stroke-width',width);path.setAttribute('fill','none');path.setAttribute('stroke-linecap','round');svg.appendChild(path);}
+function estimateHeight(node,depth){if(!node.children||node.children.length===0)return 36;if(collapsed[node._key])return 36;var h=0;for(var i=0;i<node.children.length;i++)h+=estimateHeight(node.children[i],depth+1);return Math.max(40,h+12*(node.children.length-1));}
+function layout(node,x,y,direction,depth,parentKey,colorIdx){var key=parentKey+'/'+node.text;node._key=key;var isCollapsed=collapsed[key],isRoot=depth===0,isTrunk=depth===1;var el=document.createElement('div');el.className='node '+(isRoot?'root':isTrunk?'trunk':node.children.length>0?'branch':'leaf');if(isTrunk)el.style.background=COLORS[colorIdx%COLORS.length];if(!isRoot&&!isTrunk)el.style.borderColor=COLORS[colorIdx%COLORS.length];var toggleHtml='';if(node.children.length>0)toggleHtml='<span class="toggle">'+(isCollapsed?'+':'-')+'</span>';el.innerHTML=toggleHtml+node.text;el.style.left=x+'px';el.style.top=y+'px';el.dataset.key=key;if(node.children.length>0){(function(k){el.addEventListener('click',function(e){e.stopPropagation();collapsed[k]=!collapsed[k];render();});})(key);}stage.appendChild(el);if(parentKey&&!isCollapsed){var parentEl=stage.querySelector('[data-key="'+parentKey+'"]');if(parentEl){var pw=parentEl.offsetWidth,ph=parentEl.offsetHeight;var px=parseFloat(parentEl.style.left)+pw;var py=parseFloat(parentEl.style.top)+ph/2;var cw=el.offsetWidth,ch=el.offsetHeight;var cx=parseFloat(el.style.left);var cy=parseFloat(el.style.top)+ch/2;drawLine(px,py,cx,cy,isTrunk?COLORS[colorIdx%COLORS.length]:'#bdc3c7',isTrunk?3:1.5);}}if(node.children.length>0&&!isCollapsed){var totalH=0,childHeights=[];for(var i=0;i<node.children.length;i++){var chh=estimateHeight(node.children[i],depth+1);childHeights.push(chh);totalH+=chh;}var gap=12;totalH+=gap*(node.children.length-1);var startY=y-totalH/2,curY=startY,hGap=isRoot?260:200;for(var i=0;i<node.children.length;i++){var childX=x+hGap;var childY=curY+childHeights[i]/2;layout(node.children[i],childX,childY,1,depth+1,key,colorIdx);curY+=childHeights[i]+gap;}}}
+function render(){while(stage.firstChild)stage.removeChild(stage.firstChild);svg=null;var w=window.innerWidth,h=window.innerHeight;layout(TREE,w/2-80,h/2,1,0,'',0);applyTransform();}
+function applyTransform(){stage.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';}
+function zi(){scale*=1.2;applyTransform();}function zo(){scale/=1.2;applyTransform();}function fs(){scale=1;tx=0;ty=0;applyTransform();}
+wrap.addEventListener('mousedown',function(e){if(e.target.closest('.node'))return;isDragging=true;wrap.classList.add('dragging');startX=e.clientX;startY=e.clientY;startTx=tx;startTy=ty;});
+window.addEventListener('mousemove',function(e){if(!isDragging)return;tx=startTx+(e.clientX-startX);ty=startTy+(e.clientY-startY);applyTransform();});
+window.addEventListener('mouseup',function(){isDragging=false;wrap.classList.remove('dragging');});
+wrap.addEventListener('wheel',function(e){e.preventDefault();var delta=e.deltaY>0?0.9:1.1;scale*=delta;applyTransform();},{passive:false});
+window.addEventListener('resize',render);
+render();
+</script>
+</body>
+</html>
