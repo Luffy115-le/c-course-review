@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day15 循环辅助语句break continue - 知识卡片</title>
+
+<style>
+
+{margin:0;padding:0;box-sizing:border-box}
+
+body{font-family:'Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
+
+.container{max-width:1200px;margin:0 auto}
+
+.header{text-align:center;color:white;margin-bottom:30px}
+
+.header h1{font-size:28px;margin-bottom:8px}
+
+.header p{opacity:.9;font-size:14px}
+
+.filter-bar{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+
+.filter-btn{padding:8px 16px;border:none;border-radius:20px;background:rgba(255,255,255,.2);color:white;cursor:pointer;transition:.3s;font-size:13px}
+
+.filter-btn:hover,.filter-btn.active{background:white;color:#764ba2}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px}
+
+.card{background:white;border-radius:12px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:.3s;cursor:pointer}
+
+.card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.15)}
+
+.card.break{border-left:4px solid #3498db}
+
+.card.break .card-tag{background:#3498db}
+
+.card.continue{border-left:4px solid #7f8c8d}
+
+.card.continue .card-tag{background:#7f8c8d}
+
+.card.reverse{border-left:4px solid #7f8c8d}
+
+.card.reverse .card-tag{background:#7f8c8d}
+
+.card.sort{border-left:4px solid #7f8c8d}
+
+.card.sort .card-tag{background:#7f8c8d}
+
+.card.compare{border-left:4px solid #7f8c8d}
+
+.card.compare .card-tag{background:#7f8c8d}
+
+.card.error{border-left:4px solid #34495e}
+
+.card.error .card-tag{background:#34495e}
+
+
+
+.card-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;color:white;margin-bottom:10px}
+
+.card-key{font-size:18px;font-weight:bold;color:#2c3e50;margin-bottom:8px;font-family:'Consolas',monospace;background:#f8f9fa;padding:8px 12px;border-radius:6px;display:inline-block}
+
+.card-name{font-size:14px;color:#7f8c8d;margin-bottom:10px}
+
+.card-desc{font-size:13px;color:#34495e;line-height:1.6}
+
+.card-memo{font-size:12px;color:#e74c3c;margin-top:10px;padding-top:10px;border-top:1px dashed #eee;font-style:italic}
+
+.stats{position:fixed;bottom:20px;right:20px;background:white;padding:15px 20px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.2);font-size:13px}
+
+.stats .stat-item{display:flex;align-items:center;gap:8px;margin:5px 0}
+
+.stats .dot{width:10px;height:10px;border-radius:50%}
+
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr}}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>🎴 Day15 循环辅助语句break continue 知识卡片</h1>
+
+<p>共 18 张知识卡片，支持分类筛选</p>
+
+</div>
+
+<div class="filter-bar">
+
+<button class="filter-btn active" onclick="filter('all')">全部</button>
+
+<button class="filter-btn" onclick="filter('break')">break作用</button>
+
+<button class="filter-btn" onclick="filter('continue')">continue</button>
+
+<button class="filter-btn" onclick="filter('reverse')">reverse</button>
+
+<button class="filter-btn" onclick="filter('sort')">sort</button>
+
+<button class="filter-btn" onclick="filter('compare')">compare</button>
+
+<button class="filter-btn" onclick="filter('error')">常见错误</button>
+
+
+
+</div>
+
+<div class="cards-grid" id="cards">
+
+
+
+<div class="card break" data-cat="break">
+
+<div class="card-tag">break作用 · 必考</div>
+
+<div class="card-key">break;</div>
+
+<div class="card-name">break基本语法</div>
+
+<div class="card-desc">立即终止当前所在的循环，跳出循环体，继续执行循环后面的语句。只能跳出它所在的那一层循环。</div>
+
+<div class="card-memo">💡 break = "不干了，跳出整个循环"</div>
+
+</div>
+
+
+
+<div class="card break" data-cat="break">
+
+<div class="card-tag">break作用 · 必考</div>
+
+<div class="card-key">break跳出一层</div>
+
+<div class="card-name">break只跳出一层</div>
+
+<div class="card-desc">在嵌套循环中，break 只能跳出它所在的那一层内层循环，不会影响外层循环。要跳出多层需要用goto或flag。</div>
+
+<div class="card-memo">⚠️ break不是"全跳出"，只跳一层！</div>
+
+</div>
+
+
+
+<div class="card break" data-cat="break">
+
+<div class="card-tag">break作用 · 重点</div>
+
+<div class="card-key">break死循环</div>
+
+<div class="card-name">用break退出死循环</div>
+
+<div class="card-desc">while(1) { ... if(条件) break; }。死循环必须有break或return才能退出。常用于菜单系统、服务器程序。</div>
+
+<div class="card-memo">💡 while(1)+break是最常见的死循环退出方式</div>
+
+</div>
+
+
+
+<div class="card break" data-cat="break">
+
+<div class="card-tag">break作用 · 必考</div>
+
+<div class="card-key">break素数</div>
+
+<div class="card-name">break优化素数判断</div>
+
+<div class="card-desc">判断素数时，只要发现一个因子就用break提前结束，不用继续除到n-1。大大提高效率。</div>
+
+<div class="card-memo">💡 有因子就break，没有就是素数</div>
+
+</div>
+
+
+
+<div class="card continue" data-cat="continue">
+
+<div class="card-tag">continue · 必考</div>
+
+<div class="card-key">continue;</div>
+
+<div class="card-name">continue基本语法</div>
+
+<div class="card-desc">跳过本次循环中剩余的语句，直接进入下一次循环。回到循环条件判断处。</div>
+
+<div class="card-memo">💡 continue = "这次算了，下次继续"</div>
+
+</div>
+
+
+
+<div class="card continue" data-cat="continue">
+
+<div class="card-tag">continue · 必考</div>
+
+<div class="card-key">break vs continue</div>
+
+<div class="card-name">break和continue对比</div>
+
+ 跳出整个循环，循环结束。continue → 跳过本次循环，继续下一次。break是"不干了"，continue是"这次跳过"。</div>
+
+<div class="card-memo">💡 口诀：break跳出，continue跳过</div>
+
+</div>
+
+
+
+<div class="card continue" data-cat="continue">
+
+<div class="card-tag">continue · 重点</div>
+
+<div class="card-key">continue输入</div>
+
+<div class="card-name">continue处理非法输入</div>
+
+<div class="card-desc">while(1){scanf("%d",&n); if(输入非法){getchar(); continue;} ...}。用continue跳过非法输入，重新提示。</div>
+
+ continue → 重新输入</div>
+
+</div>
+
+
+
+<div class="card continue" data-cat="continue">
+
+<div class="card-tag">continue · 重点</div>
+
+<div class="card-key">continue简化</div>
+
+<div class="card-name">continue简化逻辑</div>
+
+<div class="card-desc">先排除异常情况(continue)，再处理正常逻辑。可以减少嵌套层次，代码更清晰。</div>
+
+<div class="card-memo">💡 先排除，后处理，层次浅</div>
+
+</div>
+
+
+
+<div class="card reverse" data-cat="reverse">
+
+<div class="card-tag">reverse · 必考</div>
+
+<div class="card-key">逆序输出</div>
+
+<div class="card-name">数组逆序方法一</div>
+
+<div class="card-desc">for(i=n-1; i>=0; i--) printf("%d ", a[i]);。只是输出顺序改变，数组内容本身没有变。最简单的方法。</div>
+
+<div class="card-memo">💡 倒着打印，数组内容不变</div>
+
+</div>
+
+
+
+<div class="card reverse" data-cat="reverse">
+
+<div class="card-tag">reverse · 重点</div>
+
+<div class="card-key">逆序存储</div>
+
+<div class="card-name">数组逆序方法二</div>
+
+<div class="card-desc">输入时从后往前存：for(i=n-1;i>=0;i--) scanf("%d",&a[i]);。输出时从前往后就是逆序。</div>
+
+<div class="card-memo">💡 倒着存，正着取</div>
+
+</div>
+
+
+
+<div class="card reverse" data-cat="reverse">
+
+<div class="card-tag">reverse · 必考</div>
+
+<div class="card-key">首尾交换</div>
+
+<div class="card-name">数组逆序方法三（推荐）</div>
+
+<div class="card-desc">for(i=0; i<n/2; i++){ t=a[i]; a[i]=a[n-1-i]; a[n-1-i]=t; }。只需要交换n/2次，原地逆序，不需要额外空间。</div>
+
+<div class="card-memo">💡 首尾交换，n/2次搞定，效率最高</div>
+
+</div>
+
+
+
+<div class="card sort" data-cat="sort">
+
+<div class="card-tag">sort · 必考</div>
+
+<div class="card-key">冒泡排序</div>
+
+<div class="card-name">冒泡排序基本思想</div>
+
+<div class="card-desc">重复遍历数列，一次比较两个相邻元素，如果顺序错误就交换。大的数像气泡一样"冒"到后面。</div>
+
+<div class="card-memo">💡 大的数往上冒</div>
+
+</div>
+
+
+
+<div class="card sort" data-cat="sort">
+
+<div class="card-tag">sort · 必考</div>
+
+<div class="card-key">冒泡代码</div>
+
+<div class="card-name">冒泡排序代码</div>
+
+<div class="card-desc">外层for(i=0;i<n-1;i++)控制轮数，内层for(j=0;j<n-1-i;j++)控制每轮比较次数，if(a[j]>a[j+1])交换。</div>
+
+<div class="card-memo">💡 n个数排n-1轮，每轮少比i次</div>
+
+</div>
+
+
+
+<div class="card sort" data-cat="sort">
+
+<div class="card-tag">sort · 重点</div>
+
+<div class="card-key">冒泡优化</div>
+
+<div class="card-name">优化版冒泡排序</div>
+
+<div class="card-desc">用flag标记每轮是否发生交换。如果一轮没有任何交换，说明已经有序，用break直接跳出。接近有序的数组效率提升明显。</div>
+
+<div class="card-memo">💡 flag+break，没交换就提前结束</div>
+
+</div>
+
+
+
+<div class="card sort" data-cat="sort">
+
+<div class="card-tag">sort · 必考</div>
+
+<div class="card-key">冒泡过程</div>
+
+<div class="card-name">冒泡排序过程</div>
+
+<div class="card-desc">第1轮：最大的冒到最后；第2轮：次大的冒到倒数第二；... 第k轮：第k大的就位。共需要n-1轮。</div>
+
+<div class="card-memo">💡 每轮确定一个数的最终位置</div>
+
+</div>
+
+
+
+<div class="card compare" data-cat="compare">
+
+<div class="card-tag">compare · 必考</div>
+
+<div class="card-key">三种控制语句</div>
+
+<div class="card-name">循环控制语句总结</div>
+
+跳出整个循环；continue→跳过本次；goto→跳任意位置(慎用)。break和continue是循环的好帮手。</div>
+
+<div class="card-memo">💡 break不干了，continue下次干</div>
+
+</div>
+
+
+
+<div class="card compare" data-cat="compare">
+
+<div class="card-tag">compare · 重点</div>
+
+<div class="card-key">编程技巧</div>
+
+<div class="card-name">break/continue编程技巧</div>
+
+<div class="card-desc">① break提高效率：找到就停 ② flag+break：跳多层循环 ③ continue简化逻辑：先排除异常，减少嵌套</div>
+
+<div class="card-memo">💡 用好break和continue，代码更高效清晰</div>
+
+</div>
+
+
+
+<div class="card error" data-cat="error">
+
+<div class="card-tag">常见错误 · 必考</div>
+
+<div class="card-key">常见错误</div>
+
+<div class="card-name">Day15六大易错点</div>
+
+<div class="card-desc">① break和continue搞混 ② 以为break能跳出多层循环 ③ while中continue跳过了i++导致死循环 ④ 冒泡排序忘记边界n-1-i ⑤ 逆序交换次数写成n而不是n/2 ⑥ 优化冒泡忘记重置flag</div>
+
+<div class="card-memo">⚠️ while中continue要确保循环变量已更新！</div>
+
+</div>
+
+
+
+</div>
+
+<div class="stats">
+
+<div class="stat-item"><div class="dot" style="background:#3498db"></div>break作用 4</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>continue 4</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>reverse 3</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>sort 4</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>compare 2</div>
+
+<div class="stat-item"><div class="dot" style="background:#34495e"></div>常见错误 1</div>
+
+<div style="border-top:1px solid #eee;margin-top:8px;padding-top:8px;font-weight:bold">总计：18 张</div>
+
+</div>
+
+</div>
+
+<script>
+
+function filter(cat){
+
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+
+    event.target.classList.add('active');
+
+    document.querySelectorAll('.card').forEach(c=>{
+
+        c.style.display = (cat==='all' || c.dataset.cat===cat) ? 'block' : 'none';
+
+    });
+
+}
+
+</script>
+
+</body>
+
+</html>
