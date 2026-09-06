@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day30 #define 和 typedef - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day30 #define 和 typedef - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day30 #define 和 typedef
+
+## #define宏定义
+### 基本用法
+#### #define 宏名 替换文本
+#### 预处理阶段文本替换(宏展开)
+#### 无类型不占内存不可调试
+#### 作用域从定义到文件尾或#undef
+### 括号陷阱
+ Q*2=3+2*2=7❌
+ M*2=(3+2)*2=10✅
+#### 带运算的宏必须加括号
+### 没有值的宏
+#### #define _DEBUG_只定义宏名
+#### 配合#ifdef/#ifndef做条件编译开关
+#### 预定义宏__FUNCTION__/__FILE__/__LINE__
+### #undef
+#### 取消之前#define的定义
+#### 取消后可重新#define赋新值
+#### 限制宏作用域
+### #define vs const
+#### 预处理文本替换 vs 编译阶段
+#### 无类型 vs 有类型
+#### 不占内存 vs 占内存
+#### 不可调试 vs 可调试
+
+## 宏函数
+### 无参宏函数
+#### #define debug printf("welcome\\n")
+#### debug;展开为printf("welcome\\n");
+#### 给语句起别名
+### 带参宏函数
+#### #define debug(s) printf("%s\\n",s)
+#### 参数不写类型
+#### debug("hello")展开为printf("%s\\n","hello")
+#### 本质文本替换
+### 括号陷阱SQUARE
+n+2*n+2=11❌
+(n+2)*(n+2)=25✅
+#### 每个参数必须加括号
+### 宏函数嵌套
+#### #define S(r) PI*(r)*(r)引用另一个宏PI
+#### 先展开S(a+b)再展开PI
+#### 3.14*(a+b)*(a+b)
+### 最安全写法MAX
+#### #define MAX(a,b) ((a)>(b)?(a):(b))
+#### 每个参数加括号+整体加括号=双保险
+#### 宏函数vs函数(无类型检查/可能多次求值/不可调试)
+
+## typedef用法
+### 基本用法
+#### typedef 原类型 新类型名;
+#### 给已有类型起别名
+#### 需要分号结尾
+#### 是真正的类型定义不是文本替换
+### 类型别名
+#### typedef unsigned char uchar
+#### typedef unsigned char\* puchar
+#### puchar p,q两个都是指针✅
+### 简化复杂类型
+#### typedef int (\*P)[3]数组指针别名
+#### P p等价int(\*p)[3]
+#### 把复杂类型简化为一个名字
+#### 读法:变量名换类型名加typedef
+
+## 综合应用
+### 水分子计算
+#### #define M 3.0e-23水分子质量
+#### #define K 950一克水滴数
+#### n滴水分子数=n*K/M
+#### %e科学计数法输出
+### 条件编译应用
+#### #ifdef _DEBUG_调试代码
+#### 发布版注释掉#define _DEBUG_即可关闭调试
+#### 跨平台编译
+
+## 易错点
+### 8大坑
+#### 宏定义不加括号(Q*2=7)
+#### 宏函数参数不加括号(SQUARE)
+#### #define定义指针类型(q不是指针)
+#### #define末尾加分号
+#### 宏函数参数多次求值(MAX(i++,j))
+#### #undef忘记
+#### typedef末尾忘分号
+#### 混淆#define和typedef
+
+## #define vs typedef对比
+### 本质区别
+#### #define预处理文本替换
+#### typedef编译阶段类型定义
+#### #define不需要分号typedef需要
+#### #define不遵守作用域typedef遵守
+### 多变量声明
+#### typedef puchar p,q两个都是指针✅
+#### #define puchar p,q中q不是指针❌
+#### 这是最关键区别
+### 适用场景
+#### 简单常量用#define(如N 10)
+#### 指针等复杂类型用typedef
+#### 调试用const可调试
+#### 条件编译用#define
+### 口诀
+#### #define是替换typedef是定义
+#### 括号救命(参数+整体)
+#### 指针类型用typedef
+#### 常量优先用const`;
+      const { root } = transformer.transform(md);
+
+      const branchColors = [
+        '#FF9F43',
+        '#2E86DE',
+        '#6C5CE7',
+        '#10AC84',
+        '#EE5253',
+        '#FDCB6E'
+      ];
+      if (root.children) {
+        root.children.forEach(function(child, i) {
+          if (i < branchColors.length) {
+            child.payload = child.payload || {};
+            child.payload.color = branchColors[i];
+            child.payload.freeze = true;
+          }
+        });
+      }
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
