@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day30 #define 和 typedef · 知识卡片</title>
+<style>
+  :root {
+    --bg: #f0f3f8;
+    --card-bg: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.14);
+    --radius: 14px;
+    --concept: #FF9F43;
+    --syntax: #2E86DE;
+    --error: #EE5253;
+    --pointer: #6C5CE7;
+    --application: #10AC84;
+    --summary: #FDCB6E;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px; }
+  .header .badge { font-size: 0.8rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+  .main-layout { display: flex; gap: 24px; padding: 24px 40px; max-width: 1500px; margin: 0 auto; }
+  .content-area { flex: 1; min-width: 0; }
+  .filter-bar {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+  }
+  .filter-btn {
+    padding: 7px 18px; border-radius: 20px; border: 1.5px solid #dfe6e9;
+    background: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+    color: var(--text-secondary); transition: var(--transition);
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: #74b9ff; color: #0984e3; }
+  .filter-btn.active { background: #0984e3; color: #fff; border-color: #0984e3; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border-left: 5px solid #ccc;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    animation: fadeIn 0.4s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .card.hidden { display: none; }
+  .card .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .card .card-cat {
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; opacity: 0.8;
+  }
+  .card .card-level {
+    font-size: 0.7rem; font-weight: 700; padding: 2px 10px;
+    border-radius: 10px; background: #ffeaa7; color: #d63031;
+  }
+  .card .card-level.key { background: #fab1a0; color: #b71c1c; }
+  .card .card-level.important { background: #ffeaa7; color: #d63031; }
+  .card .card-name {
+    font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card .card-key {
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "Courier New", monospace;
+    font-size: 0.88rem; background: #f8f9fa; padding: 6px 10px;
+    border-radius: 6px; color: #2d3436; margin-bottom: 10px;
+    display: inline-block; word-break: break-all;
+  }
+  .card .card-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px; }
+  .card .card-memo {
+    font-size: 0.8rem; padding: 8px 12px; background: #fff9e6; border-radius: 8px;
+    border-left: 3px solid #f9ca24; color: #6d5c00; line-height: 1.5;
+  }
+  .card .card-memo.error-memo { background: #fff0f0; border-left-color: #e74c3c; color: #8b0000; }
+  .card .card-memo.pointer-memo { background: #f3efff; border-left-color: #6C5CE7; color: #3d2e8f; }
+  .side-panel {
+    width: 260px; flex-shrink: 0;
+    position: sticky; top: 100px; align-self: flex-start;
+  }
+  .panel-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .panel-card h3 { font-size: 0.95rem; margin-bottom: 14px; color: #2d3436; }
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .stat-num { font-weight: 700; }
+  .reset-btn {
+    width: 100%; padding: 10px; border: 1.5px solid #dfe6e9; border-radius: 10px;
+    background: #fff; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary);
+    transition: var(--transition); margin-top: 8px;
+  }
+  .reset-btn:hover { border-color: #0984e3; color: #0984e3; }
+  @media (max-width: 1100px) {
+    .main-layout { flex-direction: column; padding: 16px; }
+    .side-panel { width: 100%; position: static; display: flex; gap: 12px; flex-wrap: wrap; }
+    .side-panel .panel-card { flex: 1; min-width: 200px; margin-bottom: 0; }
+    .card-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    .header { padding: 20px; }
+    .header h1 { font-size: 1.2rem; }
+    .card-grid { grid-template-columns: 1fr; }
+    .side-panel .panel-card { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Day30 · #define 和 typedef - 知识卡片</h1>
+    <span class="badge">共 <span id="totalCount">16</span> 张卡片</span>
+  </div>
+</div>
+
+<div class="main-layout">
+  <div class="content-area">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">全部</button>
+      <button class="filter-btn" data-filter="concept" style="--c: #FF9F43">概念/规则</button>
+      <button class="filter-btn" data-filter="syntax" style="--c: #2E86DE">语法/代码</button>
+      <button class="filter-btn" data-filter="error" style="--c: #EE5253">易错/坑/禁忌</button>
+      <button class="filter-btn" data-filter="pointer" style="--c: #6C5CE7">指针专题</button>
+      <button class="filter-btn" data-filter="application" style="--c: #10AC84">应用/实战</button>
+      <button class="filter-btn" data-filter="summary" style="--c: #FDCB6E">总结/对比</button>
+    </div>
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+
+  <aside class="side-panel" id="sidePanel">
+    <div class="panel-card">
+      <h3>📊 分类统计</h3>
+      <div id="statsContainer"></div>
+      <button class="reset-btn" id="resetBtn">🔄 重置筛选</button>
+    </div>
+    <div class="panel-card">
+      <h3>🔑 考试等级</h3>
+      <div class="stat-row"><span><span class="stat-dot" style="background:#b71c1c"></span>必考</span><span class="stat-num" id="statKey">0</span></div>
+      <div class="stat-row"><span><span class="stat-dot" style="background:#d63031"></span>重点</span><span class="stat-num" id="statImportant">0</span></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const cardsData = [
+    {cat:'concept',level:'必考',key:'#define N 10',name:'宏定义基本用法',desc:'预处理指令，编译前由预处理器进行文本替换（宏展开）。格式：#define 宏名 替换文本。无类型，不分配内存，不可调试',memo:'💡 本质是文本替换！不是变量赋值'},
+ M*2=(3+2)*2=10'},
+    {cat:'concept',level:'必考',key:'#define _DEBUG_',name:'没有值的宏定义',desc:'后面没有值，只定义宏名。配合#ifdef/#ifndef做条件编译开关。#ifdef _DEBUG_ 如果定义了就编译中间代码',memo:'💡 用途：调试开关、跨平台编译'},
+    {cat:'syntax',level:'必考',key:'#ifdef _DEBUG_ ... #endif',name:'条件编译',desc:'#ifdef定义了才编译，#ifndef没定义才编译，#endif结束。还有预定义宏__FUNCTION__/__FILE__/__LINE__',memo:'💡 预定义宏用于调试信息输出'},
+    {cat:'syntax',level:'必考',key:'#undef N',name:'取消宏定义',desc:'取消之前的#define N定义，取消后可重新#define赋新值。宏作用域：从#define到#undef或文件末尾',memo:'💡 #undef限制宏作用域'},
+    {cat:'concept',level:'必考',key:'#define vs const',name:'宏定义与const对比',desc:'#define:预处理文本替换无类型不占内存不可调试。const:编译阶段有类型占内存可调试遵守作用域',memo:'💡 重要场景用const更安全'},
+    {cat:'application',level:'必考',key:'#define debug printf("welcome\\n")',name:'无参宏函数',desc:'宏名替换为一条完整语句。debug;展开为printf("welcome\\n");。本质还是文本替换',memo:'💡 无参宏=给语句起别名'},
+    {cat:'application',level:'必考',key:'#define debug(s) printf("%s\\n",s)',name:'带参宏函数',desc:'格式：#define 宏名(参数) 替换内容。参数不写类型。debug("hello")展开为printf("%s\\n","hello")',memo:'💡 参数原样代入，本质文本替换'},
+n+2*n+2=11❌。(n)*(n)版本：(n+2)*(n+2)=25✅。每个参数在替换体中必须加括号',memo:'📌 经典考题！n*n vs (n)*(n)'},
+PI*(a+b)*(a+b)，再展开PI→3.14*(a+b)*(a+b)',memo:'💡 宏可以嵌套引用其他宏'},
+    {cat:'application',level:'必考',key:'#define MAX(a,b) ((a)>(b)?(a):(b))',name:'最安全宏函数写法',desc:'每个参数加括号(a)(b)，整体也加括号((a)>(b)?(a):(b))。这样无论出现在什么运算环境都不会出错',memo:'💡 参数加括号+整体加括号=双保险'},
+    {cat:'concept',level:'必考',key:'typedef unsigned char uchar',name:'typedef基本用法',desc:'给已有类型起新名字（别名）。格式：typedef 原类型 新类型名; 需要分号结尾。是真正的类型定义，不是文本替换',memo:'💡 typedef需要分号！#define不需要'},
+ 两个都是指针✅。#define puchar unsigned char*; puchar p,q; → q不是指针❌',memo:'💡 typedef是类型定义，#define是文本替换'},
+    {cat:'pointer',level:'必考',key:'typedef int (*P)[3]',name:'typedef简化复杂类型',desc:'P是"指向含3个int的数组的指针"的别名。P p;等价于int(*p)[3]。把复杂类型简化为一个名字',memo:'💡 读法：把变量名换成类型名加typedef'},
+    {cat:'summary',level:'必考',key:'#define和typedef核心区别',name:'六大对比总结',desc:'本质:文本替换vs类型定义；分号:不需要vs需要；多变量:#define的q不是指针vs都是指针；复杂类型:#define不适合vstypedef适合；调试:不可vs可；作用域:不遵守vs遵守',memo:'📌 指针等复杂类型用typedef！'},
+    {cat:'application',level:'重点',key:'#define M 3.0e-23',name:'科学计数法宏与水分子计算',desc:'M=3.0e-23水分子质量，K=950一克水滴数。n滴水分子数=n*K/M。%e科学计数法输出。宏可定义科学计数法常量',memo:'💡 3.0e-23=3.0×10⁻²³'}
+];
+
+const catColors = {
+    concept: '#FF9F43',
+    syntax: '#2E86DE',
+    error: '#EE5253',
+    pointer: '#6C5CE7',
+    application: '#10AC84',
+    summary: '#FDCB6E'
+};
+
+const catNames = {
+    concept: '概念/规则',
+    syntax: '语法/代码',
+    error: '易错/坑/禁忌',
+    pointer: '指针专题',
+    application: '应用/实战',
+    summary: '总结/对比'
+};
+
+let currentFilter = 'all';
+
+function renderCards() {
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+    let visibleCount = 0;
+    cardsData.forEach((c, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.borderLeftColor = catColors[c.cat];
+        card.style.animationDelay = (i * 0.03) + 's';
+        card.dataset.cat = c.cat;
+        if (currentFilter !== 'all' && c.cat !== currentFilter) {
+            card.classList.add('hidden');
+        } else {
+            visibleCount++;
+        }
+
+        const levelClass = c.level === '必考' ? 'key' : 'important';
+        let memoClass = '';
+        if (c.cat === 'error') memoClass = 'error-memo';
+        else if (c.cat === 'pointer') memoClass = 'pointer-memo';
+
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="card-cat" style="color:${catColors[c.cat]}">${catNames[c.cat]}</span>
+                <span class="card-level ${levelClass}">${c.level}</span>
+            </div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-key">${c.key}</div>
+            <div class="card-desc">${c.desc}</div>
+            <div class="card-memo ${memoClass}">${c.memo}</div>
+        `;
+        grid.appendChild(card);
+    });
+    document.getElementById('totalCount').textContent = visibleCount;
+    updateStats();
+    updateLevelStats();
+}
+
+function updateStats() {
+    const container = document.getElementById('statsContainer');
+    const counts = {};
+    cardsData.forEach(c => {
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+            counts[c.cat] = (counts[c.cat] || 0) + 1;
+        }
+    });
+    let html = '';
+    for (const [cat, name] of Object.entries(catNames)) {
+        const n = counts[cat] || 0;
+        html += `<div class="stat-row"><span><span class="stat-dot" style="background:${catColors[cat]}"></span>${name}</span><span class="stat-num">${n}</span></div>`;
+    }
+    container.innerHTML = html;
+}
+
+function updateLevelStats() {
+    let keyCount = 0, impCount = 0;
+    cardsData.forEach(c => {
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+            if (c.level === '必考') keyCount++;
+            else impCount++;
+        }
+    });
+    document.getElementById('statKey').textContent = keyCount;
+    document.getElementById('statImportant').textContent = impCount;
+}
+
+document.getElementById('filterBar').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderCards();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+    renderCards();
+});
+
+renderCards();
+</script>
+
+</body>
+</html>
