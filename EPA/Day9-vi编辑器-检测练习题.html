@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day9 vi编辑器 - 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#4CAF50}
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#4CAF50;color:white}
+.btn-primary:hover{background:#45a049}
+.btn-secondary{background:#2196F3;color:white}
+.btn-secondary:hover{background:#1976D2}
+.btn-warn{background:#ff9800;color:white}
+.btn-warn:hover{background:#f57c00}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#4CAF50}
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day9 vi编辑器 - 检测练习题</h1>
+<p>支持错题重做、巩固练习、错题库持久化</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal', event)">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo', event)">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review', event)">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 15 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list', event)">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge', event)">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day9';
+
+const allQuestions = [
+  {id:1,type:'single',kp:'模式切换',text:'vi 编辑器中，从插入模式返回命令模式应该按什么键？',options:[':', 'Esc', 'Enter', 'Tab'],correct:'B',expl:'<strong>Esc</strong> 是从插入模式或底行模式返回命令模式的唯一方式。: 是进入底行模式。'},
+  {id:2,type:'single',kp:'插入模式',text:'在命令模式下，按哪个键可以在光标所在行下方新开一行并进入插入模式？',options:['i', 'a', 'o', 'O'],correct:'C',expl:'<strong>o</strong> = open below，在下方新开一行。O（大写）是在上方新开一行。'},
+  {id:3,type:'single',kp:'文件操作',text:'以下哪个命令可以保存文件并退出 vi？',options:[':q', ':q!', ':w', ':wq'],correct:'D',expl:'<strong>:wq</strong> = Write & Quit，保存并退出。:q 只是退出，:q! 强制退出不保存，:w 保存不退出。'},
+  {id:4,type:'single',kp:'删除命令',text:'vi 中删除光标所在一整行的命令是？',options:['x', 'dd', 'yy', 'p'],correct:'B',expl:'<strong>dd</strong> 删除一整行。x 删除一个字符，yy 复制一行，p 粘贴。vi的删除相当于剪切！'},
+  {id:5,type:'single',kp:'翻页命令',text:'在 vi 命令模式下，按哪个组合键可以向下翻页？',options:['Ctrl + b', 'Ctrl + f', 'Ctrl + u', 'Ctrl + d'],correct:'B',expl:'<strong>Ctrl+f</strong> = forward 向下翻页。Ctrl+b = back 向上翻页。注意和直觉相反！'},
+  {id:6,type:'single',kp:'复制命令',text:'vi 中复制光标所在一整行的命令是？',options:['cc', 'dd', 'yy', 'pp'],correct:'C',expl:'<strong>yy</strong> = yank 复制一整行。3yy = 复制3行。y0复制到行首，y$复制到行尾。'},
+  {id:7,type:'single',kp:'查找替换',text:'在底行模式下，执行哪个命令可以将文件中所有的 "hello" 替换为 "HELLO"？',options:[':s/hello/HELLO', ':%s/hello/HELLO/g', ':%s/hello/HELLO', ':g/hello/HELLO'],correct:'B',expl:'<strong>:%s/hello/HELLO/g</strong> 中 %=全文，s=substitute，g=global全局替换。不加g只替换每行第一个。'},
+  {id:8,type:'single',kp:'跳转命令',text:'vi 中跳到文件末尾的命令是？',options:['gg', 'G', '0', '$'],correct:'B',expl:'<strong>G</strong> = 跳到文件末尾。gg = 跳到顶部，0 = 行首，$ = 行尾。'},
+  {id:9,type:'fill',kp:'撤销恢复',text:'在 vi 中，撤销上次操作的命令是 <input class="fill-blank" data-idx="0" placeholder="?">，恢复撤销的命令是 <input class="fill-blank" data-idx="1" placeholder="?">。',correct:['u','ctrl+r'],correctText:'u | Ctrl+r',expl:'<strong>u</strong> = undo 撤销。<strong>Ctrl+r</strong> = redo 恢复。u像undo首字母，r=redo。'},
+  {id:10,type:'fill',kp:'插入模式',text:'vi 中，<input class="fill-blank" data-idx="0" placeholder="?"> 命令可以在光标所在行上方新开一行并进入插入模式（大写字母）。',correct:['O'],correctText:'O',expl:'<strong>O</strong>（大写）= 在上方新开一行。o（小写）= 在下方新开一行。小写下，大写上。'},
+  {id:11,type:'judge',kp:'模式切换',text:'在 vi 的插入模式下，可以直接按 : 进入底行模式。',correct:'B',options:['正确','错误'],expl:'插入模式不能直接进底行模式！必须先按 <strong>Esc</strong> 回命令模式，再按 : 进底行模式。'},
+  {id:12,type:'judge',kp:'删除剪切',text:'vi 中的 dd 命令删除的内容会放入剪贴板，可以用 p 命令粘贴。',correct:'A',options:['正确','错误'],expl:'vi 中的删除(d/x) 等价于剪切，内容进剪贴板，可用 <strong>p</strong> 粘贴。这是vi的重要特性！'},
+  {id:13,type:'single',kp:'异常处理',text:'vi 异常退出后，下次打开文件时看到警告界面，应该按什么键处理？',options:['q', 'd', 'Enter', 'Esc'],correct:'B',expl:'按 <strong>d</strong> 删除交换文件(.swp)。vi异常退出会留下.swp文件，按d删除即可正常编辑。'},
+  {id:14,type:'single',kp:'显示行号',text:'在 vi 中，以下哪个命令可以显示行号？',options:[':show line', ':set nu', ':number on', ':display line'],correct:'B',expl:'<strong>:set nu</strong> = set number 显示行号。:set nonu 取消显示。'},
+  {id:15,type:'single',kp:'查找替换',text:'vi 中执行 :10,20s/old/new/g 命令，表示什么意思？',options:['全文替换','第10到20行，每行只替换第一个','第10到20行，全部替换','第10行到文件末尾替换'],correct:'C',expl:'<strong>:10,20s/old/new/g</strong> 中 10,20=范围，s=替换，g=全局（每行所有匹配）。'},
+];
+
+const extraQuestions = [
+  {id:101,type:'single',kp:'模式切换',text:'vi 的三种模式中，哪一种是程序打开后的默认模式？',options:['插入模式','命令模式','底行模式','可视模式'],correct:'B',expl:'打开 vi 默认进入<strong>命令模式</strong>（入口）。a/i/o进入插入模式，:进入底行模式。'},
+  {id:102,type:'single',kp:'插入模式',text:'在命令模式下，按 i 键进入插入模式后，光标会出现在哪里？',options:['光标后','光标前','行首','行尾'],correct:'B',expl:'<strong>i</strong> = insert，在光标<strong>前面</strong>插入。a = append 在光标后面插入。'},
+  {id:103,type:'single',kp:'文件操作',text:'vi 中 :q! 命令的作用是？',options:['退出并保存','强制退出不保存','保存但不退出','只读模式打开'],correct:'B',expl:'<strong>:q!</strong> = quit force，强制退出不保存。改错了想重来就用这个！'},
+  {id:104,type:'single',kp:'光标移动',text:'vi 中基本移动键 h j k l 分别对应？',options:['上下左右','左下上右','左上右下','下上右左'],correct:'B',expl:'<strong>h左 j下 k上 l右</strong>。h在最左，l在最右，j像向下钩子，k像向上箭头。'},
+  {id:105,type:'single',kp:'光标移动',text:'vi 中按 w 键的作用是？',options:['向上移动一行','向后移动一个单词','向下移动一行','移动到行尾'],correct:'B',expl:'<strong>w</strong> = word，向后移动一个单词。b = back 向前移动一个单词。'},
+  {id:106,type:'single',kp:'光标移动',text:'vi 中跳到文件顶部（第一行）的命令是？',options:['G', 'gg', 'H', '0'],correct:'B',expl:'<strong>gg</strong> = 跳到文件顶部（第1行）。G = 跳到文件末尾。15gg = 跳到第15行。'},
+  {id:107,type:'single',kp:'复制粘贴',text:'vi 中粘贴命令 p 的作用是？',options:['在光标前粘贴','在光标后/下方粘贴','删除并粘贴','复制一行'],correct:'B',expl:'<strong>p</strong> = paste，在光标后（字符级）或当前行下方（行级）粘贴。'},
+  {id:108,type:'single',kp:'可视模式',text:'vi 中按 V（大写v）进入什么模式？',options:['可视模式（字符级）','可视行模式','可视块模式','视图模式'],correct:'B',expl:'<strong>V</strong> = 可视行模式，选中完整行。v（小写）= 字符级可视模式。'},
+  {id:109,type:'single',kp:'替换命令',text:'vi 中按 r 键的作用是？',options:['进入替换模式','替换当前一个字符','删除并进入插入模式','重做命令'],correct:'B',expl:'<strong>r</strong> = replace 替换当前<strong>一个</strong>字符，替换后自动回命令模式。R 进入替换模式可连续替换。'},
+  {id:110,type:'single',kp:'分屏命令',text:'vi 中横向分屏（上下）的命令是？',options:[':sp', ':vsp', ':split-v', ':vs'],correct:'A',expl:'<strong>:sp</strong> = split 横向分屏（上下）。:vsp = vertical split 竖向分屏（左右）。'},
+  {id:111,type:'single',kp:'分屏命令',text:'在分屏模式下，Ctrl+w+k 的作用是？',options:['切换到左边窗口','切换到右边窗口','切换到上面窗口','切换到下面窗口'],correct:'C',expl:'Ctrl+w 后按 hjkl 切换窗口，k = 向上，所以切换到<strong>上面</strong>的窗口。'},
+  {id:112,type:'single',kp:'查找命令',text:'vi 中查找下一个匹配项的命令是？',options:['m', 'n', 'N', 'p'],correct:'B',expl:'<strong>n</strong> = next 查找下一个匹配项。N = 查找上一个匹配项。'},
+  {id:113,type:'single',kp:'查找替换',text:'在替换命令中加 c 参数（如 :%s/a/b/gc）的作用是？',options:['取消替换','确认替换','复制替换','连续替换'],correct:'B',expl:'<strong>c</strong> = confirm 确认替换，逐个提示是否替换。y=是，n=否，a=全部，q=退出。'},
+  {id:114,type:'single',kp:'光标移动',text:'vi 中按 $ 的作用是？',options:['跳到行首','跳到行尾','跳到文件尾','跳到段尾'],correct:'B',expl:'<strong>$</strong> = 跳到行尾。0 = 跳到行首（绝对行首）。^ = 跳到行首第一个非空白字符。'},
+  {id:115,type:'judge',kp:'异常处理',text:'vi 产生的交换文件（.swp）在正常退出后会自动删除。',correct:'A',options:['正确','错误'],expl:'正常退出 vi 时，.swp 交换文件会<strong>自动删除</strong>。只有异常退出时才会残留。'},
+  {id:116,type:'single',kp:'删除命令',text:'vi 中删除从光标到行尾的命令是？',options:['d0', 'd$', 'dd', 'dw'],correct:'B',expl:'<strong>d$</strong> = delete to end of line，删除到行尾。d0 = 删除到行首。dw = 删除一个单词。'},
+  {id:117,type:'single',kp:'复制命令',text:'vi 中复制从光标到行尾的命令是？',options:['y0', 'y$', 'yy', 'yw'],correct:'B',expl:'<strong>y$</strong> = yank to end of line，复制到行尾。y0 = 复制到行首。yw = 复制一个单词。'},
+  {id:118,type:'single',kp:'光标移动',text:'vi 中按 H 键的作用是？',options:['跳到屏幕底部','跳到屏幕中间','跳到屏幕顶部','跳到行首'],correct:'C',expl:'<strong>H</strong> = Head 屏幕顶部。M = Middle 屏幕中间。L = Low 屏幕底部。'},
+  {id:119,type:'judge',kp:'查找替换',text:'不加 g 的替换命令（如 :s/a/b）每行只替换第一个匹配项。',correct:'A',options:['正确','错误'],expl:'不加 <strong>g</strong>（global）只替换每行的<strong>第一个</strong>匹配项。加 g 替换该行所有匹配。'},
+  {id:120,type:'single',kp:'执行外部命令',text:'vi 中执行外部 ls 命令，应该输入？',options:[':ls', ':!ls', ':run ls', ':exec ls'],correct:'B',expl:'<strong>:!ls</strong>，:! 后接外部命令。执行完按回车回到 vi。'},
+];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let userAnswer = '';
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(x=>x.id===q.id)){
+    bank.push({
+      id:q.id, type:q.type, kp:q.kp, text:q.text,
+      options:q.options, correct:q.correct,
+      correctText:q.correctText || (q.options? q.options[q.correct.charCodeAt(0)-65] : q.correct.join('/')),
+      userAns:userAns,
+      wrongTime:new Date().toLocaleString()
+    });
+    saveWrongBank(bank);
+  }
+}
+
+function saveProgress(){
+  const progress = {
+    mode: currentMode,
+    qIndex: currentQIndex,
+    answers: answers,
+    questionIds: currentQuestions.map(q=>q.id),
+    timestamp: Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+function loadProgress(){
+  try{
+    const p = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+    if(p && p.timestamp && (Date.now() - p.timestamp < 7*24*60*60*1000)){
+      return p;
+    }
+  }catch(e){}
+  return null;
+}
+
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+
+function switchMode(mode, e){
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  (e||event).target.classList.add('active');
+  currentMode = mode;
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    renderWrongBank();
+  } else {
+    document.getElementById('reviewArea').style.display='none';
+    document.getElementById('quizArea').style.display='block';
+    startQuiz(mode);
+  }
+}
+
+function startQuiz(mode, resume=false){
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('quizArea').style.display='block';
+  document.getElementById('reviewArea').style.display='none';
+  answers = {};
+  userAnswer = '';
+  currentQIndex = 0;
+  currentMode = mode;
+
+  if(mode==='normal'){
+    currentQuestions = allQuestions.slice();
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      startQuiz('normal');
+      return;
+    }
+    currentQuestions = allQuestions.filter(q=>bank.find(b=>b.id===q.id)) || bank.map(b=>({
+      id:b.id,type:b.type,kp:b.kp,text:b.text,options:b.options,correct:b.correct,correctText:b.correctText,expl:''
+    }));
+    if(currentQuestions.length===0) currentQuestions = bank.map(b=>({
+      id:b.id,type:b.type,kp:b.kp,text:b.text,options:b.options,correct:b.correct,correctText:b.correctText,expl:'来自错题库的题目'
+    }));
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，不需要巩固！');
+      startQuiz('normal');
+      return;
+    }
+    const kps = [...new Set(bank.map(b=>b.kp))];
+    let pool = extraQuestions.filter(q=>kps.includes(q.kp));
+    if(pool.length===0) pool = extraQuestions.slice();
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  }
+
+  if(resume){
+    const p = loadProgress();
+    if(p && p.mode === mode){
+      answers = p.answers || {};
+      currentQIndex = p.qIndex || 0;
+    }
+  }
+
+  renderQuestion();
+  updateProgress();
+  saveProgress();
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function renderQuestion(){
+  const q = currentQuestions[currentQIndex];
+  const container = document.getElementById('quizContainer');
+  let typeLabel = q.type==='single'?'单选':q.type==='fill'?'填空':'判断';
+  let html = `<div class="question-card" data-idx="${currentQIndex}">
+    <div class="question-num">${typeLabel}题 · 第${currentQIndex+1}题<span class="question-tag">${q.kp}</span></div>
+    <div class="question-text">${q.text}</div>`;
+
+  const isAnswered = answers[currentQIndex] !== undefined;
+
+  if(q.type==='single' || q.type==='judge'){
+    const letters = ['A','B','C','D'];
+    html += '<div class="options">';
+    q.options.forEach((opt,i)=>{
+      const letter = letters[i];
+      let cls = 'option';
+      if(isAnswered){
+        if(letter === q.correct) cls += ' correct';
+        else if(letter === userAnswer) cls += ' wrong';
+        cls += '" style="pointer-events:none';
+      }
+      html += `<div class="${cls}" data-value="${letter}" onclick="selectOption(this,${currentQIndex})">
+        <span class="option-label">${letter}</span>${opt}</div>`;
+    });
+    html += '</div>';
+  }
+
+  if(isAnswered){
+    html += `<div class="explanation show" id="expl-${currentQIndex}">
+      <div class="explanation-title">${answers[currentQIndex] ? '✅ 正确！' : '❌ 错误！'}</div>${q.expl}</div>`;
+    html += `<div class="btn-group">
+' : '🏁 查看成绩'}</button>
+      </div>`;
+  } else {
+    html += `<div class="explanation" id="expl-${currentQIndex}">
+      <div class="explanation-title">✅ 解析</div>${q.expl}</div>`;
+    html += `<div class="btn-group">
+      <button class="btn btn-primary" onclick="submitAnswer(${currentQIndex})" id="submit-${currentQIndex}">提交答案</button>
+      </div>`;
+  }
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function selectOption(el, idx){
+  const card = document.querySelector(`[data-idx="${idx}"]`);
+  card.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  userAnswer = el.dataset.value;
+}
+
+function submitAnswer(idx){
+  const q = currentQuestions[idx];
+  if(!userAnswer && (q.type==='single' || q.type==='judge')){
+    alert('请先选择一个答案！');
+    return;
+  }
+
+  let isCorrect = false;
+  if(q.type==='single' || q.type==='judge'){
+    isCorrect = userAnswer === q.correct;
+  } else if(q.type==='fill'){
+    const card = document.querySelector(`[data-idx="${idx}"]`);
+    const inputs = card.querySelectorAll('.fill-blank');
+    const vals = [];
+    inputs.forEach(i=>vals.push(i.value.trim().toLowerCase()));
+    userAnswer = vals.join(' / ');
+    isCorrect = q.correct.every((c,i)=>vals[i]===c.toLowerCase() || (q.correctAlt && q.correctAlt[i] && q.correctAlt[i].some(a=>vals[i]===a.toLowerCase())));
+  }
+
+  answers[idx] = isCorrect;
+  if(!isCorrect) addToWrongBank(q, userAnswer || '未作答');
+  saveProgress();
+  renderQuestion();
+}
+
+function goNext(){
+  if(currentQIndex < currentQuestions.length - 1){
+    currentQIndex++;
+    userAnswer = '';
+    renderQuestion();
+    updateProgress();
+    saveProgress();
+  } else {
+    showResult();
+    clearProgress();
+  }
+  window.scrollTo(0,0);
+}
+
+function updateProgress(){
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = `第 ${currentQIndex+1} / ${total} 题`;
+}
+
+function showResult(){
+  let correct = 0;
+  for(let k in answers) if(answers[k]) correct++;
+  const total = currentQuestions.length;
+  const wrong = total - correct;
+  const pct = Math.round(correct/total*100);
+
+  document.getElementById('quizArea').style.display='none';
+  const r = document.getElementById('resultCard');
+  r.classList.add('show');
+  document.getElementById('score').textContent = pct+'分';
+  document.getElementById('score').style.color = pct>=80?'#27ae60':pct>=60?'#f39c12':'#e74c3c';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(pct===100) document.getElementById('message').textContent='🎉 满分！掌握得非常棒！';
+  else if(pct>=80) document.getElementById('message').textContent='👍 不错！错题已加入错题库。';
+  else if(pct>=60) document.getElementById('message').textContent='📚 继续加油！建议重做错题。';
+  else document.getElementById('message').textContent='💪 需要加强，建议巩固练习。';
+
+  if(wrong>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    const list = document.getElementById('wrongPreviewList');
+    list.innerHTML = '';
+    let count = 0;
+    for(let k in answers){
+      if(!answers[k] && count<5){
+        const q = currentQuestions[k];
+        list.innerHTML += `<div class="wrong-item"><div class="wq">第${parseInt(k)+1}题：${q.text.substring(0,40)}...</div></div>`;
+        count++;
+      }
+    }
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+}
+
+function renderWrongBank(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  const list = document.getElementById('wrongBankList');
+  if(bank.length===0){
+    list.innerHTML = '<div class="empty-state">✨ 错题库为空，继续保持！</div>';
+    return;
+  }
+  list.innerHTML = bank.map(q=>`
+    <div class="wrong-item">
+      <div class="wq">【${q.kp}】${q.text.replace(/<[^>]+>/g,'').substring(0,80)}...</div>
+      <div class="wa">你的答案：${q.userAns}</div>
+      <div class="wc">正确答案：${q.correctText || (q.options? q.options[q.correct.charCodeAt(0)-65] : q.correct)}</div>
+      <div style="font-size:11px;color:#999;margin-top:3px">${q.wrongTime}</div>
+    </div>`).join('');
+}
+
+function clearWrongBank(){
+  if(confirm('确定要清空错题库吗？此操作不可撤销。')){
+    localStorage.removeItem(QUIZ_KEY);
+    renderWrongBank();
+    renderKnowledgeReview();
+  }
+}
+
+const knowledgeMap = {
+  '模式切换': {
+    title: 'vi 三种模式及切换',
+    content: `<p>vi 有<strong>三种模式</strong>：</p>
+    <p>1. <strong>命令模式</strong>（入口）：打开文件后默认进入，用于复制/粘贴/删除/移动光标</p>
+    <p>2. <strong>插入模式</strong>（编辑）：输入文字，按 <code>a/i/o</code> 进入</p>
+    <p>3. <strong>底行模式</strong>（出口）：保存/退出/查找替换，按 <code>:</code> 进入</p>
+    <p><strong>切换规则</strong>：</p>
+ 插入模式：<code>a</code>(光标后) / <code>i</code>(光标前) / <code>o</code>(下方新行) / <code>A</code>(行尾) / <code>I</code>(行首) / <code>O</code>(上方新行)</p>
+ 命令模式：<code>Esc</code></p>
+ 底行模式：<code>:</code></p>
+ 命令模式：<code>Esc</code> 或执行完命令自动返回</p>
+    <p><strong>⚠️ 易错</strong>：插入模式不能直接到底行模式！必须先 Esc 回命令模式</p>`
+  },
+  '插入模式': {
+    title: '进入插入模式的命令',
+    content: `<p>进入插入模式的命令及区别：</p>
+    <p>• <code>a</code> = after，在光标<strong>后</strong>面插入</p>
+    <p>• <code>i</code> = insert，在光标<strong>前</strong>面插入</p>
+    <p>• <code>o</code> = open below，在下方<strong>新开一行</strong>插入</p>
+    <p>• <code>A</code> = 在光标所在<strong>行尾</strong>插入</p>
+    <p>• <code>I</code> = 在光标所在<strong>行首</strong>插入</p>
+    <p>• <code>O</code> = 在<strong>上方</strong>新开一行插入</p>
+    <p>• <code>s</code> = 删除光标所在字符并进入插入模式</p>
+    <p><strong>📌 记忆</strong>：小写=当前位置，大写=行首/尾；o=下方，O=上方</p>`
+  },
+  '文件操作': {
+    title: '底行模式文件操作命令',
+    content: `<p><strong>文件操作命令</strong>（在底行模式 : 下执行）：</p>
+    <p>• <code>:w</code> = Write，保存不退出</p>
+    <p>• <code>:q</code> = Quit，退出（修改未保存时无效）</p>
+    <p>• <code>:q!</code> = 强制退出，<strong>不保存</strong></p>
+    <p>• <code>:wq</code> = 保存并退出（最常用）</p>
+    <p>• <code>:x</code> = 保存并退出（等价 :wq）</p>
+    <p>• <code>:w 文件名</code> = 另存为</p>
+    <p>• <code>:r 文件名</code> = 读入文件内容插入光标处</p>
+    <p><strong>📌 常用</strong>：:wq 保存退出，:q! 改错了重来</p>`
+  },
+  '删除命令': {
+    title: '删除命令',
+    content: `<p><strong>删除命令</strong>（命令模式下）：</p>
+    <p>• <code>x</code> = 删除光标所在字符（n x 删n个）</p>
+    <p>• <code>dd</code> = 删除光标所在<strong>一整行</strong>（ndd 删n行）</p>
+    <p>• <code>d0</code> = 删除从光标到<strong>行首</strong></p>
+    <p>• <code>d$</code> = 删除从光标到<strong>行尾</strong></p>
+    <p>• <code>dw</code> = 删除一个单词</p>
+    <p><strong>⚠️ 重要</strong>：vi 的删除 = <strong>剪切</strong>！内容进剪贴板，可用 <code>p</code> 粘贴</p>`
+  },
+  '复制命令': {
+    title: '复制与粘贴命令',
+    content: `<p><strong>复制命令</strong>（命令模式下）：</p>
+    <p>• <code>yy</code> = 复制一整行（nyy 复制n行）</p>
+    <p>• <code>y0</code> = 复制到行首</p>
+    <p>• <code>y$</code> = 复制到行尾</p>
+    <p>• <code>yw</code> = 复制一个单词</p>
+    <p><strong>粘贴命令</strong>：</p>
+    <p>• <code>p</code> = 在光标后(字符级)或当前行下方(行级)粘贴</p>
+    <p><strong>📌 常用组合</strong>：yy + p = 快速复制一行</p>`
+  },
+  '复制粘贴': {
+    title: '复制与粘贴命令',
+    content: `<p><strong>复制命令</strong>（命令模式下）：</p>
+    <p>• <code>yy</code> = 复制一整行（nyy 复制n行）</p>
+    <p>• <code>y0</code> = 复制到行首</p>
+    <p>• <code>y$</code> = 复制到行尾</p>
+    <p>• <code>yw</code> = 复制一个单词</p>
+    <p><strong>粘贴命令</strong>：</p>
+    <p>• <code>p</code> = 在光标后(字符级)或当前行下方(行级)粘贴</p>
+    <p><strong>📌 常用组合</strong>：yy + p = 快速复制一行</p>`
+  },
+  '删除剪切': {
+    title: '删除 = 剪切',
+    content: `<p>vi 中的删除命令（<code>d</code> 和 <code>x</code>）实际上是<strong>剪切</strong>操作：</p>
+    <p>• 删除的内容会放入<strong>剪贴板</strong></p>
+    <p>• 可以用 <code>p</code> 命令粘贴出来</p>
+ <code>p</code> 粘贴到别处</p>
+    <p><strong>⚠️ 这是 vi 的重要特性</strong>，和普通编辑器的 Delete 不同</p>`
+  },
+  '翻页命令': {
+    title: '屏幕翻页命令',
+    content: `<p><strong>翻页命令</strong>（命令模式下）：</p>
+    <p>• <code>Ctrl + b</code> = back，<strong>向上</strong>翻页</p>
+    <p>• <code>Ctrl + f</code> = forward，<strong>向下</strong>翻页</p>
+    <p><strong>⚠️ 易错</strong>：b 是回退=向上，f 是前进=向下，和直觉<strong>相反</strong>！</p>
+    <p><strong>📌 记忆</strong>：b = back 回退向上，f = forward 前进向下</p>`
+  },
+  '跳转命令': {
+    title: '行数跳转命令',
+    content: `<p><strong>行数跳转</strong>（命令模式下）：</p>
+    <p>• <code>gg</code> = 跳到文件<strong>顶部</strong>（第1行）</p>
+    <p>• <code>G</code> = 跳到文件<strong>末尾</strong>（最后一行）</p>
+    <p>• <code>15gg</code> 或 <code>15G</code> = 跳到第15行</p>
+    <p><strong>📌 记忆</strong>：gg = go to top，G = Ground 底部</p>`
+  },
+  '光标移动': {
+    title: '光标移动命令',
+</p>
+    <p><strong>行内移动</strong>：</p>
+    <p>• <code>w</code> = 向后移动一个单词(word)</p>
+    <p>• <code>b</code> = 向前移动一个单词(back)</p>
+    <p>• <code>0</code> = 移动到行首（绝对）</p>
+    <p>• <code>^</code> = 移动到行首第一个非空白字符</p>
+    <p>• <code>$</code> = 移动到行尾</p>
+    <p><strong>屏幕移动</strong>：</p>
+    <p>• <code>H</code> = 屏幕顶部(Head) <code>M</code> = 屏幕中间(Middle) <code>L</code> = 屏幕底部(Low)</p>
+    <p><strong>⚠️ 易错</strong>：0 是绝对行首，^ 跳过前导空格</p>`
+  },
+  '查找替换': {
+    title: '查找与替换命令',
+    content: `<p><strong>查找</strong>（命令模式下）：</p>
+    <p>• <code>/str</code> = 向下查找 str</p>
+    <p>• <code>?str</code> = 向上查找 str</p>
+    <p>• <code>n</code> = 下一个，<code>N</code> = 上一个</p>
+    <p><strong>替换</strong>（底行模式）：<code>:范围s/旧/新/g</code></p>
+    <p>• <code>%</code> = 全文</p>
+    <p>• <code>10,20</code> = 第10-20行</p>
+    <p>• <code>g</code> = 全局替换（不加 g 只替换每行第一个）</p>
+    <p>• <code>c</code> = 确认替换(y/n/a/q)</p>
+    <p><strong>⚠️ 易错</strong>：不加 g 只替换每行第一个匹配项</p>`
+  },
+  '查找命令': {
+    title: '查找命令',
+    content: `<p><strong>查找命令</strong>（命令模式下）：</p>
+    <p>• <code>/str</code> = 从光标位置<strong>向下</strong>查找 str</p>
+    <p>• <code>?str</code> = 从光标位置<strong>向上</strong>查找 str</p>
+    <p>• <code>n</code> = 查找<strong>下一个</strong>匹配项</p>
+    <p>• <code>N</code> = 查找<strong>上一个</strong>匹配项</p>
+    <p><strong>📌 记忆</strong>：n = next 下一个，N = 反方向</p>`
+  },
+  '撤销恢复': {
+    title: '撤销与恢复',
+    content: `<p><strong>撤销和恢复命令</strong>（命令模式下）：</p>
+    <p>• <code>u</code> = undo，<strong>撤销</strong>上次操作</p>
+    <p>• <code>Ctrl + r</code> = redo，<strong>恢复</strong>撤销的操作</p>
+    <p><strong>📌 记忆</strong>：u = undo 首字母，r = redo 首字母</p>`
+  },
+  '替换命令': {
+    title: '替换命令',
+    content: `<p><strong>替换命令</strong>（命令模式下）：</p>
+    <p>• <code>r</code> = 替换当前<strong>一个字符</strong>，替换后自动回命令模式</p>
+    <p>• <code>R</code> = 进入<strong>替换模式</strong>，可连续替换，按 Esc 结束</p>
+    <p><strong>💡 用途</strong>：不需要进插入模式就能修改单个字符</p>`
+  },
+  '异常处理': {
+    title: '异常退出与交换文件',
+    content: `<p><strong>异常退出处理</strong>：</p>
+ 生成 <code>.swp</code> 交换文件</p>
+    <p>• 下次打开会看到警告界面</p>
+    <p>• 按 <code>d</code> = 删除交换文件，正常编辑</p>
+    <p>• 正常退出时 .swp 会<strong>自动删除</strong></p>`
+  },
+  '显示行号': {
+    title: '显示/取消行号',
+    content: `<p><strong>行号命令</strong>（底行模式）：</p>
+    <p>• <code>:set nu</code> = 显示行号</p>
+    <p>• <code>:set nonu</code> = 取消显示行号</p>
+    <p><strong>💡 用途</strong>：定位错误行、范围替换时很有用</p>`
+  },
+  '可视模式': {
+    title: '可视模式（选中文本）',
+    content: `<p><strong>可视模式</strong>（命令模式下）：</p>
+    <p>• <code>v</code> = 字符级选择（从光标位置开始选）</p>
+    <p>• <code>V</code> = 行级选择（选中完整行）</p>
+    <p>• 选中后按 <code>d</code> 删除 / <code>y</code> 复制</p>
+    <p>• 按 <code>Esc</code> 退出可视模式</p>`
+  },
+  '分屏命令': {
+    title: '分屏命令',
+    content: `<p><strong>分屏命令</strong>（底行模式）：</p>
+    <p>• <code>:sp 文件名</code> = 横向分屏（上下）</p>
+    <p>• <code>:vsp 文件名</code> = 竖向分屏（左右）</p>
+    <p><strong>窗口切换</strong>：<code>Ctrl+w</code> 后按 <code>h/j/k/l</code> 移动到左/下/上/右窗口</p>`
+  },
+  '执行外部命令': {
+    title: '执行外部命令',
+    content: `<p><strong>执行外部命令</strong>（底行模式）：</p>
+    <p>• <code>:! 命令</code> = 在 vi 中执行外部命令</p>
+    <p>• 例：<code>:!ls</code> 查看目录文件</p>
+    <p>• 执行完按<strong>回车</strong>返回 vi</p>`
+  }
+};
+
+function switchReviewTab(tab, e){
+  document.querySelectorAll('.review-tab').forEach(t=>t.classList.remove('active'));
+  (e||event).target.classList.add('active');
+  if(tab==='list'){
+    document.getElementById('wrongBankList').style.display='block';
+    document.getElementById('knowledgeReview').style.display='none';
+  } else {
+    document.getElementById('wrongBankList').style.display='none';
+    document.getElementById('knowledgeReview').style.display='block';
+    renderKnowledgeReview();
+  }
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const container = document.getElementById('knowledgeReview');
+  if(bank.length===0){
+    container.innerHTML = '<div class="empty-state">✨ 错题库为空，没有需要复习的知识点！</div>';
+    return;
+  }
+
+  const kpCount = {};
+  bank.forEach(q=>{
+    const kp = q.kp || '其他';
+    if(!kpCount[kp]) kpCount[kp] = {count:0, questions:[]};
+    kpCount[kp].count++;
+    kpCount[kp].questions.push(q);
+  });
+
+  const sortedKps = Object.entries(kpCount).sort((a,b)=>b[1].count-a[1].count);
+
+  let html = '<div style="margin-bottom:10px;font-size:13px;color:#666">根据错题自动生成的知识点复习，按错误频率排序：</div>';
+  html += '<div style="margin-bottom:12px;padding:10px;background:#e3f2fd;border-radius:8px;font-size:13px;color:#1565c0"><strong>📊 错误分析</strong>：共 ' + bank.length + ' 道错题，涉及 ' + sortedKps.length + ' 个知识点，建议优先复习错误最多的知识点</div>';
+
+  sortedKps.forEach(([kp, data], idx)=>{
+    const info = knowledgeMap[kp];
+    if(info){
+      html += `<div class="kp-section">
+        <div class="kp-header">
+          <span class="kp-title">${idx+1}. ${info.title}</span>
+          <span class="kp-badge">错 ${data.count} 次</span>
+        </div>
+        <div class="kp-content">${info.content}</div>
+        <div class="kp-wrong-list">📝 相关错题：${data.questions.map(q=>q.text.replace(/<[^>]+>/g,'').substring(0,40)).join(' | ')}</div>
+      </div>`;
+    } else {
+      html += `<div class="kp-section">
+        <div class="kp-header">
+          <span class="kp-title">${idx+1}. ${kp}</span>
+          <span class="kp-badge">错 ${data.count} 次</span>
+        </div>
+        <div class="kp-content">该知识点的详细复习内容尚未收录，建议查阅教材相关章节。</div>
+        <div class="kp-wrong-list">📝 相关错题：${data.questions.map(q=>q.text.replace(/<[^>]+>/g,'').substring(0,40)).join(' | ')}</div>
+      </div>`;
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+function init(){
+  const progress = loadProgress();
+  if(progress){
+    if(confirm(`检测到未完成的答题进度（第${progress.qIndex+1}题），是否继续？`)){
+      startQuiz(progress.mode, true);
+      return;
+    }
+  }
+  startQuiz('normal');
+}
+
+init();
+</script>
+</body>
+</html>
