@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day17 二维数组 - 检测练习题（增强版）</title>
+
+<style>
+
+{margin:0;padding:0;box-sizing:border-box}
+
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+
+.container{max-width:800px;margin:0 auto}
+
+.header{text-align:center;margin-bottom:20px}
+
+.header h1{color:#2c3e50;font-size:24px}
+
+.header p{color:#7f8c8d;margin-top:6px}
+
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+
+.mode-tab:hover{border-color:#4CAF50}
+
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+
+.difficulty-mid{background:#fff3e0;color:#e65100}
+
+.difficulty-hard{background:#ffebee;color:#c62828}
+
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+
+.options{margin-bottom:10px}
+
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+
+.option.correct{border-color:#27ae60;background:#d4edda}
+
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+
+.code-editor:focus{outline:none;border-color:#4CAF50}
+
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+
+.hint-box.show{display:block}
+
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+
+.test-result.show{display:block}
+
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+
+.explanation.show{display:block}
+
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+
+.answer-display.show{display:block}
+
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+
+.btn-primary{background:#4CAF50;color:white}
+
+.btn-primary:hover{background:#45a049}
+
+.btn-secondary{background:#2196F3;color:white}
+
+.btn-secondary:hover{background:#1976D2}
+
+.btn-warn{background:#ff9800;color:white}
+
+.btn-warn:hover{background:#f57c00}
+
+.btn-vscode{background:#007ACC;color:white}
+
+.btn-vscode:hover{background:#005A9E}
+
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+
+.result-card.show{display:block}
+
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+
+.result-item{text-align:center}
+
+.result-item .num{font-size:22px;font-weight:bold}
+
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+
+.correct-num{color:#27ae60}
+
+.wrong-num{color:#e74c3c}
+
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+
+.wrong-item:last-child{border:none}
+
+.wrong-item .wq{color:#333;margin-bottom:3px}
+
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+
+.wrong-item .wc{color:#27ae60;font-size:12px}
+
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+
+.kp-content strong{color:#1565c0}
+
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+
+.review-tab:hover{border-color:#4CAF50}
+
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+
+.vscode-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#1565c0}
+
+.vscode-info code{background:#bbdefb;padding:2px 6px;border-radius:3px;font-family:Consolas,monospace}
+
+@media(max-width:600px){
+
+  .result-detail{gap:15px}
+
+  .btn{padding:8px 14px;font-size:12px}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>📝 Day17 二维数组 - 检测练习题</h1>
+
+<p>支持错题重做、巩固练习、错题库持久化、编程题VSCode集成</p>
+
+</div>
+
+
+
+<div class="mode-tabs">
+
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+
+</div>
+
+
+
+<div id="quizArea">
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="progress-text" id="progressText">第 1 / 20 题</div>
+
+<div id="quizContainer"></div>
+
+</div>
+
+
+
+<div class="result-card" id="resultCard">
+
+<div class="result-score" id="score">0</div>
+
+<div class="result-message" id="message"></div>
+
+<div class="result-detail">
+
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+
+</div>
+
+<div class="action-buttons">
+
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+
+</div>
+
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+
+<h3>📋 本次错题</h3>
+
+<div id="wrongPreviewList"></div>
+
+</div>
+
+</div>
+
+
+
+<div id="reviewArea" style="display:none">
+
+<div class="question-card">
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+
+</div>
+
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+
+<div class="review-tabs">
+
+<button class="review-tab active" onclick="switchReviewTab('list', event)">📋 错题列表</button>
+
+<button class="review-tab" onclick="switchReviewTab('knowledge', event)">🧠 知识点复习</button>
+
+</div>
+
+<div id="wrongBankList"></div>
+
+<div id="knowledgeReview" style="display:none"></div>
+
+</div>
+
+</div>
+
+
+
+</div>
+
+
+
+<script>
+
+const QUIZ_KEY = 'wrongbank_day17';
+
+const DAY_NUM = 17;
+
+
+
+ 转置后n行m列。原2行3列 → 转置后3行2列。"}, {"id": 10, "type": "single", "kp": "矩阵转置", "text": "矩阵转置的核心公式是？", "options": ["b[i][j] = a[i][j]", "b[i][j] = a[j][i]", "b[j][i] = a[i][j]", "b[i][j] = a[i][i]"], "correct": "B", "expl": "<strong>b[i][j] = a[j][i]，即转置矩阵的第i行第j列 = 原矩阵的第j行第i列</strong>。注意顺序！C选项虽然数学上等价，但习惯上写B。"}, {"id": 11, "type": "single", "kp": "杨辉三角", "text": "杨辉三角第i行第j列（中间元素）的值等于？", "options": ["a[i-1][j-1] + a[i-1][j]", "a[i][j-1] + a[i][j]", "a[i-1][j] + a[i][j]", "a[i-1][j-1] + a[i][j-1]"], "correct": "A", "expl": "<strong>中间的数 = 左上方的数 + 正上方的数</strong>。即 a[i][j] = a[i-1][j-1] + a[i-1][j]。"}, {"id": 12, "type": "single", "kp": "下三角输出", "text": "输出左下三角，内层循环的条件应该是？", "options": ["j < i", "j <= i", "j > i", "j >= i"], "correct": "B", "expl": "<strong>左下三角：每行输出到对角线为止（包括对角线）</strong>。所以 j <= i。如果是 j < i 就不包括对角线了。"}, {"id": 13, "type": "judge", "kp": "二维数组定义", "text": "int a[][3]; 定义了一个二维数组，编译器会自动确定行数。", "correct": "B", "options": ["正确", "错误"], "expl": "<strong>错误！</strong>只有在初始化时给出数据，编译器才能推断出行数。这个定义没有初始化，编译器不知道有多少行，是错误的。"}, {"id": 14, "type": "judge", "kp": "二维数组内存", "text": "二维数组在内存中是按列优先存储的。", "correct": "B", "options": ["正确", "错误"], "expl": "<strong>错误！</strong>C语言的二维数组是<strong>按行优先</strong>存储的，即先存完第0行所有元素，再存第1行..."}, {"id": 15, "type": "judge", "kp": "杨辉三角", "text": "杨辉三角每行的第一个数和最后一个数都是1。", "correct": "A", "options": ["正确", "错误"], "expl": "<strong>正确！</strong>这是杨辉三角的基本规律之一。每行首尾都是1，中间的数等于左上+正上。"}, {"id": 16, "type": "judge", "kp": "矩阵转置", "text": "矩阵转置后，原矩阵的行变成了转置矩阵的列。", "correct": "A", "options": ["正确", "错误"], "expl": "<strong>正确！</strong>转置就是行列互换。原m行n列 → 转置后n行m列。原第i行变成转置后的第i列。"}, {"id": 17, "type": "judge", "kp": "二维数组遍历", "text": "遍历二维数组可以只用一个for循环。", "correct": "B", "options": ["正确", "错误"], "expl": "<strong>错误！</strong>二维数组有行和列两个维度，必须用双层循环（外层行，内层列）。单层循环只能遍历其中一个维度。"}, {"id": 18, "type": "fill", "kp": "二维数组基础", "text": "int a[3][4]; 有 <input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\"> 行 <input class=\"fill-blank\" data-idx=\"1\" placeholder=\"?\"> 列，共 <input class=\"fill-blank\" data-idx=\"2\" placeholder=\"?\"> 个元素。", "correct": ["3"], "correctText": "3 | 4 | 12", "expl": "<strong>3行4列，共3×4=12个元素</strong>。", "correct2": ["4"], "correct3": ["12", "3*4"]}, {"id": 19, "type": "fill", "kp": "动态获取行列数", "text": "动态获取行数公式：sizeof(<input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\">) / sizeof(<input class=\"fill-blank\" data-idx=\"1\" placeholder=\"?\">)。", "correct": ["a", "A", "数组名"], "correctText": "a | a[0]", "expl": "<strong>行数 = sizeof(a) / sizeof(a[0])</strong>，总字节除以一行字节。", "correct2": ["a[0]", "A[0]"]}, {"id": 20, "type": "fill", "kp": "矩阵转置", "text": "矩阵转置公式：b[<input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\">][<input class=\"fill-blank\" data-idx=\"1\" placeholder=\"?\">] = a[<input class=\"fill-blank\" data-idx=\"2\" placeholder=\"?\">][<input class=\"fill-blank\" data-idx=\"3\" placeholder=\"?\">]。", "correct": ["i", "I"], "correctText": "i | j | j | i", "expl": "<strong>b[i][j] = a[j][i]</strong>，行列互换，下标交换。", "correct2": ["j", "J"], "correct3": ["j", "J"], "correct4": ["i", "I"]}];
+
+ 输出\n1 2 3\n4 5 6", "hint": "先用双层循环输入，再用双层循环输出", "answer": "#include <stdio.h>\nint main() {\n    int a[2][3];\n    int i, j;\n    for (i = 0; i < 2; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &a[i][j]);\n        }\n    }\n    for (i = 0; i < 2; i++) {\n        for (j = 0; j < 3; j++) {\n            printf(\"%d \", a[i][j]);\n        }\n        printf(\"\\n\");\n    }\n    return 0;\n}", "test_input": "1 2 3\n4 5 6", "expected_output": "1 2 3 \n4 5 6 "}, {"id": 103, "type": "coding", "kp": "二维数组求和", "difficulty": "简单", "title": "求所有元素的和", "desc": "输入一个3行3列的矩阵，求所有元素的和并输出。\n例：输入\n1 2 3\n4 5 6\n7 8 9\n→ 输出 sum=45", "hint": "sum=0; 双层循环 sum+=a[i][j];", "answer": "#include <stdio.h>\nint main() {\n    int a[3][3];\n    int i, j, sum = 0;\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &a[i][j]);\n        }\n    }\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 3; j++) {\n            sum += a[i][j];\n        }\n    }\n    printf(\"sum=%d\\n\", sum);\n    return 0;\n}", "test_input": "1 2 3\n4 5 6\n7 8 9", "expected_output": "sum=45"}, {"id": 104, "type": "coding", "kp": "二维数组求和", "difficulty": "简单", "title": "求每行的和", "desc": "输入一个3行3列的矩阵，求每行的和并输出。\n例：输入\n1 2 3\n4 5 6\n7 8 9\n→ 输出\n第0行和=6\n第1行和=15\n第2行和=24", "hint": "外层循环每次开始前row_sum=0，内层累加后输出", "answer": "#include <stdio.h>\nint main() {\n    int a[3][3];\n    int i, j, row_sum;\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &a[i][j]);\n        }\n    }\n    for (i = 0; i < 3; i++) {\n        row_sum = 0;\n        for (j = 0; j < 3; j++) {\n            row_sum += a[i][j];\n        }\n        printf(\"第%d行和=%d\\n\", i, row_sum);\n    }\n    return 0;\n}", "test_input": "1 2 3\n4 5 6\n7 8 9", "expected_output": "第0行和=6\n第1行和=15\n第2行和=24"}, {"id": 105, "type": "coding", "kp": "找最大值", "difficulty": "简单", "title": "找最大值及位置", "desc": "输入一个3行3列的矩阵，找出最大值及其位置（行号列号）。\n例：输入\n1 2 3\n4 5 6\n7 8 9\n→ 输出 max=9, 位置：第2行第2列", "hint": "max=a[0][0]; 双层循环比较，记录line_num和column_num", "answer": "#include <stdio.h>\nint main() {\n    int a[3][3];\n    int i, j, max, line_num, column_num;\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &a[i][j]);\n        }\n    }\n    max = a[0][0];\n    line_num = 0;\n    column_num = 0;\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 3; j++) {\n            if (max < a[i][j]) {\n                max = a[i][j];\n                line_num = i;\n                column_num = j;\n            }\n        }\n    }\n    printf(\"max=%d, 位置：第%d行第%d列\\n\", max, line_num, column_num);\n    return 0;\n}", "test_input": "1 2 3\n4 5 6\n7 8 9", "expected_output": "max=9, 位置：第2行第2列"}, {"id": 106, "type": "coding", "kp": "矩阵转置", "difficulty": "中等", "title": "矩阵转置", "desc": "输入一个2行3列的矩阵，输出它的转置矩阵（3行2列）。\n例：输入\n1 2 3\n4 5 6\n→ 输出\n1 4\n2 5\n3 6", "hint": "b[i][j] = a[j][i]; 或者直接输出a[j][i]", "answer": "#include <stdio.h>\nint main() {\n    int a[2][3], b[3][2];\n    int i, j;\n    for (i = 0; i < 2; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &a[i][j]);\n        }\n    }\n    // 转置\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 2; j++) {\n            b[i][j] = a[j][i];\n        }\n    }\n    // 输出转置矩阵\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 2; j++) {\n            printf(\"%d \", b[i][j]);\n        }\n        printf(\"\\n\");\n    }\n    return 0;\n}", "test_input": "1 2 3\n4 5 6", "expected_output": "1 4 \n2 5 \n3 6 "}, {"id": 107, "type": "coding", "kp": "特殊输出", "difficulty": "中等", "title": "输出下三角", "desc": "输入一个3行3列的矩阵，输出它的左下三角（包括对角线）。\n例：输入\n1 2 3\n4 5 6\n7 8 9\n→ 输出\n1\n4 5\n7 8 9", "hint": "内层循环 j <= i", "answer": "#include <stdio.h>\nint main() {\n    int a[3][3];\n    int i, j;\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &a[i][j]);\n        }\n    }\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j <= i; j++) {\n            printf(\"%d \", a[i][j]);\n        }\n        printf(\"\\n\");\n    }\n    return 0;\n}", "test_input": "1 2 3\n4 5 6\n7 8 9", "expected_output": "1 \n4 5 \n7 8 9 "}, {"id": 108, "type": "coding", "kp": "杨辉三角", "difficulty": "中等", "title": "输出杨辉三角前n行", "desc": "输入n（1<=n<=10），输出杨辉三角的前n行。\n例：输入 5 → 输出\n1\n1 1\n1 2 1\n1 3 3 1\n1 4 6 4 1", "hint": "初始化数组为0，每行首尾设1，中间a[i][j]=a[i-1][j-1]+a[i-1][j]", "answer": "#include <stdio.h>\nint main() {\n    int a[10][10] = {0};\n    int n, i, j;\n    scanf(\"%d\", &n);\n    for (i = 0; i < n; i++) {\n        a[i][0] = 1;\n        for (j = 1; j < i; j++) {\n            a[i][j] = a[i-1][j-1] + a[i-1][j];\n        }\n        a[i][i] = 1;\n    }\n    for (i = 0; i < n; i++) {\n        for (j = 0; j <= i; j++) {\n            printf(\"%d \", a[i][j]);\n        }\n        printf(\"\\n\");\n    }\n    return 0;\n}", "test_input": "5", "expected_output": "1 \n1 1 \n1 2 1 \n1 3 3 1 \n1 4 6 4 1 "}, {"id": 109, "type": "coding", "kp": "对角线求和", "difficulty": "中等", "title": "求主对角线的和", "desc": "输入一个3行3列的方阵，求主对角线（左上到右下）元素的和。\n例：输入\n1 2 3\n4 5 6\n7 8 9\n→ 输出 主对角线和=15（1+5+9）", "hint": "主对角线条件：i == j", "answer": "#include <stdio.h>\nint main() {\n    int a[3][3];\n    int i, j, sum = 0;\n    for (i = 0; i < 3; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &a[i][j]);\n        }\n    }\n    for (i = 0; i < 3; i++) {\n        sum += a[i][i];\n    }\n    printf(\"主对角线和=%d\\n\", sum);\n    return 0;\n}", "test_input": "1 2 3\n4 5 6\n7 8 9", "expected_output": "主对角线和=15"}, {"id": 110, "type": "coding", "kp": "矩阵运算", "difficulty": "中等", "title": "矩阵加法", "desc": "输入两个2行3列的矩阵A和B，输出它们的和矩阵C（C=A+B，对应元素相加）。\n例：输入\n1 2 3\n4 5 6\n7 8 9\n10 11 12\n→ 输出\n8 10 12\n14 16 18", "hint": "c[i][j] = a[i][j] + b[i][j];", "answer": "#include <stdio.h>\nint main() {\n    int a[2][3], b[2][3], c[2][3];\n    int i, j;\n    // 输入矩阵A\n    for (i = 0; i < 2; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &a[i][j]);\n        }\n    }\n    // 输入矩阵B\n    for (i = 0; i < 2; i++) {\n        for (j = 0; j < 3; j++) {\n            scanf(\"%d\", &b[i][j]);\n        }\n    }\n    // 矩阵加法\n    for (i = 0; i < 2; i++) {\n        for (j = 0; j < 3; j++) {\n            c[i][j] = a[i][j] + b[i][j];\n        }\n    }\n    // 输出结果\n    for (i = 0; i < 2; i++) {\n        for (j = 0; j < 3; j++) {\n            printf(\"%d \", c[i][j]);\n        }\n        printf(\"\\n\");\n    }\n    return 0;\n}", "test_input": "1 2 3\n4 5 6\n7 8 9\n10 11 12", "expected_output": "8 10 12 \n14 16 18 "}];
+
+ 转置后n行m列。推荐存入新数组。"}, "杨辉三角": {"title": "杨辉三角形", "content": "首尾为1，中间=左上+正上。a[i][0]=1; a[i][i]=1; a[i][j]=a[i-1][j-1]+a[i-1][j]。先初始化为0。"}, "对角线求和": {"title": "对角线求和", "content": "主对角线（左上→右下）：<strong>i == j</strong>。副对角线（右上→左下）：i + j == n-1。"}, "矩阵运算": {"title": "矩阵加法", "content": "对应位置元素相加：<strong>c[i][j] = a[i][j] + b[i][j]</strong>。要求两个矩阵行列数相同。"}};
+
+const extraQuestions = [];
+
+
+
+let currentQuestions = [];
+
+let currentQIndex = 0;
+
+let answers = {};
+
+let submitted = {};
+
+let currentMode = 'normal';
+
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+
+
+function getWrongBank(){
+
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+
+}
+
+function saveWrongBank(list){
+
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+
+}
+
+function addToWrongBank(q, userAns){
+
+  const bank = getWrongBank();
+
+  if(!bank.find(x=>x.id===q.id)){
+
+    bank.push({
+
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+
+      options:q.options,correct:q.correct,correctText:q.correctText,
+
+      expl:q.expl,userAns:userAns,time:Date.now()
+
+    });
+
+    saveWrongBank(bank);
+
+  }
+
+}
+
+function saveProgress(){
+
+  if(currentMode==='review') return;
+
+  const prog = {
+
+    mode:currentMode, index:currentQIndex, answers:answers,
+
+    ids:currentQuestions.map(q=>q.id), time:Date.now()
+
+  };
+
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+
+}
+
+function loadProgress(){
+
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+
+}
+
+function clearProgress(){
+
+  localStorage.removeItem(PROGRESS_KEY);
+
+}
+
+function shuffle(arr){
+
+  const a=[...arr];
+
+  for(let i=a.length-1;i>0;i--){
+
+    const j=Math.floor(Math.random()*(i+1));
+
+    [a[i],a[j]]=[a[j],a[i]];
+
+  }
+
+  return a;
+
+}
+
+
+
+function openInVSCode(q) {
+
+  const code = q.answer || q.hint || '// 请在此编写代码';
+
+  const blob = new Blob([code], {type: 'text/plain'});
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+
+  a.href = url;
+
+  a.download = `Day${DAY_NUM}_${q.id}.c`;
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+
+  
+
+  // 显示提示
+
+  const info = document.createElement('div');
+
+  info.className = 'vscode-info';
+
+ Open File → 选择下载的 ${a.download}</code><br>或按快捷键 <code>Ctrl+O</code>`;
+
+  const container = document.getElementById('quizContainer');
+
+  const oldInfo = container.querySelector('.vscode-info');
+
+  if (oldInfo) oldInfo.remove();
+
+  container.querySelector('.question-card').appendChild(info);
+
+}
+
+
+
+function startQuiz(mode){
+
+  clearProgress();
+
+  currentMode = mode;
+
+  currentQIndex = 0;
+
+  answers = {};
+
+  submitted = {};
+
+  document.getElementById('resultCard').classList.remove('show');
+
+  document.getElementById('reviewArea').style.display = 'none';
+
+  document.getElementById('quizArea').style.display = 'block';
+
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+
+
+  if(mode==='coding'){
+
+    currentQuestions = [...codingQuestions];
+
+  } else if(mode==='wrongredo'){
+
+    const bank = getWrongBank();
+
+    if(bank.length===0){
+
+      alert('错题库为空，没有错题可以重做！');
+
+      switchMode('normal');
+
+      return;
+
+    }
+
+    currentQuestions = bank.map(w=>({...w, isWrongRedo:true}));
+
+  } else if(mode==='consolidate'){
+
+    const bank = getWrongBank();
+
+    if(bank.length===0){
+
+      alert('错题库为空，先去做题吧！');
+
+      switchMode('normal');
+
+      return;
+
+    }
+
+    const weakKps = [...new Set(bank.map(w=>w.kp))];
+
+    let pool = allQuestions.filter(q=>weakKps.includes(q.kp) && !bank.find(w=>w.id===q.id));
+
+    if(pool.length<5) pool = allQuestions.filter(q=>!bank.find(w=>w.id===q.id));
+
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+
+  } else {
+
+    currentQuestions = [...allQuestions];
+
+  }
+
+
+
+  if(currentQuestions.length===0){
+
+    alert('没有题目！');
+
+    return;
+
+  }
+
+  renderQuestion();
+
+}
+
+
+
+function switchMode(mode){
+
+  if(mode==='review'){
+
+    document.getElementById('quizArea').style.display='none';
+
+    document.getElementById('resultCard').classList.remove('show');
+
+    document.getElementById('reviewArea').style.display='block';
+
+    document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+
+    currentMode='review';
+
+    renderReview();
+
+    return;
+
+  }
+
+  startQuiz(mode);
+
+}
+
+
+
+function renderQuestion(){
+
+  saveProgress();
+
+  const q = currentQuestions[currentQIndex];
+
+  const total = currentQuestions.length;
+
+  const pct = ((currentQIndex+1)/total)*100;
+
+  document.getElementById('progress').style.width = pct+'%';
+
+  document.getElementById('progressText').textContent = `第 ${currentQIndex+1} / ${total} 题`;
+
+
+
+  const isSubmitted = submitted[q.id] !== undefined;
+
+
+
+  let html = `<div class="question-card">`;
+
+  html += `<span class="question-num">第 ${currentQIndex+1} 题</span>`;
+
+  html += `<span class="question-tag">${q.kp}</span>`;
+
+  if(q.type==='coding'){
+
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+
+    html += `<span class="difficulty-tag ${diffMap[q.difficulty]||''}">${q.difficulty}</span>`;
+
+  }
+
+  if(q.type==='coding'){
+
+    html += `<div class="question-text"><strong>${q.title}</strong></div>`;
+
+    html += `<div class="question-desc">${q.desc.replace(/\n/g,'<br>')}</div>`;
+
+    html += `<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>`;
+
+    html += `<div class="btn-group">`;
+
+    html += `<button class="btn btn-vscode" onclick="openInVSCode(currentQuestions[currentQIndex])">📂 在VSCode中打开</button>`;
+
+    html += `<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>`;
+
+    html += `<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>`;
+
+    html += `</div>`;
+
+    html += `<div class="hint-box" id="hintBox">💡 ${q.hint}</div>`;
+
+    html += `<div class="test-result" id="testResult"></div>`;
+
+    html += `<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>${q.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre></div>`;
+
+  } else {
+
+    html += `<div class="question-text">${q.text}</div>`;
+
+    if(q.type==='single' || q.type==='judge'){
+
+      html += `<div class="options">`;
+
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+
+      q.options.forEach((opt,i)=>{
+
+        const label = labels[i];
+
+        let cls = 'option';
+
+        if(isSubmitted){
+
+          if(label === q.correct) cls += ' correct';
+
+          else if(label === answers[q.id]) cls += ' wrong';
+
+          cls += '" style="pointer-events:none';
+
+        } else {
+
+          if(answers[q.id] === label) cls += ' selected';
+
+        }
+
+        html += `<div class="${cls}" data-value="${label}" onclick="${isSubmitted?'':'selectOption(\''+label+'\', event)'}"><span class="option-label">${label}.</span>${opt}</div>`;
+
+      });
+
+      html += `</div>`;
+
+    } else if(q.type==='fill'){
+
+      html += `<div class="question-text">${q.text}</div>`;
+
+    }
+
+  }
+
+  html += `<div class="explanation${isSubmitted?' show':''}" id="expl"><div class="explanation-title">${isSubmitted?(submitted[q.id]?'✅ 正确！':'❌ 错误！'):'📖 解析'}</div>${q.expl||''}</div>`;
+
+  html += `<div class="btn-group">`;
+
+  if(currentQIndex>0) html += `<button class="btn" onclick="prevQ()">上一题</button>`;
+
+  if(q.type==='coding'){
+
+</button>`;
+
+  } else if(isSubmitted){
+
+' : '🏁 查看成绩'}</button>`;
+
+  } else {
+
+    html += `<button class="btn btn-primary" onclick="submitQ()">提交答案</button>`;
+
+  }
+
+  html += `</div></div>`;
+
+  document.getElementById('quizContainer').innerHTML = html;
+
+}
+
+
+
+function selectOption(label, e){
+
+  const q = currentQuestions[currentQIndex];
+
+  answers[q.id] = label;
+
+  document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+
+  e.currentTarget.classList.add('selected');
+
+}
+
+
+
+function showHint(){
+
+  document.getElementById('hintBox').classList.toggle('show');
+
+}
+
+function showAnswerCoding(){
+
+  document.getElementById('answerDisplay').classList.toggle('show');
+
+}
+
+
+
+function submitQ(){
+
+  const q = currentQuestions[currentQIndex];
+
+  let userAns = answers[q.id];
+
+  let isCorrect = false;
+
+
+
+  if(q.type==='fill'){
+
+    const inputs = document.querySelectorAll('.fill-blank');
+
+    userAns = Array.from(inputs).map(i=>i.value.trim());
+
+    isCorrect = q.correct.every((c,i)=>userAns[i] && userAns[i].toLowerCase()===c.toLowerCase());
+
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+
+  } else {
+
+    if(!userAns){
+
+      alert('请先选择一个答案！');
+
+      return;
+
+    }
+
+    isCorrect = userAns===q.correct;
+
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+
+  }
+
+
+
+  submitted[q.id] = isCorrect;
+
+  saveProgress();
+
+  renderQuestion();
+
+}
+
+
+
+function prevQ(){
+
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+
+}
+
+function goNext(){
+
+  if(currentQIndex < currentQuestions.length - 1){
+
+    currentQIndex++;
+
+    renderQuestion();
+
+  } else {
+
+    finishQuiz();
+
+  }
+
+  window.scrollTo(0,0);
+
+}
+
+
+
+function nextQ(){
+
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+
+  else finishQuiz();
+
+}
+
+
+
+function finishQuiz(){
+
+  saveProgress();
+
+  let correct=0, wrongList=[];
+
+  currentQuestions.forEach(q=>{
+
+    if(q.type==='coding') return;
+
+    const ua = answers[q.id];
+
+    let ok=false;
+
+    if(q.type==='fill'){
+
+      const ual = (ua||[]);
+
+      ok = Array.isArray(ual) && q.correct.every((c,i)=>ual[i] && ual[i].toLowerCase()===c.toLowerCase());
+
+    } else { ok = ua===q.correct; }
+
+    if(ok) correct++; else wrongList.push({q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+
+  });
+
+
+
+  const total = currentQuestions.filter(q=>q.type!=='coding').length;
+
+  const wrong = total - correct;
+
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+
+
+  document.getElementById('quizArea').style.display='none';
+
+  document.getElementById('resultCard').classList.add('show');
+
+  document.getElementById('score').textContent = score;
+
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+
+  document.getElementById('correctCount').textContent = correct;
+
+  document.getElementById('wrongCount').textContent = wrong;
+
+  document.getElementById('totalCount').textContent = total;
+
+
+
+  if(wrongList.length>0){
+
+    document.getElementById('wrongBankPreview').style.display='block';
+
+    let html='';
+
+    wrongList.forEach(w=>{
+
+      html += `<div class="wrong-item"><div class="wq">${w.q.kp}: ${w.q.text.substring(0,50)}...</div><div class="wa">你的答案: ${w.userAns}</div><div class="wc">正确答案: ${w.q.correctText||w.q.correct}</div></div>`;
+
+    });
+
+    document.getElementById('wrongPreviewList').innerHTML = html;
+
+  } else {
+
+    document.getElementById('wrongBankPreview').style.display='none';
+
+  }
+
+  clearProgress();
+
+}
+
+
+
+function renderReview(){
+
+  const bank = getWrongBank();
+
+  document.getElementById('wrongBankCount').textContent = bank.length;
+
+  switchReviewTab('list');
+
+}
+
+
+
+function switchReviewTab(tab, e){
+
+  document.querySelectorAll('.review-tab').forEach(t=>t.classList.remove('active'));
+
+  e?.target?.classList.add('active');
+
+  if(!e) document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+
+  if(tab==='list') renderWrongList();
+
+  else renderKnowledgeReview();
+
+}
+
+
+
+function renderWrongList(){
+
+  const bank = getWrongBank();
+
+  const el = document.getElementById('wrongBankList');
+
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  let html='';
+
+  bank.sort((a,b)=>b.time-a.time).forEach((w,i)=>{
+
+    html += `<div class="kp-section" style="border-left-color:#e74c3c">`;
+
+    html += `<div class="kp-header"><div class="kp-title">${i+1}. ${w.kp}</div>`;
+
+    html += `<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong(${w.id})">删除</button></div>`;
+
+    html += `<div class="kp-content">${w.text}</div>`;
+
+    if(w.options){
+
+      html += `<div class="options" style="margin-top:8px">`;
+
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+
+      w.options.forEach((opt,j)=>{
+
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+
+        html += `<div class="option ${cls}" style="cursor:default;pointer-events:none"><span class="option-label">${labels[j]}.</span>${opt}</div>`;
+
+      });
+
+      html += `</div>`;
+
+    }
+
+    html += `<div class="explanation show"><div class="explanation-title">📖 解析</div>${w.expl||''}</div>`;
+
+    html += `</div>`;
+
+  });
+
+  el.innerHTML = html;
+
+}
+
+
+
+function removeWrong(id){
+
+  if(!confirm('确定删除这道错题吗？')) return;
+
+  const bank = getWrongBank().filter(w=>w.id!==id);
+
+  saveWrongBank(bank);
+
+  renderReview();
+
+}
+
+
+
+function clearWrongBank(){
+
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+
+  saveWrongBank([]);
+
+  renderReview();
+
+}
+
+
+
+function renderKnowledgeReview(){
+
+  const bank = getWrongBank();
+
+  const el = document.getElementById('knowledgeReview');
+
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+
+
+  const kpCount = {};
+
+  bank.forEach(w=>{kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+
+  const sorted = Object.entries(kpCount).sort((a,b)=>b[1]-a[1]);
+
+
+
+  let html = `<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 ${sorted.length} 个薄弱知识点</p>`;
+
+  sorted.forEach(([kp,count])=>{
+
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+
+    const related = bank.filter(w=>w.kp===kp);
+
+    html += `<div class="kp-section">`;
+
+    html += `<div class="kp-header"><div class="kp-title">${info.title}</div><span class="kp-badge">错 ${count} 次</span></div>`;
+
+    html += `<div class="kp-content">${info.content}</div>`;
+
+    html += `<div class="kp-wrong-list">相关错题：<br>`;
+
+    related.forEach(r=>{
+
+      html += `• ${r.text.substring(0,60)}${r.text.length>60?'...':''}<br>`;
+
+    });
+
+    html += `</div></div>`;
+
+  });
+
+  el.innerHTML = html;
+
+}
+
+
+
+window.addEventListener('beforeunload', saveProgress);
+
+
+
+(function(){
+
+  const p = loadProgress();
+
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+
+      currentMode = p.mode;
+
+      currentQIndex = p.index;
+
+      answers = p.answers || {};
+
+      let pool;
+
+      if(p.mode==='coding') pool = codingQuestions;
+
+      else pool = allQuestions;
+
+      currentQuestions = p.ids.map(id=>pool.find(q=>q.id===id)).filter(Boolean);
+
+      if(currentQuestions.length>0){
+
+        document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+        const tm = {normal:0,coding:1,wrongredo:2};
+
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+
+        renderQuestion();
+
+        return;
+
+      }
+
+    }
+
+    clearProgress();
+
+  }
+
+  startQuiz('normal');
+
+})();
+
+</script>
+
+</body>
+
+</html>
