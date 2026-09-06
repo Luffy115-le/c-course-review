@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day20 指针的运算 - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day20 指针的运算 - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day20 指针的运算
+
+## 指针算术运算
+### 加法规则
+#### p+n=地址+n×sizeof
+#### int* +1 跳4字节
+#### char* +1 跳1字节
+### 指针差值
+#### q-p=元素个数
+#### 必须同数组
+#### 不是字节数
+### 指针遍历
+#### *(p+i) 等价 a[i]
+#### p++ 遍历
+#### 遍历后重置 p=a
+
+## *p++ 与 (*p)++
+### 优先级规则
+#### ++ 优先级高于 *
+#### *p++ = *(p++)
+#### 括号不能省
+### (*p)++ 值自增
+#### 等价 a[i]++
+#### p 不变
+#### 只改值
+### *p++ 地址自增
+#### 先 *p 再 p++
+#### p 变化
+#### 值不变
+
+## 后置与前置自增
+### q=p++ 后置
+#### 先 q=p 赋值
+#### 后 p=p+1
+#### q 指向原位置
+### *p++=3 应用
+#### 等价 *p=3; p++
+#### 赋值后移指针
+#### 常见写法
+### 前置自增
+#### *++p 先移再取
+#### ++*p 先取再增
+#### (*--p)++ 复合分析
+
+## 指针与数组
+### 数组名=常量指针
+#### a = &a[0]
+#### a 不能自增
+#### p 可以自增
+### 等价关系
+#### a[i]⇔*(a+i)⇔*(p+i)⇔p[i]
+#### 四种等价形式
+#### 灵活选择
+### 指针逆序
+#### p 头 q 尾交换
+#### p++  q--
+#### while(p<q)
+
+## 大小端模式
+### 小端模式
+#### 低位存低地址
+#### x86/x64 架构
+#### 0x78 先存
+### 大端模式
+#### 高位存低地址
+#### 网络字节序
+#### 0x12 先存
+### 代码验证
+#### char* 逐字节查看
+#### 强制转换 (char*)&a
+#### htonl/ntohl 转换
+
+## 易错点总结
+### 常见易错
+#### 指针+1 ≠ 地址+1
+#### 数组名 a++ 错误
+#### 遍历后忘重置
+#### 指针相减需同数组
+#### *p++ ≠ (*p)++
+#### *++p ≠ ++*p
+#### 大小端转换`;
+      const { root } = transformer.transform(md);
+
+      // 给6条主干设置不同颜色
+      const branchColors = [
+        '#FF9F43', // 主干1: 指针算术运算 - 橙色
+        '#EE5253', // 主干2: *p++与(*p)++ - 红色
+        '#2E86DE', // 主干3: 后置与前置自增 - 蓝色
+        '#10AC84', // 主干4: 指针与数组 - 绿色
+        '#6C5CE7', // 主干5: 大小端模式 - 紫色
+        '#FDCB6E'  // 主干6: 易错点总结 - 黄色
+      ];
+      if (root.children) {
+        root.children.forEach(function(child, i) {
+          if (i < branchColors.length) {
+            child.payload = child.payload || {};
+            child.payload.color = branchColors[i];
+            child.payload.freeze = true;
+          }
+        });
+      }
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
