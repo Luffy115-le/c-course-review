@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day23 字符指针与字符串 - 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#4CAF50}
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+.difficulty-mid{background:#fff3e0;color:#e65100}
+.difficulty-hard{background:#ffebee;color:#c62828}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+.code-editor:focus{outline:none;border-color:#4CAF50}
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+.hint-box.show{display:block}
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+.test-result.show{display:block}
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+.answer-display.show{display:block}
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#4CAF50;color:white}
+.btn-primary:hover{background:#45a049}
+.btn-secondary{background:#2196F3;color:white}
+.btn-secondary:hover{background:#1976D2}
+.btn-warn{background:#ff9800;color:white}
+.btn-warn:hover{background:#f57c00}
+.btn-vscode{background:#007ACC;color:white}
+.btn-vscode:hover{background:#005A9E}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#4CAF50}
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.vscode-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#1565c0}
+.vscode-info code{background:#bbdefb;padding:2px 6px;border-radius:3px;font-family:Consolas,monospace}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day23 字符指针与字符串 - 检测练习题</h1>
+<p>字符指针基本用法 · 字符串常量 · 字符数组vs指针 · sizeof区别 · 字符串遍历 · 大小写转换 · 字符串拷贝 · 字符串长度</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 14 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list')">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge')">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day23';
+const DAY_NUM = 23;
+
+const allQuestions = [
+  {"id":1,"type":"single","kp":"字符指针基本用法","text":"char s[] = \"hello\"; char *p = s; 以下哪个表达式与 s[2] 等价？","options":["A. *(p + 2)","B. p + 2","C. &p[2]","D. *p + 2"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>p指向s的首元素，*(p+2)等价于p[2]等价于s[2]。p+2是地址不是值，&p[2]是地址，*p+2是s[0]+2=104。"},
+  {"id":2,"type":"single","kp":"字符串常量","text":"以下代码的运行结果是？ char *p = \"hello\"; *p = \"H\";","options":["A. 正常运行，p指向\"Hello\"","B. 编译错误","C. 运行时段错误","D. 没有影响"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>char *p = \"hello\"使p指向只读内存中的字符串常量。*p = \"H\"尝试修改只读内存，导致段错误（Segmentation Fault）。"},
+  {"id":3,"type":"single","kp":"字符数组vs指针","text":"以下哪段代码是正确的？","options":["A. char *p = \"hello\"; p[0] = \"H\";","B. char s[] = \"hello\"; s[0] = \"H\";","C. char *p = \"hello\"; *p = \"H\";","D. char s[] = \"hello\"; s++;"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>char s[]=\"hello\"是字符数组，可以修改内容s[0]=\"H\"。A和C修改字符串常量会段错误。D的s++错误因为数组名是常量。"},
+  {"id":4,"type":"single","kp":"sizeof区别","text":"char s[] = \"How are you!\"; char *p = \"How are you!\"; sizeof(s) 和 sizeof(p) 的值分别是？（64位）","options":["A. 13, 13","B. 13, 8","C. 8, 13","D. 8, 8"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>sizeof(s)=13（数组含\\0），sizeof(p)=8（64位指针大小）。数组名得整个数组大小，指针只得指针大小。"},
+  {"id":5,"type":"single","kp":"字符串遍历","text":"遍历字符串的标准写法是？","options":["A. while (*p != \"\\0\") { p++; }","B. while (p != \"\\0\") { p++; }","C. while (*p != 0) { p++; }","D. A和C都正确"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>\\0的ASCII码就是0，所以*p!=\"\\0\"和*p!=0完全等价。p!=\"\\0\"是错误的，因为p是地址不是字符。"},
+  {"id":6,"type":"single","kp":"大小写转换","text":"将大写字母\"A\"转换为小写字母\"a\"的正确操作是？","options":["A. *p += 32","B. *p -= 32","C. *p += 26","D. *p -= 26"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>大写A=65，小写a=97，差值32。大写转小写：*p+=32。小写转大写：*p-=32。"},
+  {"id":7,"type":"single","kp":"字符串拷贝","text":"字符串拷贝完成后，必须执行什么操作？","options":["A. p = NULL","B. *p = \"\\0\"","C. p = dest","D. 不需要额外操作"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>字符串拷贝完成后必须手动添加结束符*p=\"\\0\"，否则printf输出时会出现乱码。"},
+  {"id":8,"type":"single","kp":"字符数组vs指针","text":"char s[] = \"hello\"; char *p = \"hello\"; 以下说法正确的是？","options":["A. s和p都存储在只读区","B. s存储在栈上，p指向只读区","C. s和p都存储在栈上","D. s指向只读区，p存储在栈上"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>char s[]=\"hello\"将字符串复制到栈上的数组，可以修改。char *p=\"hello\"使p指向只读数据段的字符串常量，不能修改。"},
+  {"id":9,"type":"single","kp":"字符指针基本用法","text":"char s[] = \"abc\"; char *p = s; 以下哪个操作是错误的？","options":["A. *p = \"A\"","B. p++","C. s[0] = \"A\"","D. s++"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>s是数组名（常量），s++错误。p是指针变量，p++正确。*p=\"A\"和s[0]=\"A\"都是修改数组内容，正确。"},
+  {"id":10,"type":"single","kp":"字符串长度","text":"用指针计算字符串\"hello world\"的长度，结果是？","options":["A. 10","B. 11","C. 12","D. 13"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>\"hello world\"有11个字符（不计\\0）。用while(*p!=\"\\0\"){len++;p++;}计算，结果为11。"},
+  {"id":11,"type":"judge","kp":"字符串常量","text":"char *p = \"hello\"; 可以通过 *p = \"H\" 修改字符串内容。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。char *p=\"hello\"指向字符串常量，存储在只读内存区域。*p=\"H\"尝试修改只读内存，导致段错误。"},
+  {"id":12,"type":"judge","kp":"字符数组vs指针","text":"char s[] = \"hello\"; 和 char *p = \"hello\"; 在内存中的存储方式相同。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。char s[]=\"hello\"将字符串复制到栈上（可修改）。char *p=\"hello\"指向只读数据段的常量（不可修改）。存储方式完全不同。"},
+  {"id":13,"type":"judge","kp":"sizeof区别","text":"char s[] = \"hi\"; char *p = \"hi\"; 则 sizeof(s) == sizeof(p)。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。sizeof(s)=3（数组含\\0），sizeof(p)=8（64位指针大小）。两者不等。"},
+  {"id":14,"type":"judge","kp":"字符串拷贝","text":"使用指针实现字符串拷贝时，拷贝完成后不需要手动添加结束符 \\0。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。字符串拷贝完成后必须手动添加*p=\"\\0\"结束符，否则printf会越界输出乱码。"}
+];
+
+const codingQuestions = [
+  {"id":101,"type":"coding","kp":"字符指针","difficulty":"入门","title":"字符串大小写转换","desc":"定义字符数组 char s[100] = \"How are you!\"，用字符指针遍历，将大写字母转小写，小写字母转大写，最后打印结果。","hint":"用char *p = s; while(*p!=\"\\0\")遍历，大写(*p>=\"A\"&&*p<=\"Z\")加32，小写(*p>=\"a\"&&*p<=\"z\")减32。","answer":"#include <stdio.h>\n\nint main() {\n    char s[100] = \"How are you!\";\n    char *p = s;\n\n    while (*p != '\\0') {\n        if (*p >= 'A' && *p <= 'Z') {\n            *p += 32;\n        } else if (*p >= 'a' && *p <= 'z') {\n            *p -= 32;\n        }\n        p++;\n    }\n    printf(\"%s\\n\", s);\n\n    return 0;\n}","test_input":"","expected_output":"hOW ARE YOU!"},
+  {"id":102,"type":"coding","kp":"字符指针","difficulty":"入门","title":"计算字符串长度","desc":"定义字符数组 char s[] = \"hello world\"，用字符指针遍历计算字符串长度（不使用strlen），打印结果。","hint":"用char *p = s; int len=0; while(*p!=\"\\0\"){len++;p++;}计算长度。","answer":"#include <stdio.h>\n\nint main() {\n    char s[] = \"hello world\";\n    char *p = s;\n    int len = 0;\n\n    while (*p != '\\0') {\n        len++;\n        p++;\n    }\n    printf(\"length = %d\\n\", len);\n\n    return 0;\n}","test_input":"","expected_output":"length = 11"},
+  {"id":103,"type":"coding","kp":"字符指针","difficulty":"中等","title":"字符串拼接","desc":"定义 char dest[100] = \"abc\" 和 char *src = \"def\"，用指针实现字符串拼接（将src追加到dest末尾），打印拼接后的dest。","hint":"先用p移到dest末尾(*p!=\"\\0\"时p++)，再逐字符拷贝src，最后*p=\"\\0\"。","answer":"#include <stdio.h>\n\nint main() {\n    char dest[100] = \"abc\";\n    char *src = \"def\";\n    char *p = dest;\n    char *q = src;\n\n    while (*p != '\\0') {\n        p++;\n    }\n    while (*q != '\\0') {\n        *p = *q;\n        p++;\n        q++;\n    }\n    *p = '\\0';\n\n    printf(\"dest: %s\\n\", dest);\n\n    return 0;\n}","test_input":"","expected_output":"dest: abcdef"}
+];
+
+const kpMap = {
+  "字符指针基本用法":{"title":"字符指针指向字符数组","content":"<code>char *p = s;</code> 使p指向字符数组首元素。<br>• <code>*p</code> 访问当前字符<br>• <code>p++</code> 移动到下一个字符<br>• <code>while(*p != \"\\0\")</code> 遍历字符串标准写法<br>• 指向字符数组时<strong>可以修改</strong>内容"},
+ p指向只读常量<br>• <code>*p = \"H\"</code> → <strong>段错误！</strong><br>• 原因：尝试修改只读内存<br>• 正确做法：用<code>char s[] = \"hello\"</code>（复制到数组）"},
+  "字符数组vs指针":{"title":"char s[] vs char *p","content":"<strong>核心区别：</strong><br>• <code>char s[] = \"hello\"</code>：复制到栈上，<strong>可修改</strong>，sizeof=数组大小，不能s++<br>• <code>char *p = \"hello\"</code>：指向只读区，<strong>不可修改</strong>，sizeof=指针大小，可以p++<br>🔴 数组=拷贝可改，指针=指向不可改"},
+  "sizeof区别":{"title":"sizeof(s) vs sizeof(p)","content":"<code>char s[] = \"How are you!\"</code>：<br>• <code>sizeof(s)</code> = 13（整个数组含\\0）<br><code>char *p = \"How are you!\"</code>：<br>• <code>sizeof(p)</code> = 8（64位指针大小）<br>🔴 数组得整个数组大小，指针只得指针大小！"},
+  "字符串遍历":{"title":"字符串遍历标准写法","content":"<strong>标准遍历模板：</strong><br><code>while (*p != \"\\0\") { ... p++; }</code><br>• \\0的ASCII码是0，所以*p!=\"\\0\"等价于*p!=0<br>• p是地址不能写成p!=\"\\0\"<br>• 遍历时必须检查，否则越界"},
+  "大小写转换":{"title":"ASCII大小写转换","content":"ASCII规律：<br>• 大写 A~Z = 65~90<br>• 小写 a~z = 97~122<br>• <strong>差值 = 32</strong><br>• 大写转小写：<code>*p += 32</code><br>• 小写转大写：<code>*p -= 32</code>"},
+  "字符串拷贝":{"title":"指针实现字符串拷贝","content":"<strong>步骤：</strong><br>1. p移到dest末尾：<code>while(*p!=\"\\0\") p++;</code><br>2. 逐字符拷贝：<code>while(*q!=\"\\0\"){*p=*q;p++;q++;}</code><br>3. ⚠️ <strong>必须加结束符：</strong><code>*p = \"\\0\"</code><br>忘记加\\0会导致printf输出乱码！"},
+  "字符串长度":{"title":"指针实现strlen","content":"用指针遍历字符串，计数到\\0为止：<br><code>int len = 0; while(*p != \"\\0\"){len++; p++;}</code><br>这就是strlen函数的实现原理。注意\\0不计入长度。"}
+};
+
+const extraQuestions = [];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(function(x){return x.id===q.id})){
+    bank.push({
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+      options:q.options,correct:q.correct,correctText:q.correctText,
+      expl:q.expl,userAns:userAns,time:Date.now()
+    });
+    saveWrongBank(bank);
+  }
+}
+function saveProgress(){
+  if(currentMode==='review') return;
+  const prog = {
+    mode:currentMode, index:currentQIndex, answers:answers,
+    ids:currentQuestions.map(function(q){return q.id}), time:Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+}
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+}
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+function shuffle(arr){
+  const a=[];
+  for(let i=0;i<arr.length;i++) a.push(arr[i]);
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+function openInVSCode(q) {
+  const code = q.answer || q.hint || '// 请在此编写代码';
+  const blob = new Blob([code], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Day'+DAY_NUM+'_'+q.id+'.c';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  const info = document.createElement('div');
+  info.className = 'vscode-info';
+ Open File → 选择下载的 '+a.download+'</code><br>或按快捷键 <code>Ctrl+O</code>';
+  const container = document.getElementById('quizContainer');
+  const oldInfo = container.querySelector('.vscode-info');
+  if (oldInfo) oldInfo.remove();
+  container.querySelector('.question-card').appendChild(info);
+}
+
+function startQuiz(mode){
+  clearProgress();
+  currentMode = mode;
+  currentQIndex = 0;
+  answers = {};
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('reviewArea').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+  if(mode==='coding'){
+    currentQuestions = [];
+    for(let i=0;i<codingQuestions.length;i++) currentQuestions.push(codingQuestions[i]);
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      switchMode('normal');
+      return;
+    }
+    currentQuestions = bank.map(function(w){return Object.assign({},w,{isWrongRedo:true})});
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，先去做题吧！');
+      switchMode('normal');
+      return;
+    }
+    const weakKps = [];
+    const seen={};
+    for(let i=0;i<bank.length;i++){if(!seen[bank[i].kp]){weakKps.push(bank[i].kp);seen[bank[i].kp]=true;}}
+    let pool = allQuestions.filter(function(q){return weakKps.indexOf(q.kp)>=0 && !bank.find(function(w){return w.id===q.id})});
+    if(pool.length<5) pool = allQuestions.filter(function(q){return !bank.find(function(w){return w.id===q.id})});
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  } else {
+    currentQuestions = [];
+    for(let i=0;i<allQuestions.length;i++) currentQuestions.push(allQuestions[i]);
+  }
+
+  if(currentQuestions.length===0){
+    alert('没有题目！');
+    return;
+  }
+  renderQuestion();
+}
+
+function switchMode(mode){
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+    currentMode='review';
+    renderReview();
+    return;
+  }
+  startQuiz(mode);
+}
+
+function renderQuestion(){
+  saveProgress();
+  const q = currentQuestions[currentQIndex];
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = '第 '+(currentQIndex+1)+' / '+total+' 题';
+
+  let html = '<div class="question-card">';
+  html += '<span class="question-num">第 '+(currentQIndex+1)+' 题</span>';
+  html += '<span class="question-tag">'+q.kp+'</span>';
+  if(q.type==='coding'){
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+    html += '<span class="difficulty-tag '+(diffMap[q.difficulty]||'')+'">'+q.difficulty+'</span>';
+  }
+  if(q.type==='coding'){
+    html += '<div class="question-text"><strong>'+q.title+'</strong></div>';
+    html += '<div class="question-desc">'+q.desc.replace(/\n/g,'<br>')+'</div>';
+    html += '<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>';
+    html += '<div class="btn-group">';
+    html += '<button class="btn btn-vscode" onclick="openInVSCode(currentQuestions[currentQIndex])">📂 在VSCode中打开</button>';
+    html += '<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>';
+    html += '<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>';
+    html += '</div>';
+    html += '<div class="hint-box" id="hintBox">💡 '+q.hint+'</div>';
+    html += '<div class="test-result" id="testResult"></div>';
+    html += '<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>'+q.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre></div>';
+  } else {
+    html += '<div class="question-text">'+q.text+'</div>';
+    if(q.type==='single' || q.type==='judge'){
+      html += '<div class="options">';
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      q.options.forEach(function(opt,i){
+        const sel = answers[q.id]===labels[i]?'selected':'';
+        html += '<div class="option '+sel+'" onclick="selectOption(\''+labels[i]+'\', event)"><span class="option-label">'+labels[i]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    } else if(q.type==='fill'){
+      html += '<div class="question-text">'+q.text+'</div>';
+    }
+  }
+  html += '<div class="explanation" id="expl"><div class="explanation-title">📖 解析</div>'+(q.expl||'')+'</div>';
+  html += '<div class="btn-group">';
+  if(currentQIndex>0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if(q.type==='coding'){
+</button>';
+  } else {
+    html += '<button class="btn btn-primary" onclick="submitQ(event)">提交答案</button>';
+</button>';
+    else html += '<button class="btn btn-secondary" onclick="finishQuiz()" id="finishBtn" style="display:none">🏁 完成答题</button>';
+  }
+  html += '</div></div>';
+  document.getElementById('quizContainer').innerHTML = html;
+}
+
+function selectOption(label, e){
+  const q = currentQuestions[currentQIndex];
+  answers[q.id] = label;
+  document.querySelectorAll('.option').forEach(function(o){o.classList.remove('selected')});
+  e.currentTarget.classList.add('selected');
+}
+
+function showHint(){
+  document.getElementById('hintBox').classList.toggle('show');
+}
+function showAnswerCoding(){
+  document.getElementById('answerDisplay').classList.toggle('show');
+}
+
+function submitQ(e){
+  const q = currentQuestions[currentQIndex];
+  let userAns = answers[q.id];
+  let isCorrect = false;
+
+  if(q.type==='fill'){
+    const inputs = document.querySelectorAll('.fill-blank');
+    userAns = Array.from(inputs).map(function(i){return i.value.trim()});
+    isCorrect = q.correct.every(function(c,i){return userAns[i] && userAns[i].toLowerCase()===c.toLowerCase()});
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+  } else {
+    if(!userAns){
+      alert('请先选择一个答案！');
+      return;
+    }
+    isCorrect = userAns===q.correct;
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+  }
+
+  if(q.type==='single' || q.type==='judge'){
+    document.querySelectorAll('.option').forEach(function(o,i){
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      if(labels[i]===q.correct) o.classList.add('correct');
+      else if(labels[i]===userAns) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+    });
+  } else if(q.type==='fill'){
+    document.querySelectorAll('.fill-blank').forEach(function(inp,i){
+      inp.disabled = true;
+      if(inp.value.trim().toLowerCase()===q.correct[i].toLowerCase()){
+        inp.style.background='#d4edda';inp.style.borderColor='#27ae60';
+      } else {
+        inp.style.background='#f8d7da';inp.style.borderColor='#e74c3c';
+        inp.title = '正确答案: '+q.correct[i];
+      }
+    });
+  }
+
+  document.getElementById('expl').classList.add('show');
+  const nb = document.getElementById('nextBtn');
+  const fb = document.getElementById('finishBtn');
+  if(nb) nb.removeAttribute('style');
+  if(fb) fb.removeAttribute('style');
+  e.currentTarget.style.display='none';
+  saveProgress();
+}
+
+function prevQ(){
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+}
+function nextQ(){
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+  else finishQuiz();
+}
+
+function finishQuiz(){
+  saveProgress();
+  let correct=0, wrongList=[];
+  currentQuestions.forEach(function(q){
+    if(q.type==='coding') return;
+    const ua = answers[q.id];
+    let ok=false;
+    if(q.type==='fill'){
+      const ual = (ua||[]);
+      ok = Array.isArray(ual) && q.correct.every(function(c,i){return ual[i] && ual[i].toLowerCase()===c.toLowerCase()});
+    } else { ok = ua===q.correct; }
+    if(ok) correct++; else wrongList.push({q:q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+  });
+
+  const total = currentQuestions.filter(function(q){return q.type!=='coding'}).length;
+  const wrong = total - correct;
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+  document.getElementById('quizArea').style.display='none';
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('score').textContent = score;
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(wrongList.length>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    let html='';
+    wrongList.forEach(function(w){
+      html += '<div class="wrong-item"><div class="wq">'+w.q.kp+': '+w.q.text.substring(0,50)+'...</div><div class="wa">你的答案: '+w.userAns+'</div><div class="wc">正确答案: '+(w.q.correctText||w.q.correct)+'</div></div>';
+    });
+    document.getElementById('wrongPreviewList').innerHTML = html;
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+  clearProgress();
+}
+
+function renderReview(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  switchReviewTab('list');
+}
+
+function switchReviewTab(tab){
+  document.querySelectorAll('.review-tab').forEach(function(t){t.classList.remove('active')});
+  if(event&&event.target) event.target.classList.add('active');
+  else document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+  if(tab==='list') renderWrongList();
+  else renderKnowledgeReview();
+}
+
+function renderWrongList(){
+  const bank = getWrongBank();
+  const el = document.getElementById('wrongBankList');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+  let html='';
+  bank.sort(function(a,b){return b.time-a.time}).forEach(function(w,i){
+    html += '<div class="kp-section" style="border-left-color:#e74c3c">';
+    html += '<div class="kp-header"><div class="kp-title">'+(i+1)+'. '+w.kp+'</div>';
+    html += '<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong('+w.id+')">删除</button></div>';
+    html += '<div class="kp-content">'+w.text+'</div>';
+    if(w.options){
+      html += '<div class="options" style="margin-top:8px">';
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+      w.options.forEach(function(opt,j){
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+        html += '<div class="option '+cls+'" style="cursor:default;pointer-events:none"><span class="option-label">'+labels[j]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div class="explanation show"><div class="explanation-title">📖 解析</div>'+(w.expl||'')+'</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function removeWrong(id){
+  if(!confirm('确定删除这道错题吗？')) return;
+  const bank = getWrongBank().filter(function(w){return w.id!==id});
+  saveWrongBank(bank);
+  renderReview();
+}
+
+function clearWrongBank(){
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+  saveWrongBank([]);
+  renderReview();
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const el = document.getElementById('knowledgeReview');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  const kpCount = {};
+  bank.forEach(function(w){kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+  const sorted = Object.keys(kpCount).map(function(k){return [k,kpCount[k]]}).sort(function(a,b){return b[1]-a[1]});
+
+  let html = '<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 '+sorted.length+' 个薄弱知识点</p>';
+  sorted.forEach(function(entry){
+    const kp=entry[0],count=entry[1];
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+    const related = bank.filter(function(w){return w.kp===kp});
+    html += '<div class="kp-section">';
+    html += '<div class="kp-header"><div class="kp-title">'+info.title+'</div><span class="kp-badge">错 '+count+' 次</span></div>';
+    html += '<div class="kp-content">'+info.content+'</div>';
+    html += '<div class="kp-wrong-list">相关错题：<br>';
+    related.forEach(function(r){
+      html += '• '+r.text.substring(0,60)+(r.text.length>60?'...':'')+'<br>';
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+window.addEventListener('beforeunload', saveProgress);
+
+(function(){
+  const p = loadProgress();
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+      currentMode = p.mode;
+      currentQIndex = p.index;
+      answers = p.answers || {};
+      let pool;
+      if(p.mode==='coding') pool = codingQuestions;
+      else pool = allQuestions;
+      currentQuestions = p.ids.map(function(id){return pool.find(function(q){return q.id===id})}).filter(Boolean);
+      if(currentQuestions.length>0){
+        document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+        const tm = {normal:0,coding:1,wrongredo:2};
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+        renderQuestion();
+        return;
+      }
+    }
+    clearProgress();
+  }
+  startQuiz('normal');
+})();
+</script>
+</body>
+</html>
