@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day14 循环语句while do-while goto - 知识卡片</title>
+
+<style>
+
+{margin:0;padding:0;box-sizing:border-box}
+
+body{font-family:'Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
+
+.container{max-width:1200px;margin:0 auto}
+
+.header{text-align:center;color:white;margin-bottom:30px}
+
+.header h1{font-size:28px;margin-bottom:8px}
+
+.header p{opacity:.9;font-size:14px}
+
+.filter-bar{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+
+.filter-btn{padding:8px 16px;border:none;border-radius:20px;background:rgba(255,255,255,.2);color:white;cursor:pointer;transition:.3s;font-size:13px}
+
+.filter-btn:hover,.filter-btn.active{background:white;color:#764ba2}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px}
+
+.card{background:white;border-radius:12px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:.3s;cursor:pointer}
+
+.card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.15)}
+
+.card.while{border-left:4px solid #7f8c8d}
+
+.card.while .card-tag{background:#7f8c8d}
+
+.card.gcd{border-left:4px solid #7f8c8d}
+
+.card.gcd .card-tag{background:#7f8c8d}
+
+.card.narc{border-left:4px solid #7f8c8d}
+
+.card.narc .card-tag{background:#7f8c8d}
+
+.card.prime{border-left:4px solid #7f8c8d}
+
+.card.prime .card-tag{background:#7f8c8d}
+
+.card.dowhile{border-left:4px solid #7f8c8d}
+
+.card.dowhile .card-tag{background:#7f8c8d}
+
+.card.goto{border-left:4px solid #7f8c8d}
+
+.card.goto .card-tag{background:#7f8c8d}
+
+.card.compare{border-left:4px solid #7f8c8d}
+
+.card.compare .card-tag{background:#7f8c8d}
+
+.card.error{border-left:4px solid #34495e}
+
+.card.error .card-tag{background:#34495e}
+
+
+
+.card-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;color:white;margin-bottom:10px}
+
+.card-key{font-size:18px;font-weight:bold;color:#2c3e50;margin-bottom:8px;font-family:'Consolas',monospace;background:#f8f9fa;padding:8px 12px;border-radius:6px;display:inline-block}
+
+.card-name{font-size:14px;color:#7f8c8d;margin-bottom:10px}
+
+.card-desc{font-size:13px;color:#34495e;line-height:1.6}
+
+.card-memo{font-size:12px;color:#e74c3c;margin-top:10px;padding-top:10px;border-top:1px dashed #eee;font-style:italic}
+
+.stats{position:fixed;bottom:20px;right:20px;background:white;padding:15px 20px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.2);font-size:13px}
+
+.stats .stat-item{display:flex;align-items:center;gap:8px;margin:5px 0}
+
+.stats .dot{width:10px;height:10px;border-radius:50%}
+
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr}}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>🎴 Day14 循环语句while do-while goto 知识卡片</h1>
+
+<p>共 19 张知识卡片，支持分类筛选</p>
+
+</div>
+
+<div class="filter-bar">
+
+<button class="filter-btn active" onclick="filter('all')">全部</button>
+
+<button class="filter-btn" onclick="filter('while')">while</button>
+
+<button class="filter-btn" onclick="filter('gcd')">gcd</button>
+
+<button class="filter-btn" onclick="filter('narc')">narc</button>
+
+<button class="filter-btn" onclick="filter('prime')">prime</button>
+
+<button class="filter-btn" onclick="filter('dowhile')">dowhile</button>
+
+<button class="filter-btn" onclick="filter('goto')">goto</button>
+
+<button class="filter-btn" onclick="filter('compare')">compare</button>
+
+<button class="filter-btn" onclick="filter('error')">常见错误</button>
+
+
+
+</div>
+
+<div class="cards-grid" id="cards">
+
+
+
+<div class="card while" data-cat="while">
+
+<div class="card-tag">while · 必考</div>
+
+<div class="card-key">while(条件)</div>
+
+<div class="card-name">while基本语法</div>
+
+<div class="card-desc">while(循环条件) { 循环体; }。先判断条件，为真则执行循环体，再回到条件判断。条件为假则跳出循环。</div>
+
+<div class="card-memo">💡 先判断，后执行，条件为假时一次都不执行</div>
+
+</div>
+
+
+
+<div class="card while" data-cat="while">
+
+<div class="card-tag">while · 必考</div>
+
+<div class="card-key">while求和</div>
+
+<div class="card-name">while经典案例</div>
+
+<div class="card-desc">int i=1,sum=0; while(i<=100){sum+=i; i++;}。必须在while前初始化循环变量，循环体内必须更新循环变量。</div>
+
+<div class="card-memo">⚠️ 忘记i++会导致死循环！</div>
+
+</div>
+
+
+
+<div class="card while" data-cat="while">
+
+<div class="card-tag">while · 必考</div>
+
+<div class="card-key">while(1)</div>
+
+<div class="card-name">while死循环</div>
+
+<div class="card-desc">while(1) { ... } 条件永远为真，是死循环。需要在循环体内用break跳出。常用于菜单系统、服务器等一直运行的程序。</div>
+
+<div class="card-memo">💡 while(1) 和 for(;;) 都是常见的死循环写法</div>
+
+</div>
+
+
+
+<div class="card while" data-cat="while">
+
+<div class="card-tag">while · 重点</div>
+
+<div class="card-key">多组输入</div>
+
+<div class="card-name">while处理多组输入</div>
+
+<div class="card-desc">while((ret=scanf("%d",&num))==1) { sum+=num; ... }。利用scanf返回值判断是否还有输入。返回1表示成功读取一个数。</div>
+
+<div class="card-memo">💡 Windows下按Ctrl+Z结束输入，Linux下按Ctrl+D</div>
+
+</div>
+
+
+
+<div class="card gcd" data-cat="gcd">
+
+<div class="card-tag">gcd · 必考</div>
+
+<div class="card-key">辗转相除法</div>
+
+<div class="card-name">求最大公约数</div>
+
+<div class="card-desc">① a%b得余数c ② 若c==0则b是GCD ③ 否则a=b, b=c重复①。核心：while((c=a%b)!=0){a=b; b=c;}</div>
+
+<div class="card-memo">💡 结果存在b中！退出循环时c==0，b就是最大公约数</div>
+
+</div>
+
+
+
+<div class="card gcd" data-cat="gcd">
+
+<div class="card-tag">gcd · 必考</div>
+
+<div class="card-key">最小公倍数</div>
+
+<div class="card-name">求最小公倍数</div>
+
+<div class="card-desc">LCM(a,b) = a*b / GCD(a,b)。先保存a*b的乘积，求出最大公约数后，用乘积除以最大公约数就是最小公倍数。</div>
+
+<div class="card-memo">⚠️ 先保存乘积！因为求GCD过程中a和b的值会被修改</div>
+
+</div>
+
+
+
+<div class="card narc" data-cat="narc">
+
+<div class="card-tag">narc · 必考</div>
+
+<div class="card-key">数位拆分</div>
+
+<div class="card-name">提取各位数字</div>
+
+<div class="card-desc">百位a=n/100，十位b=n%100/10，个位c=n%10。/是整数除法（去掉低位），%是取余（保留低位）。</div>
+
+<div class="card-memo">💡 /去掉低位，%保留低位，组合使用可以提取任意位</div>
+
+</div>
+
+
+
+<div class="card narc" data-cat="narc">
+
+<div class="card-tag">narc · 必考</div>
+
+<div class="card-key">while版水仙花</div>
+
+<div class="card-name">while求水仙花数</div>
+
+<div class="card-desc">n=100; while(n<=999){提取a,b,c; 若a^3+b^3+c^3==n则输出; n++;}。遍历所有三位数，逐个判断。</div>
+
+<div class="card-memo">💡 水仙花数只有4个：153, 370, 371, 407</div>
+
+</div>
+
+
+
+<div class="card prime" data-cat="prime">
+
+<div class="card-tag">prime · 必考</div>
+
+<div class="card-key">素数判断</div>
+
+<div class="card-name">判断素数的方法</div>
+
+<div class="card-desc">判断n是否为素数：检查2到n-1之间有没有数能整除n。都不能整除就是素数。可以用flag标记：flag=1假设是素数，发现能整除则flag=0。</div>
+
+<div class="card-memo">💡 优化：只需检查到sqrt(n)即可，因为因数是成对出现的</div>
+
+</div>
+
+
+
+<div class="card prime" data-cat="prime">
+
+<div class="card-tag">prime · 重点</div>
+
+<div class="card-key">while嵌套求素数</div>
+
+<div class="card-name">while嵌套求100内素数</div>
+
+<div class="card-desc">外层while(n<100)遍历每个数，内层while(i<=n-1)判断是否为素数。双层while嵌套，外层控制范围，内层做判断。</div>
+
+<div class="card-memo">💡 2是最小的素数，也是唯一的偶素数</div>
+
+</div>
+
+
+
+<div class="card dowhile" data-cat="dowhile">
+
+<div class="card-tag">dowhile · 必考</div>
+
+<div class="card-key">do{}while();</div>
+
+<div class="card-name">do-while基本语法</div>
+
+<div class="card-desc">do { 循环体; } while(条件);。先执行一次循环体，再判断条件。条件为真继续，为假跳出。末尾分号不能省！</div>
+
+<div class="card-memo">⚠️ 末尾的分号绝对不能省略！这是do-while最容易错的地方</div>
+
+</div>
+
+
+
+<div class="card dowhile" data-cat="dowhile">
+
+<div class="card-tag">dowhile · 必考</div>
+
+<div class="card-key">while vs do-while</div>
+
+<div class="card-name">while和do-while区别</div>
+
+<div class="card-desc">while：先判断后执行，最少0次。do-while：先执行后判断，最少1次。大多数情况两者可以互换，但do-while适合菜单等至少执行一次的场景。</div>
+
+<div class="card-memo">💡 口诀：while先判断，do-while先干活</div>
+
+</div>
+
+
+
+<div class="card dowhile" data-cat="dowhile">
+
+<div class="card-tag">dowhile · 重点</div>
+
+<div class="card-key">do-while版GCD</div>
+
+<div class="card-name">do-while求最大公约数</div>
+
+<div class="card-desc">do { c=a%b; a=b; b=c; } while(c);。当c==0时循环结束，结果存在a中（注意和while版的区别！while版结果在b中）。</div>
+
+<div class="card-memo">💡 while(c) 等价于 while(c!=0)，非零即真</div>
+
+</div>
+
+
+
+<div class="card goto" data-cat="goto">
+
+<div class="card-tag">goto · 了解</div>
+
+<div class="card-key">goto 标签</div>
+
+<div class="card-name">goto基本用法</div>
+
+<div class="card-desc">goto 标签名; 跳转到标签位置。标签名: 语句; 定义跳转目标。goto是无条件跳转，可以在函数内任意跳转。</div>
+
+<div class="card-memo">💡 标签定义后要加冒号：loop:</div>
+
+</div>
+
+
+
+<div class="card goto" data-cat="goto">
+
+<div class="card-tag">goto · 了解</div>
+
+<div class="card-key">goto求和</div>
+
+<div class="card-name">goto实现循环</div>
+
+<div class="card-desc">loop: if(i<=100){sum+=i; i++; goto loop;}。用goto和if可以模拟while循环。但实际编程中不建议这么写。</div>
+
+<div class="card-memo">❌ 不要用goto代替正常的循环结构</div>
+
+</div>
+
+
+
+<div class="card goto" data-cat="goto">
+
+<div class="card-tag">goto · 重点</div>
+
+<div class="card-key">goto跳多层</div>
+
+<div class="card-name">goto合理用法</div>
+
+<div class="card-desc">✅ 合理：① 跳出多层循环（break只能跳一层）② 错误处理统一清理资源。❌ 不合理：代替正常循环、随意跳转导致"面条代码"。</div>
+
+<div class="card-memo">💡 goto可以用，但要节制！只在break搞不定的场景用</div>
+
+</div>
+
+
+
+<div class="card compare" data-cat="compare">
+
+<div class="card-tag">compare · 必考</div>
+
+<div class="card-key">三种循环对比</div>
+
+<div class="card-name">for/while/do-while选择</div>
+
+for；未知次数靠条件→while；至少执行一次→do-while。三者可以互相转换，但选择合适的写法代码更清晰。</div>
+
+<div class="card-memo">💡 循环三要素：初始化、条件、更新，三者缺一不可</div>
+
+</div>
+
+
+
+<div class="card compare" data-cat="compare">
+
+<div class="card-tag">compare · 必考</div>
+
+<div class="card-key">break vs continue</div>
+
+<div class="card-name">break和continue区别</div>
+
+<div class="card-desc">break：立即跳出当前层循环。continue：跳过本次循环剩余语句，进入下一次。break是"不干了"，continue是"这次算了，下次继续"。</div>
+
+<div class="card-memo">💡 break跳出循环，continue跳过本次</div>
+
+</div>
+
+
+
+<div class="card error" data-cat="error">
+
+<div class="card-tag">常见错误 · 必考</div>
+
+<div class="card-key">循环常见错误</div>
+
+<div class="card-name">循环7大易错点</div>
+
+<div class="card-desc">① 循环变量未初始化 ② 忘记更新循环变量（死循环）③ do-while忘写末尾分号 ④ 条件写反 ⑤ while后加分号 ⑥ 循环嵌套变量重名 ⑦ 滥用goto</div>
+
+<div class="card-memo">⚠️ 死循环时按Ctrl+C强制终止</div>
+
+</div>
+
+
+
+</div>
+
+<div class="stats">
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>while 4</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>gcd 2</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>narc 2</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>prime 2</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>dowhile 3</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>goto 3</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>compare 2</div>
+
+<div class="stat-item"><div class="dot" style="background:#34495e"></div>常见错误 1</div>
+
+<div style="border-top:1px solid #eee;margin-top:8px;padding-top:8px;font-weight:bold">总计：19 张</div>
+
+</div>
+
+</div>
+
+<script>
+
+function filter(cat){
+
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+
+    event.target.classList.add('active');
+
+    document.querySelectorAll('.card').forEach(c=>{
+
+        c.style.display = (cat==='all' || c.dataset.cat===cat) ? 'block' : 'none';
+
+    });
+
+}
+
+</script>
+
+</body>
+
+</html>
