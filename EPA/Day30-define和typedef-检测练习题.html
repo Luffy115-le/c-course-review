@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day30 #define 和 typedef - 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#4CAF50}
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+.difficulty-mid{background:#fff3e0;color:#e65100}
+.difficulty-hard{background:#ffebee;color:#c62828}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+.code-editor:focus{outline:none;border-color:#4CAF50}
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+.hint-box.show{display:block}
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+.test-result.show{display:block}
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+.answer-display.show{display:block}
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#4CAF50;color:white}
+.btn-primary:hover{background:#45a049}
+.btn-secondary{background:#2196F3;color:white}
+.btn-secondary:hover{background:#1976D2}
+.btn-warn{background:#ff9800;color:white}
+.btn-warn:hover{background:#f57c00}
+.btn-vscode{background:#007ACC;color:white}
+.btn-vscode:hover{background:#005A9E}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#4CAF50}
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.vscode-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#1565c0}
+.vscode-info code{background:#bbdefb;padding:2px 6px;border-radius:3px;font-family:Consolas,monospace}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day30 #define 和 typedef - 检测练习题</h1>
+<p>#define文本替换本质 · 宏定义括号陷阱(Q*2=7) · 宏函数参数加括号(SQUARE) · 没有值的宏定义(#ifdef条件编译) · #undef取消宏定义 · #define vs const对比 · typedef类型别名 · typedef vs #define多变量区别 · typedef简化数组指针 · 最安全宏函数写法(参数+整体加括号)</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 14 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list')">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge')">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day30';
+const DAY_NUM = 30;
+
+const allQuestions = [
+  {"id":1,"type":"single","kp":"#define文本替换本质","text":"#define N 10 中，N 的本质是什么？","options":["A. 一个整型变量，占 4 字节内存","B. 一个常量，有类型 int","C. 纯文本替换，无类型不占内存","D. 一个函数，运行时计算"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：<code>#define N 10</code> 中的 N 是<strong>宏名</strong>，预处理阶段做的是<strong>纯文本替换</strong>，把代码中所有 N 替换成 10<br>• N 没有数据类型，不分配内存，只是编译前\"复制粘贴\"式的替换<br>• 替换发生在<strong>预处理阶段</strong>（编译之前），编译阶段 N 已经不存在了<br>• A、B：#define 不是变量也不是常量，没有类型也不占内存<br>• D：宏不是函数，是文本替换，没有运行时调用<br>📌 #define 的本质是\"查找替换\"，要牢记它不是变量！"},
+  {"id":2,"type":"single","kp":"宏定义括号陷阱","text":"#define Q 3+2 执行 Q*2 的结果是？","options":["A. 10","B. 7","C. 12","D. 5"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>• <strong>B正确</strong>：<code>#define Q 3+2</code> 中 Q 是文本替换，<code>Q*2</code> 会被展开成 <code>3+2*2</code><br>• 按运算优先级<strong>先乘后加</strong>：3 + 2*2 = 3 + 4 = <strong>7</strong><br>• 如果想得到 10，应该写成 <code>#define Q (3+2)</code>，这样 <code>Q*2</code> 展开为 <code>(3+2)*2 = 10</code><br>• 这就是<strong>宏定义括号陷阱</strong>：宏体没有括号时，与外部运算结合会产生意外结果<br>• A：误以为 Q=(3+2)=5 然后 5*2=10；C：误以为按顺序 3+2=5，再 5+5*2 之类；D：误以为只是 Q 本身<br>📌 宏体必须加<strong>外层括号</strong>：<code>#define Q (3+2)</code> 才能避免这种陷阱！"},
+  {"id":3,"type":"single","kp":"没有值的宏定义","text":"#define _DEBUG_ 这种没有值的宏定义有什么用途？","options":["A. 定义了一个空变量 _DEBUG_","B. 让 _DEBUG_ 等于 0","C. 编译时报错，必须给值","D. 配合 #ifdef 做条件编译开关"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>• <strong>D正确</strong>：<code>#define _DEBUG_</code> 定义了一个<strong>没有值</strong>的宏（只定义宏名），常配合 <code>#ifdef _DEBUG_ ... #endif</code> 做<strong>条件编译开关</strong><br>• 用法：<br>　<code>#ifdef _DEBUG_</code><br>　　printf(\"%s %s %d\\n\", __FUNCTION__, __FILE__, __LINE__);<br>　<code>#endif</code><br>• 有 <code>#define _DEBUG_</code> 时这段调试代码被编译；删除该行则调试代码被忽略<br>• 典型场景：调试版本打开 _DEBUG_ 打印调试信息，发布版本删除该宏让调试代码不进入程序<br>• A：不是变量，不分配内存；B：不是 0，是\"已定义但无值\"；C：宏可以没有值，合法<br>📌 没有值的宏 = 条件编译开关，是控制代码版本/调试信息的常用手段！"},
+  {"id":4,"type":"single","kp":"宏函数参数加括号","text":"宏定义为 #define SQUARE(n) n*n，调用 SQUARE(n+2) 展开的结果是？（设 n=3）","options":["A. n+2*n+2（即 3+2*3+2=11）","B. (n+2)*(n+2)（即 25）","C. n*n+2（即 11）","D. (n+2)*n（即 15）"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>• <strong>A正确</strong>：<code>#define SQUARE(n) n*n</code> 中 n 是宏参数，调用 <code>SQUARE(n+2)</code> 时，宏参数 n 被实参 <code>n+2</code> 替换<br>• 展开结果：<code>n+2*n+2</code>（参数 n+2 整体替换了宏体里的 n）<br>• 设 n=3 代入：<code>3+2*3+2</code> = 3+6+2 = <strong>11</strong>（先乘后加）<br>• 问题在于：宏体中两个 n 紧挨着 <code>*</code>，实参 <code>n+2</code> 没有括号保护，+ 号被 * 抢了优先级<br>• B：那是 <code>#define SQUARE(n) (n)*(n)</code> 的展开结果，本题宏体没有括号<br>📌 参数不加括号是宏函数<strong>经典陷阱</strong>：SQUARE(n+2) 期望 25 实际得到 11！"},
+  {"id":5,"type":"single","kp":"宏函数参数加括号","text":"宏定义为 #define SQUARE(n) (n)*(n)，调用 SQUARE(n+2) 展开的结果是？（设 n=3）","options":["A. n+2*n+2（即 11）","B. n*(n+2)（即 15）","C. (n+2)*(n+2)（即 25）","D. (n+2)*n（即 15）"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：<code>#define SQUARE(n) (n)*(n)</code> 中宏参数 n 被实参 <code>n+2</code> 替换，且每个 n 都被括号包住<br>• 展开结果：<code>(n+2)*(n+2)</code><br>• 设 n=3 代入：<code>(3+2)*(3+2)</code> = 5*5 = <strong>25</strong><br>• 与第 4 题对比：宏体 <code>n*n</code> 给出 11（错），宏体 <code>(n)*(n)</code> 给出 25（对）<br>• 结论：宏函数的<strong>每个参数都要加括号</strong>，才能保证实参整体作为一个值参与运算<br>• A：是没加括号的展开；B、D：括号位置不对<br>📌 宏函数参数加括号是\"必修课\"：(n)*(n) 比 n*n 安全得多！"},
+  {"id":6,"type":"single","kp":"typedef vs #define多变量声明区别","text":"typedef unsigned char* puchar; 声明 puchar p,q; 中，q 的类型是？","options":["A. unsigned char","B. unsigned char** ","C. unsigned char* 指针","D. int 指针"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：<code>typedef unsigned char* puchar;</code> 给 <code>unsigned char*</code> 起了别名 puchar，puchar 本身就代表\"指向 unsigned char 的指针\"这一完整类型<br>• <code>puchar p, q;</code> 中 p 和 q 都是 puchar 类型，即都是 <code>unsigned char*</code> 指针<br>• 这是 <strong>typedef 的关键优势</strong>：别名代表完整类型，连续声明多个变量都是同一种指针类型<br>• 源码示例（typedef1.c）：<code>puchar p, q; p=&ch1; q=&ch2;</code> 两个都是指针<br>• A：这是用 #define 时的陷阱结果；B：二级指针应是 puchar*；D：类型不符<br>📌 typedef 让多个变量声明都安全，对比第 7 题 #define 的陷阱！"},
+  {"id":7,"type":"single","kp":"typedef vs #define多变量声明区别","text":"#define puchar unsigned char* 后，puchar p,q; 中 q 的类型是？","options":["A. unsigned char* 指针","B. unsigned char（不是指针）","C. unsigned char** 二级指针","D. int 类型"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>• <strong>B正确</strong>：<code>#define puchar unsigned char*</code> 是<strong>文本替换</strong>，<code>puchar p, q;</code> 会被替换成 <code>unsigned char* p, q;</code><br>• 注意：替换后 <code>*</code> 只跟在 p 前面，<strong>q 前面没有 *</strong>！<br>• 所以 p 是 <code>unsigned char*</code> 指针，而 q 只是 <code>unsigned char</code> 普通变量（不是指针）<br>• 这就是 #define 给指针类型起别名时的<strong>经典陷阱</strong>：多个变量声明时只有第一个是指针，其余都不是<br>• A：误以为 q 也是指针（typedef 才这样）；C：完全无关；D：类型不符<br>📌 想让 p、q 都是指针，<strong>必须用 typedef 而不是 #define</strong>！这是 typedef 与 #define 最关键的区别。"},
+  {"id":8,"type":"single","kp":"typedef基本用法","text":"typedef 语句末尾需要分号吗？","options":["A. 需要分号","B. 不需要分号","C. 可加可不加","D. 加了分号会报错"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>• <strong>A正确</strong>：<code>typedef</code> 是 C 语言的<strong>语句</strong>，末尾必须加分号<br>• 正确写法：<code>typedef unsigned char uchar;</code>、<code>typedef int* PINT;</code> 都要分号<br>• 与 #define 对比：<code>#define PI 3.14</code> <strong>不需要分号</strong>（预处理指令，行末即结束）<br>• 如果给 #define 加分号：<code>#define N 10;</code> 会让 N 替换为 <code>10;</code>，导致使用 N 的地方出现两个分号，编译错误<br>• C：必须加，不是可选；D：加了分号才是正确写法，不加反而报错<br>📌 typedef 是语句要分号，#define 是指令不要分号，二者语法相反！"},
+  {"id":9,"type":"single","kp":"最安全宏函数写法","text":"#define MAX(a,b) ((a)>(b)?(a):(b)) 中为什么要加那么多括号？","options":["A. 为了代码美观","B. 防止宏名被替换","C. 提高运行效率","D. 每个参数和整体都加括号，防止运算优先级出错"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>• <strong>D正确</strong>：<code>#define MAX(a,b) ((a)>(b)?(a):(b))</code> 的括号分两层：<br>① <strong>参数加括号</strong>：<code>(a)</code> 和 <code>(b)</code>，保证传入的实参整体参与运算（如 MAX(m+300,n) 中 m+300 作为一个值）<br>② <strong>整体加括号</strong>：最外层的 <code>(...)</code>，保证宏函数结果作为一个整体参与外部运算<br>• 源码示例（define8.c）：<code>MAX(m+300, n)</code> 展开为 <code>((m+300)>(n)?(m+300):(n))</code><br>　设 m=100, n=200：((400)>200 ? 400 : 200) = 400 ✓<br>• 如果不加括号：<code>#define MAX(a,b) a>b?a:b</code>，调用 <code>MAX(m+300,n)*2</code> 会变成 <code>m+300>n?m+300:n*2</code>，n*2 抢了优先级，结果完全错乱<br>• A、B、C：括号不是为了美观/防替换/效率<br>📌 <strong>最安全宏函数写法</strong> = 参数加括号 + 整体加括号，缺一不可！"},
+  {"id":10,"type":"single","kp":"#undef取消宏定义","text":"#undef N 的作用是？","options":["A. 删除变量 N 的内存","B. 让 N 等于 0","C. 取消之前 #define N 的定义","D. 重新定义 N 的值"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：<code>#undef N</code> 的作用是<strong>取消</strong>之前用 <code>#define N ...</code> 定义过的宏 N<br>• 取消后 N 不再是宏，后续代码中 N 不会被替换（如果 N 是普通标识符就按普通变量名处理）<br>• 用途：在某个代码段内\"临时关闭\"某个宏，或为后续<strong>重新定义</strong>同名宏做准备<br>• 源码示例（define3.c）：<br>　<code>#define N 100</code><br>　printf(\"N:%d\\n\", N);  // 输出 100<br>　<code>#undef N</code>          // 取消 N 的定义<br>　<code>#define N 1000</code>   // 重新定义 N<br>　printf(\"after-N:%d\\n\", N);  // 输出 1000<br>• A：#define 不分配内存，谈不上删除内存；B：不是赋 0；D：重新定义是 #define，#undef 只负责取消<br>📌 #undef 是\"宏的卸载键\"，配合 #define 可以灵活控制宏的作用范围！"},
+  {"id":11,"type":"judge","kp":"#define文本替换本质","text":"#define 和 typedef 本质上是一样的，都是定义常量。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误！两者<strong>本质完全不同</strong>：<br>• <code>#define</code>：预处理阶段的<strong>文本替换</strong>，把宏名替换成宏体文本，无类型、不占内存、不是真正的\"定义\"<br>• <code>typedef</code>：C 语句，给<strong>已有类型起别名</strong>，是真正的类型定义，编译阶段处理，末尾要分号<br>• #define 可以定义常量、宏函数、条件编译开关；typedef 只能定义类型别名<br>• #define 不加分号，typedef 必须加分号<br>• 多变量声明时 #define 有陷阱（如第 7 题 q 不是指针），typedef 安全（如第 6 题 p、q 都是指针）<br>📌 一个是\"文本替换\"，一个是\"类型别名\"，本质完全不同，绝不能混为一谈！"},
+ 编译错误<br>• 又如：<code>printf(\"%d\", N);</code> 替换后变成 <code>printf(\"%d\", 10;);</code> → 编译错误<br>• 正确写法：<code>#define N 10</code>（无分号）<br>• 与 typedef 对比：<code>typedef unsigned char uchar;</code> 是语句，<strong>必须加分号</strong><br>📌 #define 不加分号，typedef 加分号，方向相反，是常见易错点！"},
+  {"id":13,"type":"judge","kp":"#define vs const对比","text":"const 常量比 #define 更安全，因为 const 有类型检查。","options":["A. 正确","B. 错误"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>正确！<code>const</code> 常量比 <code>#define</code> 更安全，主要原因：<br>① <strong>有类型</strong>：<code>const int n = 100;</code> 中 n 是 int 类型，编译器会做<strong>类型检查</strong>；#define N 100 的 N 无类型，不会检查<br>② <strong>有作用域</strong>：const 变量遵循 C 的作用域规则（局部/全局），可以限制在函数内；#define 宏从定义处到文件尾（或 #undef）都有效，作用域难以控制<br>③ <strong>可调试</strong>：const 变量在符号表中有名字，调试时能看到；#define 是文本替换，调试时看不到宏名<br>④ <strong>不会产生意外副作用</strong>：const 是真正的变量，没有宏的\"参数括号陷阱\"<br>• 源码示例（define1.c）：<code>const int n = 100;</code> 比 <code>#define N 100</code> 更安全<br>📌 现代 C 编程推荐用 const 替代 #define 定义常量，#define 主要用于宏函数和条件编译！"},
+  {"id":14,"type":"judge","kp":"typedef简化复杂类型","text":"typedef 可以用来简化数组指针等复杂类型的声明。","options":["A. 正确","B. 错误"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>正确！<code>typedef</code> 是简化复杂类型声明的<strong>利器</strong>。<br>• 数组指针类型 <code>int (*p)[3]</code> 写起来繁琐，用 typedef 简化：<br>　<code>typedef int (*P)[3];</code>  // P 是\"指向含3个int的数组的指针\"的别名<br>　<code>P p;</code>               // 等价于 int (*p)[3];，简洁清晰<br>• 源码示例（typedef2.c）：<br>　<code>typedef int (* P)[3];</code><br>　<code>P p;</code>  // 声明数组指针<br>　<code>p = &a;</code>  // 指向数组 a<br>　<code>(*p)[i]</code>  // 访问数组元素<br>• 其他复杂类型也可简化：函数指针 <code>typedef int (*FuncPtr)(int,int);</code>、二级指针 <code>typedef char** PPChar;</code><br>📌 复杂类型用 typedef 起别名，代码可读性大幅提升，是工程实践的标准做法！"}
+];
+
+const codingQuestions = [
+  {"id":101,"type":"coding","kp":"宏函数参数加括号","difficulty":"入门","title":"宏定义基础（圆面积）","desc":"用 #define 定义 PI 为 3.14，定义宏函数 S(r) 计算圆面积 PI*(r)*(r)。\n在 main 中输入半径 2，输出面积。\n输出格式：12.560000\n\n提示：#define PI 3.14  #define S(r) PI*(r)*(r)\n注意：宏函数参数必须加括号！","hint":"宏定义两步：\n① #define PI 3.14  （定义常量 PI）\n② #define S(r) PI*(r)*(r)  （定义带参宏函数，每个参数都要加括号）\n\nmain 中：\nfloat r = 2;\nprintf(\"%f\\n\", S(r));\n\n为什么参数加括号？\n若 S(r) 写成 PI*r*r，调用 S(a+b) 会展开为 PI*a+b*a+b 出错\n写成 PI*(r)*(r) 才能保证 S(a+b) 展开为 PI*(a+b)*(a+b) 正确","answer":"#include <stdio.h>\n\n#define PI 3.14\n#define S(r) PI*(r)*(r)\n\nint main() {\n    float r = 2;\n    printf(\"%f\\n\", S(r));\n    return 0;\n}","test_input":"","expected_output":"12.560000"},
+  {"id":102,"type":"coding","kp":"typedef基本用法","difficulty":"入门","title":"typedef 基础","desc":"用 typedef 给 int 起别名 INT，给 int* 起别名 PINT。\n声明 INT a=10 和 PINT p,q（注意：p 和 q 都是指针）。\n让 p 指向 a，打印 *p 和 a 的值。\n输出格式：\n*p=10 a=10\n\n提示：typedef int INT;  typedef int* PINT;\nINT a=10;  PINT p,q;  p=&a;","hint":"typedef 两步：\n① typedef int INT;     // INT 是 int 的别名\n② typedef int* PINT;   // PINT 是 int* 的别名\n\n声明：\nINT a = 10;     // 等价于 int a = 10;\nPINT p, q;      // p 和 q 都是 int* 指针（typedef 让两者都是指针）\np = &a;         // p 指向 a\n\n打印：\nprintf(\"*p=%d a=%d\\n\", *p, a);\n\n注意：用 typedef 时 p、q 都是指针；\n若用 #define PINT int*，则只有 p 是指针，q 不是！","answer":"#include <stdio.h>\n\ntypedef int INT;\ntypedef int* PINT;\n\nint main() {\n    INT a = 10;\n    PINT p, q;\n    p = &a;\n    printf(\"*p=%d a=%d\\n\", *p, a);\n    return 0;\n}","test_input":"","expected_output":"*p=10 a=10"},
+  {"id":103,"type":"coding","kp":"最安全宏函数写法","difficulty":"中等","title":"宏函数 MAX","desc":"用 #define 定义 MAX(a,b) ((a)>(b)?(a):(b))，要求每个参数和整体都加括号。\n在 main 中设 m=100, n=200，打印 MAX(m+300, n) 的结果。\n输出格式：max=400\n\n提示：#define MAX(a,b) ((a)>(b)?(a):(b))\n注意所有括号：参数 (a)(b) 加括号 + 整体加括号","hint":"最安全宏函数写法 = 参数加括号 + 整体加括号：\n#define MAX(a,b) ((a)>(b)?(a):(b))\n\n分析括号：\n① (a) 和 (b)：每个参数加括号，保证 m+300 作为整体\n② 最外层 (...)：整体加括号，保证宏结果可参与外部运算\n\n展开 MAX(m+300, n)：\n((m+300)>(n)?(m+300):(n))\nm=100, n=200：\n((400)>200 ? 400 : 200) = 400\n\nmain：\nint m=100, n=200;\nprintf(\"max=%d\\n\", MAX(m+300, n));","answer":"#include <stdio.h>\n\n#define MAX(a,b) ((a)>(b)?(a):(b))\n\nint main() {\n    int m = 100;\n    int n = 200;\n    printf(\"max=%d\\n\", MAX(m+300, n));\n    return 0;\n}","test_input":"","expected_output":"max=400"}
+];
+
+const kpMap = {
+  "#define文本替换本质":{"title":"#define 文本替换本质","content":"<strong>#define</strong> 是 C 语言<strong>预处理指令</strong>，本质是<strong>纯文本替换</strong>（查找替换）。<br>语法：<code>#define 宏名 宏体</code><br>例：<code>#define N 10</code>，预处理阶段把代码中所有 N 替换成 10<br>• <strong>无类型</strong>：N 不是变量，没有数据类型，不分配内存<br>• <strong>不加分号</strong>：#define 是预处理指令，行末即结束（加分号会让分号成为宏体一部分）<br>• <strong>预处理阶段</strong>执行：在编译之前完成替换，编译阶段 N 已不存在<br>• 可定义常量（#define PI 3.14）、宏函数（#define MAX(a,b) ...）、条件编译开关（#define _DEBUG_）<br>📌 与 typedef 本质不同：#define 是\"文本替换\"，typedef 是\"类型别名\"！"},
+  "宏定义括号陷阱":{"title":"宏定义括号陷阱（Q*2=7）","content":"宏体没有外层括号时，与外部运算结合会产生<strong>优先级陷阱</strong>。<br>经典例子：<code>#define Q 3+2</code><br>• 期望：Q = 5，Q*2 = 10<br>• 实际：Q*2 展开为 <code>3+2*2</code>，先乘后加 = <strong>7</strong>！<br>• 原因：宏是文本替换，<code>Q*2</code> 变成 <code>3+2*2</code>，* 优先级高于 +<br>✅ 正确写法：<code>#define Q (3+2)</code>，<code>Q*2</code> 展开为 <code>(3+2)*2 = 10</code><br>📌 <strong>宏体必须加外层括号</strong>，否则与外部运算结合会出错。源码 define1.c 中 M=(3+2) 安全得 10，Q=3+2 陷阱得 7！"},
+  "宏函数参数加括号":{"title":"宏函数参数加括号（SQUARE 陷阱）","content":"宏函数中<strong>每个参数都要加括号</strong>，否则实参是表达式时会出错。<br>经典例子：<code>#define SQUARE(n) n*n</code><br>• 调用 <code>SQUARE(n+2)</code>（n=3）展开为 <code>n+2*n+2</code> = 3+6+2 = <strong>11</strong>（错！）<br>• 期望：5×5=25<br>• 原因：实参 <code>n+2</code> 没有括号保护，+ 被 * 抢了优先级<br>✅ 正确写法：<code>#define SQUARE(n) (n)*(n)</code><br>• 调用 <code>SQUARE(n+2)</code> 展开为 <code>(n+2)*(n+2)</code> = 5×5 = <strong>25</strong> ✓<br>源码 define6.c 注释掉了 n*n 版本，启用 (n)*(n) 版本就是为避免陷阱<br>📌 宏函数参数<strong>必须加括号</strong>，这是与普通函数最大的区别！"},
+  "没有值的宏定义":{"title":"没有值的宏定义（#ifdef 条件编译）","content":"宏可以<strong>没有值</strong>，只定义宏名：<code>#define _DEBUG_</code><br>用途：配合 <code>#ifdef</code> 做<strong>条件编译开关</strong><br><code>#ifdef _DEBUG_</code><br>　printf(\"%s %s %d\\n\", __FUNCTION__, __FILE__, __LINE__);<br><code>#endif</code><br>• 有 <code>#define _DEBUG_</code>：调试代码被编译进程序<br>• 删除该行：调试代码被忽略，不进入发布版本<br>• 典型应用：调试版本打开宏打印调试信息，发布版本关闭宏去除调试代码<br>• 配套指令：<code>#ifdef</code>（如果定义）、<code>#ifndef</code>（如果未定义）、<code>#endif</code>（结束）、<code>#else</code>（否则）<br>源码 define2.c 用 <code>#define _DEBUG_</code> + <code>#ifdef _DEBUG_</code> 控制调试输出<br>📌 没有值的宏 = 条件编译开关，是控制代码版本/调试信息的常用手段！"},
+  "#undef取消宏定义":{"title":"#undef 取消宏定义","content":"<strong>#undef</strong> 用于取消之前 #define 定义过的宏。<br>语法：<code>#undef 宏名</code><br>作用：让宏名不再被替换，后续代码中该宏\"失效\"<br>用途：① 临时关闭某个宏的作用范围 ② 为重新定义同名宏做准备<br>源码示例（define3.c）：<br><code>#define N 100</code><br>printf(\"N:%d\\n\", N);  // 输出 100<br><code>#undef N</code>          // 取消 N 的定义<br><code>#define N 1000</code>   // 重新定义 N<br>printf(\"after-N:%d\\n\", N);  // 输出 1000<br>• #undef 不分配/释放内存（#define 本就不占内存）<br>• #undef 后不能再使用该宏（除非重新 #define）<br>📌 #undef 是\"宏的卸载键\"，配合 #define 可灵活控制宏的作用范围！"},
+  "#define vs const对比":{"title":"#define vs const 对比","content":"定义常量有两种方式：<code>#define</code> 和 <code>const</code>，<strong>const 更安全</strong>。<br><table><tr><th>对比项</th><th>#define N 10</th><th>const int n=10;</th></tr><tr><td>本质</td><td>文本替换</td><td>真正的变量</td></tr><tr><td>类型</td><td>无类型</td><td>有类型(int)</td></tr><tr><td>内存</td><td>不占内存</td><td>占内存</td></tr><tr><td>类型检查</td><td>无</td><td>有</td></tr><tr><td>作用域</td><td>定义处到文件尾</td><td>遵循C作用域规则</td></tr><tr><td>调试</td><td>看不到宏名</td><td>符号表可见</td></tr><tr><td>分号</td><td>不加分号</td><td>必须加分号</td></tr></table><br>源码 define1.c 中两者并存：<code>#define N 10</code> 和 <code>const int n = 100;</code><br>✅ 现代 C 编程推荐用 const 定义常量（更安全），#define 主要用于宏函数和条件编译"},
+  "typedef基本用法":{"title":"typedef 基本用法（类型别名）","content":"<strong>typedef</strong> 给已有类型起<strong>别名</strong>，是真正的类型定义语句。<br>语法：<code>typedef 已有类型 别名;</code>（末尾<strong>必须加分号</strong>）<br>例：<br>• <code>typedef unsigned char uchar;</code>  // uchar = unsigned char<br>• <code>typedef unsigned char* puchar;</code>  // puchar = unsigned char*<br>• <code>typedef int INT;</code>  // INT = int<br>• <code>typedef int* PINT;</code>  // PINT = int*<br>源码 typedef1.c：<br><code>typedef unsigned char uchar;</code><br><code>typedef unsigned char * puchar;</code><br><code>uchar ch2 = 'B';</code>  // 等价于 unsigned char ch2 = 'B';<br><code>puchar p, q;</code>  // p、q 都是 unsigned char* 指针<br>📌 typedef 让类型名更简洁、可读性更强，是工程代码的标准做法！"},
+ p 和 q <strong>都是</strong> unsigned char* 指针 ✓<br>• <strong>#define 方式</strong>：<br>　<code>#define puchar unsigned char*</code><br>　<code>puchar p, q;</code> → 替换为 <code>unsigned char* p, q;</code><br>　p 是 unsigned char* 指针，但 q 只是 unsigned char（<strong>不是指针</strong>）✗<br>原因：#define 是文本替换，<code>*</code> 只跟在 p 前面，q 前面没有 <code>*</code><br>源码 typedef1.c 注释掉了 <code>//#define unsigned char * puchar;</code>，改用 typedef 就是为避免这个陷阱<br>📌 想让多个变量都是指针类型，<strong>必须用 typedef</strong>，不能用 #define！"},
+  "typedef简化复杂类型":{"title":"typedef 简化复杂类型（数组指针）","content":"<strong>typedef</strong> 是简化复杂类型声明的<strong>利器</strong>。<br>数组指针类型 <code>int (*p)[3]</code> 写起来繁琐，用 typedef 简化：<br><code>typedef int (*P)[3];</code>  // P 是\"指向含3个int的数组的指针\"的别名<br><code>P p;</code>  // 等价于 int (*p)[3];<br>源码 typedef2.c：<br><code>typedef int (* P)[3];</code><br><code>int a[3] = {6, 8, 10};</code><br><code>P p;</code>  // 声明数组指针<br><code>p = &a;</code>  // 指向数组 a<br><code>(*p)[i]</code>  // 访问数组元素（*p 是数组，[i] 取元素）<br>其他复杂类型也可简化：<br>• 函数指针：<code>typedef int (*FuncPtr)(int,int);</code><br>• 二级指针：<code>typedef char** PPChar;</code><br>📌 复杂类型用 typedef 起别名，代码可读性大幅提升，是工程实践标准做法！"},
+ <code>m+300>n?m+300:n*2</code>，n*2 抢优先级，结果错乱<br>📌 宏函数<strong>参数加括号 + 整体加括号</strong>，缺一不可，是最安全写法！"}
+};
+
+const extraQuestions = [];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(function(x){return x.id===q.id})){
+    bank.push({
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+      options:q.options,correct:q.correct,correctText:q.correctText,
+      expl:q.expl,userAns:userAns,time:Date.now()
+    });
+    saveWrongBank(bank);
+  }
+}
+function saveProgress(){
+  if(currentMode==='review') return;
+  const prog = {
+    mode:currentMode, index:currentQIndex, answers:answers,
+    ids:currentQuestions.map(function(q){return q.id}), time:Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+}
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+}
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+function shuffle(arr){
+  const a=[];
+  for(let i=0;i<arr.length;i++) a.push(arr[i]);
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+function openInVSCode(q) {
+  const code = q.answer || q.hint || '// 请在此编写代码';
+  const blob = new Blob([code], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Day'+DAY_NUM+'_'+q.id+'.c';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  const info = document.createElement('div');
+  info.className = 'vscode-info';
+ Open File → 选择下载的 '+a.download+'</code><br>或按快捷键 <code>Ctrl+O</code>';
+  const container = document.getElementById('quizContainer');
+  const oldInfo = container.querySelector('.vscode-info');
+  if (oldInfo) oldInfo.remove();
+  container.querySelector('.question-card').appendChild(info);
+}
+
+function startQuiz(mode){
+  clearProgress();
+  currentMode = mode;
+  currentQIndex = 0;
+  answers = {};
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('reviewArea').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+  if(mode==='coding'){
+    currentQuestions = [];
+    for(let i=0;i<codingQuestions.length;i++) currentQuestions.push(codingQuestions[i]);
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      switchMode('normal');
+      return;
+    }
+    currentQuestions = bank.map(function(w){return Object.assign({},w,{isWrongRedo:true})});
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，先去做题吧！');
+      switchMode('normal');
+      return;
+    }
+    const weakKps = [];
+    const seen={};
+    for(let i=0;i<bank.length;i++){if(!seen[bank[i].kp]){weakKps.push(bank[i].kp);seen[bank[i].kp]=true;}}
+    let pool = allQuestions.filter(function(q){return weakKps.indexOf(q.kp)>=0 && !bank.find(function(w){return w.id===q.id})});
+    if(pool.length<5) pool = allQuestions.filter(function(q){return !bank.find(function(w){return w.id===q.id})});
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  } else {
+    currentQuestions = [];
+    for(let i=0;i<allQuestions.length;i++) currentQuestions.push(allQuestions[i]);
+  }
+
+  if(currentQuestions.length===0){
+    alert('没有题目！');
+    return;
+  }
+  renderQuestion();
+}
+
+function switchMode(mode){
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+    currentMode='review';
+    renderReview();
+    return;
+  }
+  startQuiz(mode);
+}
+
+function renderQuestion(){
+  saveProgress();
+  const q = currentQuestions[currentQIndex];
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = '第 '+(currentQIndex+1)+' / '+total+' 题';
+
+  let html = '<div class="question-card">';
+  html += '<span class="question-num">第 '+(currentQIndex+1)+' 题</span>';
+  html += '<span class="question-tag">'+q.kp+'</span>';
+  if(q.type==='coding'){
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+    html += '<span class="difficulty-tag '+(diffMap[q.difficulty]||'')+'">'+q.difficulty+'</span>';
+  }
+  if(q.type==='coding'){
+    html += '<div class="question-text"><strong>'+q.title+'</strong></div>';
+    html += '<div class="question-desc">'+q.desc.replace(/\n/g,'<br>')+'</div>';
+    html += '<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>';
+    html += '<div class="btn-group">';
+    html += '<button class="btn btn-vscode" onclick="openInVSCode(currentQuestions[currentQIndex])">📂 在VSCode中打开</button>';
+    html += '<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>';
+    html += '<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>';
+    html += '</div>';
+    html += '<div class="hint-box" id="hintBox">💡 '+q.hint+'</div>';
+    html += '<div class="test-result" id="testResult"></div>';
+    html += '<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>'+q.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre></div>';
+  } else {
+    html += '<div class="question-text">'+q.text+'</div>';
+    if(q.type==='single' || q.type==='judge'){
+      html += '<div class="options">';
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      q.options.forEach(function(opt,i){
+        const sel = answers[q.id]===labels[i]?'selected':'';
+        html += '<div class="option '+sel+'" onclick="selectOption(\''+labels[i]+'\', event)"><span class="option-label">'+labels[i]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    } else if(q.type==='fill'){
+      html += '<div class="question-text">'+q.text+'</div>';
+    }
+  }
+  html += '<div class="explanation" id="expl"><div class="explanation-title">📖 解析</div>'+(q.expl||'')+'</div>';
+  html += '<div class="btn-group">';
+  if(currentQIndex>0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if(q.type==='coding'){
+</button>';
+  } else {
+    html += '<button class="btn btn-primary" onclick="submitQ(event)">提交答案</button>';
+</button>';
+    else html += '<button class="btn btn-secondary" onclick="finishQuiz()" id="finishBtn" style="display:none">🏁 完成答题</button>';
+  }
+  html += '</div></div>';
+  document.getElementById('quizContainer').innerHTML = html;
+}
+
+function selectOption(label, e){
+  const q = currentQuestions[currentQIndex];
+  answers[q.id] = label;
+  document.querySelectorAll('.option').forEach(function(o){o.classList.remove('selected')});
+  e.currentTarget.classList.add('selected');
+}
+
+function showHint(){
+  document.getElementById('hintBox').classList.toggle('show');
+}
+function showAnswerCoding(){
+  document.getElementById('answerDisplay').classList.toggle('show');
+}
+
+function submitQ(e){
+  const q = currentQuestions[currentQIndex];
+  let userAns = answers[q.id];
+  let isCorrect = false;
+
+  if(q.type==='fill'){
+    const inputs = document.querySelectorAll('.fill-blank');
+    userAns = Array.from(inputs).map(function(i){return i.value.trim()});
+    isCorrect = q.correct.every(function(c,i){return userAns[i] && userAns[i].toLowerCase()===c.toLowerCase()});
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+  } else {
+    if(!userAns){
+      alert('请先选择一个答案！');
+      return;
+    }
+    isCorrect = userAns===q.correct;
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+  }
+
+  if(q.type==='single' || q.type==='judge'){
+    document.querySelectorAll('.option').forEach(function(o,i){
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      if(labels[i]===q.correct) o.classList.add('correct');
+      else if(labels[i]===userAns) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+    });
+  } else if(q.type==='fill'){
+    document.querySelectorAll('.fill-blank').forEach(function(inp,i){
+      inp.disabled = true;
+      if(inp.value.trim().toLowerCase()===q.correct[i].toLowerCase()){
+        inp.style.background='#d4edda';inp.style.borderColor='#27ae60';
+      } else {
+        inp.style.background='#f8d7da';inp.style.borderColor='#e74c3c';
+        inp.title = '正确答案: '+q.correct[i];
+      }
+    });
+  }
+
+  document.getElementById('expl').classList.add('show');
+  const nb = document.getElementById('nextBtn');
+  const fb = document.getElementById('finishBtn');
+  if(nb) nb.removeAttribute('style');
+  if(fb) fb.removeAttribute('style');
+  e.currentTarget.style.display='none';
+  saveProgress();
+}
+
+function prevQ(){
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+}
+function nextQ(){
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+  else finishQuiz();
+}
+
+function finishQuiz(){
+  saveProgress();
+  let correct=0, wrongList=[];
+  currentQuestions.forEach(function(q){
+    if(q.type==='coding') return;
+    const ua = answers[q.id];
+    let ok=false;
+    if(q.type==='fill'){
+      const ual = (ua||[]);
+      ok = Array.isArray(ual) && q.correct.every(function(c,i){return ual[i] && ual[i].toLowerCase()===c.toLowerCase()});
+    } else { ok = ua===q.correct; }
+    if(ok) correct++; else wrongList.push({q:q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+  });
+
+  const total = currentQuestions.filter(function(q){return q.type!=='coding'}).length;
+  const wrong = total - correct;
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+  document.getElementById('quizArea').style.display='none';
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('score').textContent = score;
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(wrongList.length>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    let html='';
+    wrongList.forEach(function(w){
+      html += '<div class="wrong-item"><div class="wq">'+w.q.kp+': '+w.q.text.substring(0,50)+'...</div><div class="wa">你的答案: '+w.userAns+'</div><div class="wc">正确答案: '+(w.q.correctText||w.q.correct)+'</div></div>';
+    });
+    document.getElementById('wrongPreviewList').innerHTML = html;
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+  clearProgress();
+}
+
+function renderReview(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  switchReviewTab('list');
+}
+
+function switchReviewTab(tab){
+  document.querySelectorAll('.review-tab').forEach(function(t){t.classList.remove('active')});
+  if(event&&event.target) event.target.classList.add('active');
+  else document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+  if(tab==='list') renderWrongList();
+  else renderKnowledgeReview();
+}
+
+function renderWrongList(){
+  const bank = getWrongBank();
+  const el = document.getElementById('wrongBankList');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+  let html='';
+  bank.sort(function(a,b){return b.time-a.time}).forEach(function(w,i){
+    html += '<div class="kp-section" style="border-left-color:#e74c3c">';
+    html += '<div class="kp-header"><div class="kp-title">'+(i+1)+'. '+w.kp+'</div>';
+    html += '<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong('+w.id+')">删除</button></div>';
+    html += '<div class="kp-content">'+w.text+'</div>';
+    if(w.options){
+      html += '<div class="options" style="margin-top:8px">';
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+      w.options.forEach(function(opt,j){
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+        html += '<div class="option '+cls+'" style="cursor:default;pointer-events:none"><span class="option-label">'+labels[j]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div class="explanation show"><div class="explanation-title">📖 解析</div>'+(w.expl||'')+'</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function removeWrong(id){
+  if(!confirm('确定删除这道错题吗？')) return;
+  const bank = getWrongBank().filter(function(w){return w.id!==id});
+  saveWrongBank(bank);
+  renderReview();
+}
+
+function clearWrongBank(){
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+  saveWrongBank([]);
+  renderReview();
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const el = document.getElementById('knowledgeReview');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  const kpCount = {};
+  bank.forEach(function(w){kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+  const sorted = Object.keys(kpCount).map(function(k){return [k,kpCount[k]]}).sort(function(a,b){return b[1]-a[1]});
+
+  let html = '<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 '+sorted.length+' 个薄弱知识点</p>';
+  sorted.forEach(function(entry){
+    const kp=entry[0],count=entry[1];
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+    const related = bank.filter(function(w){return w.kp===kp});
+    html += '<div class="kp-section">';
+    html += '<div class="kp-header"><div class="kp-title">'+info.title+'</div><span class="kp-badge">错 '+count+' 次</span></div>';
+    html += '<div class="kp-content">'+info.content+'</div>';
+    html += '<div class="kp-wrong-list">相关错题：<br>';
+    related.forEach(function(r){
+      html += '• '+r.text.substring(0,60)+(r.text.length>60?'...':'')+'<br>';
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+window.addEventListener('beforeunload', saveProgress);
+
+(function(){
+  const p = loadProgress();
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+      currentMode = p.mode;
+      currentQIndex = p.index;
+      answers = p.answers || {};
+      let pool;
+      if(p.mode==='coding') pool = codingQuestions;
+      else pool = allQuestions;
+      currentQuestions = p.ids.map(function(id){return pool.find(function(q){return q.id===id})}).filter(Boolean);
+      if(currentQuestions.length>0){
+        document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+        const tm = {normal:0,coding:1,wrongredo:2};
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+        renderQuestion();
+        return;
+      }
+    }
+    clearProgress();
+  }
+  startQuiz('normal');
+})();
+</script>
+</body>
+</html>
