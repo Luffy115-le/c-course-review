@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day25 多级指针 void指针 const - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day25 多级指针 void指针 const - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day25 多级指针 void指针 const
+
+## 多级指针
+### 定义与层级
+#### int*一级指针
+#### int**二级存一级地址
+#### int***三级指针
+#### 几颗星解几次
+### 内存模型
+#### a存值 &a=p
+#### *p=a
+#### pp=&p **pp=a
+#### ppp=&pp ***ppp=a
+
+## void指针
+### 定义与限制
+#### void*万能指针
+#### 任何类型地址可赋
+#### 不能直接解引用
+#### 不能直接指针加减
+### 正确用法
+#### (int*)vp强转类型
+#### *(int*)vp解引用取值
+#### char*对应强转
+#### double*对应强转
+### 应用场景
+#### malloc返回void*
+#### qsort比较const void*
+#### memcpy参数void*
+#### 泛型函数通用参数
+
+## const修饰指针
+### const在*左值不变
+#### *p只读不可改
+#### p可切换指向
+#### 常见const char*字符串
+#### 只读函数参数
+### const在*右指向不变
+#### p只读必须初始化
+#### *p可改值
+#### 从一而终绑一个
+### 两边都const
+#### p不变*p不变
+#### 纯只读模式
+### 参数保护
+#### 只读参数加const
+#### 防止函数内误写
+#### 接口契约自文档
+
+## 综合应用
+### 二级指针交换一级指针
+#### swapPtr(int**ppa,int**ppb)
+#### 传&pa &pb进去
+#### 函数内换*ppa *ppb
+### const保护strcpy
+#### char*myStrcpy(char*dst
+#### const char*src)
+#### src只读不修改
+### void通用函数
+#### addGeneral支持int/double
+#### type标志位判断
+#### 先强转再计算
+
+## 易错点
+### 6大易错
+#### void*直接解引用报错
+#### const位置记反左右
+#### 多级指针少解一次
+#### void强转类型不匹配
+#### int**vs int(*)[4]混淆
+#### 交换指针少传地址
+
+## 重要口诀
+### 记不住就背
+#### 几颗星解几次
+#### 星左const值不变
+#### 星右const指不变
+#### void*必先强转`;
+      const { root } = transformer.transform(md);
+
+      const branchColors = [
+        '#FF9F43',
+        '#2E86DE',
+        '#6C5CE7',
+        '#10AC84',
+        '#EE5253',
+        '#FDCB6E'
+      ];
+      if (root.children) {
+        root.children.forEach(function(child, i) {
+          if (i < branchColors.length) {
+            child.payload = child.payload || {};
+            child.payload.color = branchColors[i];
+            child.payload.freeze = true;
+          }
+        });
+      }
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
