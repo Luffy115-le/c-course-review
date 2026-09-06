@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day19 指针的基本用法 - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day19 指针的基本用法 - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day19 指针的基本用法
+## 指针概念
+### 指针本质
+#### 存地址的变量
+#### 门牌号类比
+#### 间接访问
+### 指针作用
+#### 间接修改变量
+#### 函数间共享数据
+#### 动态内存分配
+#### 高效处理数组
+### 学习路线
+#### Day19基本用法
+#### Day20指针与数组
+## 内存与地址
+### 内存地址
+#### 每个字节有唯一地址
+#### %p打印地址
+#### 十六进制显示
+### 取地址 &
+#### &a得变量地址
+#### 只能用于变量
+#### 地址不可变
+### 指针三要素
+#### p = 所指地址
+#### &p = 自己地址
+#### *p = 所指内容
+## 指针变量定义
+### 定义格式
+#### 类型名 *指针变量名
+#### int *p = &a
+### 指针类型
+#### int* char* float*
+#### 类型必须匹配
+### 指针大小
+4字节
+8字节
+#### 所有类型相同
+## 解引用与赋值
+### 解引用 *
+#### *p取所指内容
+#### (*p)++等价a++
+#### 括号不能省
+### 指针赋值
+#### 定义时初始化
+#### 先定义后赋值
+#### 指针间赋值
+#### 重新指向
+### 指针与数组
+#### 数组名=&a[0]
+#### p=a等价p=&a[0]
+## 空指针与野指针
+### 空指针NULL
+#### 不指向有效内存
+#### NULL是宏
+#### 禁止解引用NULL
+#### 使用前检查
+### 野指针成因
+#### 未初始化
+#### 数组越界
+#### 指向已释放变量
+#### 越界影响其他变量
+### 避免野指针
+#### 定义时初始化
+#### 使用前检查
+#### 确保有效范围
+#### 释放后设NULL
+#### 不越界
+## 易错点总结
+### 常见易错
+#### *p++ vs (*p)++
+#### p未初始化
+#### 解引用NULL
+#### &a vs p vs &p
+#### 数组越界
+#### 指针类型匹配
+#### 局部变量地址`;
+      const { root } = transformer.transform(md);
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
