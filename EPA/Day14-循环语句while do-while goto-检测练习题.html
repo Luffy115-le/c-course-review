@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day14 循环语句while do-while goto - 检测练习题（增强版）</title>
+
+<style>
+
+{margin:0;padding:0;box-sizing:border-box}
+
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+
+.container{max-width:800px;margin:0 auto}
+
+.header{text-align:center;margin-bottom:20px}
+
+.header h1{color:#2c3e50;font-size:24px}
+
+.header p{color:#7f8c8d;margin-top:6px}
+
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+
+.mode-tab:hover{border-color:#4CAF50}
+
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+
+.difficulty-mid{background:#fff3e0;color:#e65100}
+
+.difficulty-hard{background:#ffebee;color:#c62828}
+
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+
+.options{margin-bottom:10px}
+
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+
+.option.correct{border-color:#27ae60;background:#d4edda}
+
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+
+.code-editor:focus{outline:none;border-color:#4CAF50}
+
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+
+.hint-box.show{display:block}
+
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+
+.test-result.show{display:block}
+
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+
+.explanation.show{display:block}
+
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+
+.answer-display.show{display:block}
+
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+
+.btn-primary{background:#4CAF50;color:white}
+
+.btn-primary:hover{background:#45a049}
+
+.btn-secondary{background:#2196F3;color:white}
+
+.btn-secondary:hover{background:#1976D2}
+
+.btn-warn{background:#ff9800;color:white}
+
+.btn-warn:hover{background:#f57c00}
+
+.btn-vscode{background:#007ACC;color:white}
+
+.btn-vscode:hover{background:#005A9E}
+
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+
+.result-card.show{display:block}
+
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+
+.result-item{text-align:center}
+
+.result-item .num{font-size:22px;font-weight:bold}
+
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+
+.correct-num{color:#27ae60}
+
+.wrong-num{color:#e74c3c}
+
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+
+.wrong-item:last-child{border:none}
+
+.wrong-item .wq{color:#333;margin-bottom:3px}
+
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+
+.wrong-item .wc{color:#27ae60;font-size:12px}
+
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+
+.kp-content strong{color:#1565c0}
+
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+
+.review-tab:hover{border-color:#4CAF50}
+
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+
+.vscode-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#1565c0}
+
+.vscode-info code{background:#bbdefb;padding:2px 6px;border-radius:3px;font-family:Consolas,monospace}
+
+@media(max-width:600px){
+
+  .result-detail{gap:15px}
+
+  .btn{padding:8px 14px;font-size:12px}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>📝 Day14 循环语句while do-while goto - 检测练习题</h1>
+
+<p>支持错题重做、巩固练习、错题库持久化、编程题VSCode集成</p>
+
+</div>
+
+
+
+<div class="mode-tabs">
+
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+
+</div>
+
+
+
+<div id="quizArea">
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="progress-text" id="progressText">第 1 / 20 题</div>
+
+<div id="quizContainer"></div>
+
+</div>
+
+
+
+<div class="result-card" id="resultCard">
+
+<div class="result-score" id="score">0</div>
+
+<div class="result-message" id="message"></div>
+
+<div class="result-detail">
+
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+
+</div>
+
+<div class="action-buttons">
+
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+
+</div>
+
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+
+<h3>📋 本次错题</h3>
+
+<div id="wrongPreviewList"></div>
+
+</div>
+
+</div>
+
+
+
+<div id="reviewArea" style="display:none">
+
+<div class="question-card">
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+
+</div>
+
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+
+<div class="review-tabs">
+
+<button class="review-tab active" onclick="switchReviewTab('list', event)">📋 错题列表</button>
+
+<button class="review-tab" onclick="switchReviewTab('knowledge', event)">🧠 知识点复习</button>
+
+</div>
+
+<div id="wrongBankList"></div>
+
+<div id="knowledgeReview" style="display:none"></div>
+
+</div>
+
+</div>
+
+
+
+</div>
+
+
+
+<script>
+
+const QUIZ_KEY = 'wrongbank_day14';
+
+const DAY_NUM = 14;
+
+
+
+ 12%6=0 → 结束，b=6。验证：12=6×2，18=6×3，确实是最大公约数。"}, {"id": 5, "type": "single", "kp": "最小公倍数", "text": "LCM(12, 18) 等于？（已知 GCD=6）", "options": ["36", "72", "216", "12"], "correct": "A", "expl": "<strong>最小公倍数 = 乘积 / 最大公约数 = 12×18/6 = 36</strong>。验证：36是12的3倍，是18的2倍，确实是最小公倍数。"}, {"id": 6, "type": "single", "kp": "数位拆分", "text": "n=365，n/100 的结果是？", "options": ["3", "3.65", "65", "5"], "correct": "A", "expl": "<strong>结果是 3</strong>。整数除法会直接去掉小数部分，365/100=3（不是3.65）。这正是提取百位数字的方法。"}, {"id": 7, "type": "single", "kp": "数位拆分", "text": "n=365，n%10 的结果是？", "options": ["3", "6", "5", "36"], "correct": "C", "expl": "<strong>结果是 5</strong>。取余运算 % 保留最后一位，365%10=5。这是提取个位数字的方法。"}, {"id": 8, "type": "single", "kp": "素数判断", "text": "以下哪个数是素数？", "options": ["1", "2", "4", "9"], "correct": "B", "expl": "<strong>2 是素数</strong>。2只能被1和它本身整除。注意：1不是素数（素数定义是大于1的自然数），4=2×2，9=3×3，都不是素数。"}, {"id": 9, "type": "single", "kp": "while输入", "text": "while((ret=scanf(\"%d\",&num))==1) 这个循环什么时候结束？", "options": ["输入0时", "输入非数字或EOF时", "输入100时", "永远不会结束"], "correct": "B", "expl": "<strong>当输入非数字或到达EOF时结束</strong>。scanf返回成功读取的变量数，返回1表示成功读了一个整数，返回其他值时结束。"}, {"id": 10, "type": "single", "kp": "break continue", "text": "break 和 continue 的区别是？", "options": ["都跳出循环", "break跳过本次，continue跳出循环", "break跳出循环，continue跳过本次", "都跳过本次"], "correct": "C", "expl": "<strong>break：立即跳出当前层循环</strong>（不干了）。<strong>continue：跳过本次循环剩余语句，进入下一次</strong>（这次算了，下次继续）。"}, {"id": 11, "type": "single", "kp": "goto", "text": "关于 goto 语句，以下哪种说法是正确的？", "options": ["goto绝对不能用", "goto可以跳出多层循环", "goto可以跨函数跳转", "goto只能用于循环"], "correct": "B", "expl": "<strong>goto 可以跳出多层循环</strong>，这是它的合理用法之一（break只能跳一层）。但goto不能跨函数跳转，也不建议滥用。"}, {"id": 12, "type": "single", "kp": "循环对比", "text": "已知循环次数时，最适合用哪种循环？", "options": ["while", "do-while", "for", "goto"], "correct": "C", "expl": "<strong>已知循环次数 → 优先用 for</strong>。for循环把初始化、条件、更新都写在一行，结构清晰。while适合未知次数，do-while适合至少执行一次。"}, {"id": 13, "type": "judge", "kp": "dowhile语法", "text": "do-while 循环的循环体至少执行一次。", "correct": "A", "options": ["正确", "错误"], "expl": "<strong>正确！</strong>do-while 先执行循环体，再判断条件，所以无论条件是否为真，循环体至少执行一次。"}, {"id": 14, "type": "judge", "kp": "while语法", "text": "while 循环的循环体至少执行一次。", "correct": "B", "options": ["正确", "错误"], "expl": "<strong>错误！</strong>while 先判断条件，如果一开始条件就为假，循环体一次都不执行。"}, {"id": 15, "type": "judge", "kp": "最大公约数", "text": "辗转相除法中，当余数为 0 时，除数就是最大公约数。", "correct": "A", "options": ["正确", "错误"], "expl": "<strong>正确！</strong>这是辗转相除法的核心思想：当 a%b==0 时，b 就是 a 和 b 的最大公约数。"}, {"id": 16, "type": "judge", "kp": "goto", "text": "goto 语句可以在不同函数之间跳转。", "correct": "B", "options": ["正确", "错误"], "expl": "<strong>错误！</strong>goto 只能在同一个函数内跳转，不能跨函数跳转。跨函数跳转需要用 longjmp（不推荐）。"}, {"id": 17, "type": "judge", "kp": "死循环", "text": "while(1) 是死循环，无法跳出。", "correct": "B", "options": ["正确", "错误"], "expl": "<strong>错误！</strong>while(1) 是死循环，但可以在循环体内用 break 跳出。很多菜单系统就用 while(1)+break 的模式。"}, {"id": 18, "type": "fill", "kp": "最大公约数", "text": "最小公倍数 = 两数之 <input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\"> 除以最大 <input class=\"fill-blank\" data-idx=\"1\" placeholder=\"?\">。", "correct": ["积", "乘积", "*", "公约数", "GCD"], "correctText": "积（乘积） | 公约数（GCD）", "expl": "<strong>LCM(a,b) = a×b / GCD(a,b)</strong>。最小公倍数等于两数的乘积除以最大公约数。"}, {"id": 19, "type": "fill", "kp": "循环对比", "text": "for适合 <input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\"> 次数的场景，while适合 <input class=\"fill-blank\" data-idx=\"1\" placeholder=\"?\"> 次数的场景。", "correct": ["已知", "确定", "未知", "不确定"], "correctText": "已知（确定） | 未知（不确定）", "expl": "<strong>已知次数→for</strong>（结构清晰），<strong>未知次数→while</strong>（靠条件结束）。"}, {"id": 20, "type": "fill", "kp": "dowhile语法", "text": "do-while 语句末尾必须有一个 <input class=\"fill-blank\" data-idx=\"0\" placeholder=\"符号\">，这是最容易出错的地方。", "correct": [";", "分号"], "correctText": "分号（;）", "expl": "<strong>do { ... } while (条件);</strong> 末尾的分号绝对不能省略！"}];
+
+ 输出：5050", "hint": "int i=1,sum=0; while(i<=n){sum+=i; i++;}", "answer": "#include <stdio.h>\nint main() {\n    int n, i, sum;\n    scanf(\"%d\", &n);\n    i = 1;\n    sum = 0;\n    while (i <= n) {\n        sum += i;\n        i++;\n    }\n    printf(\"%d\\n\", sum);\n    return 0;\n}", "test_input": "100", "expected_output": "5050"}, {"id": 102, "type": "coding", "kp": "do-while基础", "difficulty": "入门", "title": "1到n求和（do-while版）", "desc": "编写程序，输入正整数n，用do-while循环计算1+2+...+n的和并输出。\n注意末尾分号不能省！", "hint": "do { sum+=i; i++; } while(i<=n);", "answer": "#include <stdio.h>\nint main() {\n    int n, i, sum;\n    scanf(\"%d\", &n);\n    i = 1;\n    sum = 0;\n    do {\n        sum += i;\n        i++;\n    } while (i <= n);\n    printf(\"%d\\n\", sum);\n    return 0;\n}", "test_input": "100", "expected_output": "5050"}, {"id": 103, "type": "coding", "kp": "数位拆分", "difficulty": "简单", "title": "求一个整数的位数", "desc": "编写程序，输入一个正整数，用while循环统计它是几位数并输出。\n例：输入 12345 → 输出：5\n     输入 999 → 输出：3", "hint": "每次n=n/10去掉一位，计数器count++，直到n变为0。", "answer": "#include <stdio.h>\nint main() {\n    int n, count = 0;\n    scanf(\"%d\", &n);\n    while (n > 0) {\n        n = n / 10;\n        count++;\n    }\n    printf(\"%d\\n\", count);\n    return 0;\n}", "test_input": "12345", "expected_output": "5"}, {"id": 104, "type": "coding", "kp": "数位拆分", "difficulty": "中等", "title": "整数反转", "desc": "编写程序，输入一个正整数，用while循环将它反转输出。\n例：输入 12345 → 输出：54321\n     输入 100 → 输出：1", "hint": "每次取n%10得到最后一位，加到反转结果中：rev=rev*10+n%10; 然后n=n/10。", "answer": "#include <stdio.h>\nint main() {\n    int n, rev = 0;\n    scanf(\"%d\", &n);\n    while (n > 0) {\n        rev = rev * 10 + n % 10;\n        n = n / 10;\n    }\n    printf(\"%d\\n\", rev);\n    return 0;\n}", "test_input": "12345", "expected_output": "54321"}, {"id": 105, "type": "coding", "kp": "最大公约数", "difficulty": "简单", "title": "求最大公约数", "desc": "编写程序，输入两个正整数，用辗转相除法求它们的最大公约数并输出。\n例：输入 12 18 → 输出：6", "hint": "确保a>=b，while((c=a%b)!=0){a=b; b=c;} 结果是b。", "answer": "#include <stdio.h>\nint main() {\n    int a, b, c, t;\n    scanf(\"%d%d\", &a, &b);\n    if (a < b) { t = a; a = b; b = t; }\n    while ((c = a % b) != 0) {\n        a = b;\n        b = c;\n    }\n    printf(\"%d\\n\", b);\n    return 0;\n}", "test_input": "12 18", "expected_output": "6"}, {"id": 106, "type": "coding", "kp": "最大公约数", "difficulty": "简单", "title": "求最小公倍数", "desc": "编写程序，输入两个正整数，求它们的最小公倍数并输出。\n提示：LCM = a*b / GCD\n例：输入 12 18 → 输出：36", "hint": "先保存乘积t=a*b，求出GCD后，LCM=t/GCD。", "answer": "#include <stdio.h>\nint main() {\n    int a, b, c, t, gcd;\n    scanf(\"%d%d\", &a, &b);\n    t = a * b;\n    if (a < b) { int tmp = a; a = b; b = tmp; }\n    while ((c = a % b) != 0) {\n        a = b;\n        b = c;\n    }\n    gcd = b;\n    printf(\"%d\\n\", t / gcd);\n    return 0;\n}", "test_input": "12 18", "expected_output": "36"}, {"id": 107, "type": "coding", "kp": "水仙花数", "difficulty": "简单", "title": "while版水仙花数", "desc": "编写程序，用while循环输出所有的三位水仙花数。\n水仙花数：一个3位数，各位数字的立方和等于该数本身。\n例：153 = 1^3 + 5^3 + 3^3 = 153", "hint": "n从100到999，每次提取百位a=n/100，十位b=n%100/10，个位c=n%10。", "answer": "#include <stdio.h>\nint main() {\n    int n = 100;\n    int a, b, c;\n    while (n <= 999) {\n        a = n / 100;\n        b = n % 100 / 10;\n        c = n % 10;\n        if (a*a*a + b*b*b + c*c*c == n) {\n            printf(\"%d\\n\", n);\n        }\n        n++;\n    }\n    return 0;\n}", "test_input": "", "expected_output": "153\n370\n371\n407"}, {"id": 108, "type": "coding", "kp": "素数判断", "difficulty": "简单", "title": "判断一个数是否为素数", "desc": "编写程序，输入一个大于1的正整数，判断它是否为素数。\n是素数输出：Yes，不是输出：No。\n例：输入 7 → 输出：Yes\n     输入 9 → 输出：No", "hint": "从2到n-1检查有没有数能整除n。用flag=1假设是素数，发现能整除则flag=0。", "answer": "#include <stdio.h>\nint main() {\n    int n, i, flag = 1;\n    scanf(\"%d\", &n);\n    i = 2;\n    while (i <= n - 1) {\n        if (n % i == 0) {\n            flag = 0;\n            break;\n        }\n        i++;\n    }\n    if (flag) printf(\"Yes\\n\");\n    else printf(\"No\\n\");\n    return 0;\n}", "test_input": "7", "expected_output": "Yes"}, {"id": 109, "type": "coding", "kp": "素数判断", "difficulty": "中等", "title": "输出100以内所有素数", "desc": "编写程序，用while嵌套循环输出100以内的所有素数，并统计个数。\n每行输出一个素数，最后输出总个数。", "hint": "外层while(n<100)遍历，内层while判断每个n是否为素数。2是最小的素数。", "answer": "#include <stdio.h>\nint main() {\n    int n = 2, i, flag, count = 0;\n    while (n < 100) {\n        i = 2;\n        flag = 1;\n        while (i <= n - 1) {\n            if (n % i == 0) { flag = 0; break; }\n            i++;\n        }\n        if (flag) { printf(\"%d\\n\", n); count++; }\n        n++;\n    }\n    printf(\"count=%d\\n\", count);\n    return 0;\n}", "test_input": "", "expected_output": "素数列表+count=25"}, {"id": 110, "type": "coding", "kp": "while输入", "difficulty": "中等", "title": "统计多组输入的和与偶数个数", "desc": "编写程序，循环读取输入的整数，直到输入非数字结束。\n输出所有输入数字的总和，以及其中偶数的个数。\n输入格式：每行或每空格输入一个整数，按Ctrl+Z（Windows）结束输入。", "hint": "while((ret=scanf(\"%d\",&num))==1) { sum+=num; if(num%2==0) count++; }", "answer": "#include <stdio.h>\nint main() {\n    int num, sum = 0, count = 0, ret;\n    while ((ret = scanf(\"%d\", &num)) == 1) {\n        sum += num;\n        if (num % 2 == 0) count++;\n    }\n    printf(\"sum=%d count=%d\\n\", sum, count);\n    return 0;\n}", "test_input": "1 2 3 4 5", "expected_output": "sum=15 count=2"}];
+
+const kpMap = {"while语法": {"title": "while 循环语法", "content": "<strong>while(条件) { 循环体; }</strong><br>先判断条件，为真执行循环体，为假跳出。<br>⚠️ <strong>注意</strong>：① 循环变量必须在while前初始化 ② 循环体内必须更新循环变量（i++）否则死循环。"}, "dowhile语法": {"title": "do-while 循环语法", "content": "<strong>do { 循环体; } while(条件);</strong><br>先执行一次循环体，再判断条件。<br>⚠️ <strong>末尾分号不能省！</strong>这是do-while最容易出错的地方。"}, "while vs do-while": {"title": "while 与 do-while 对比", "content": "<strong>while</strong>：先判断后执行，最少 0 次<br><strong>do-while</strong>：先执行后判断，最少 1 次<br>💡 大多数情况可以互换，但菜单等必须先执行的场景用 do-while。"}, "最大公约数": {"title": "辗转相除法求 GCD", "content": "<strong>核心算法</strong>：<br>① c = a % b<br>② 若 c == 0，则 b 是 GCD<br>③ 否则 a = b, b = c，重复<br>💡 <strong>注意</strong>：先确保 a >= b（不够就交换），结果存在 b 中。"}, "最小公倍数": {"title": "求最小公倍数 LCM", "content": "<strong>LCM(a, b) = a × b / GCD(a, b)</strong><br>💡 <strong>注意</strong>：先保存乘积 t = a * b！因为求 GCD 的过程中 a 和 b 的值会被修改。"}, "数位拆分": {"title": "提取数字各位", "content": "<strong>百位</strong>：n / 100（整数除法去掉低位）<br><strong>十位</strong>：n % 100 / 10（先去百位再去个位）<br><strong>个位</strong>：n % 10（取余保留最后一位）<br>💡 口诀：/ 去低位，% 留低位。"}, "素数判断": {"title": "判断素数的方法", "content": "<strong>定义</strong>：只能被 1 和自身整除的大于 1 的自然数。<br><strong>方法</strong>：检查 2 到 n-1 有没有数能整除 n。<br><strong>优化</strong>：只需检查到 sqrt(n)，因为因数成对出现。<br>💡 2 是唯一的偶素数！"}, "while输入": {"title": "while 处理多组输入", "content": "<strong>scanf 返回值</strong>：成功读取的变量个数。<br><code>while ((ret = scanf(\"%d\", &num)) == 1)</code><br>返回 1 表示读了一个数，返回其他（非数字/EOF）时结束。<br>💡 Windows 按 Ctrl+Z 结束，Linux 按 Ctrl+D。"}, "break continue": {"title": "break 与 continue", "content": "<strong>break</strong>：立即跳出<strong>当前层</strong>循环（不干了）<br><strong>continue</strong>：跳过本次循环剩余语句，进入<strong>下一次</strong>（这次算了，下次继续）<br>💡 break 只能跳一层，要跳多层用 goto。"}, "goto": {"title": "goto 语句", "content": "<strong>语法</strong>：<code>goto 标签;</code> 跳转到 <code>标签:</code> 位置<br><strong>✅ 合理用法</strong>：① 跳出多层循环 ② 错误处理统一清理<br><strong>❌ 不合理用法</strong>：代替正常循环、随意跳转（面条代码）<br>💡 节制使用！"}, "循环对比": {"title": "三种循环选择", "content": "<strong>for</strong>：已知循环次数，结构清晰<br><strong>while</strong>：未知次数，靠条件结束<br><strong>do-while</strong>：至少执行一次<br>💡 三者可以互相转换，选择合适的写法让代码更清晰。"}};
+
+const extraQuestions = [];
+
+
+
+let currentQuestions = [];
+
+let currentQIndex = 0;
+
+let answers = {};
+let submitted = {};
+
+let currentMode = 'normal';
+
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+
+
+function getWrongBank(){
+
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+
+}
+
+function saveWrongBank(list){
+
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+
+}
+
+function addToWrongBank(q, userAns){
+
+  const bank = getWrongBank();
+
+  if(!bank.find(x=>x.id===q.id)){
+
+    bank.push({
+
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+
+      options:q.options,correct:q.correct,correctText:q.correctText,
+
+      expl:q.expl,userAns:userAns,time:Date.now()
+
+    });
+
+    saveWrongBank(bank);
+
+  }
+
+}
+
+function saveProgress(){
+
+  if(currentMode==='review') return;
+
+  const prog = {
+
+    mode:currentMode, index:currentQIndex, answers:answers,
+
+    ids:currentQuestions.map(q=>q.id), time:Date.now()
+
+  };
+
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+
+}
+
+function loadProgress(){
+
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+
+}
+
+function clearProgress(){
+
+  localStorage.removeItem(PROGRESS_KEY);
+
+}
+
+function shuffle(arr){
+
+  const a=[...arr];
+
+  for(let i=a.length-1;i>0;i--){
+
+    const j=Math.floor(Math.random()*(i+1));
+
+    [a[i],a[j]]=[a[j],a[i]];
+
+  }
+
+  return a;
+
+}
+
+
+
+function openInVSCode(q) {
+
+  const code = q.answer || q.hint || '// 请在此编写代码';
+
+  const blob = new Blob([code], {type: 'text/plain'});
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+
+  a.href = url;
+
+  a.download = `Day${DAY_NUM}_${q.id}.c`;
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+
+  
+
+  // 显示提示
+
+  const info = document.createElement('div');
+
+  info.className = 'vscode-info';
+
+ Open File → 选择下载的 ${a.download}</code><br>或按快捷键 <code>Ctrl+O</code>`;
+
+  const container = document.getElementById('quizContainer');
+
+  const oldInfo = container.querySelector('.vscode-info');
+
+  if (oldInfo) oldInfo.remove();
+
+  container.querySelector('.question-card').appendChild(info);
+
+}
+
+
+
+function startQuiz(mode){
+
+  clearProgress();
+
+  currentMode = mode;
+
+  currentQIndex = 0;
+
+  answers = {};
+
+  submitted = {};
+
+  document.getElementById('resultCard').classList.remove('show');
+
+  document.getElementById('reviewArea').style.display = 'none';
+
+  document.getElementById('quizArea').style.display = 'block';
+
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+
+
+  if(mode==='coding'){
+
+    currentQuestions = [...codingQuestions];
+
+  } else if(mode==='wrongredo'){
+
+    const bank = getWrongBank();
+
+    if(bank.length===0){
+
+      alert('错题库为空，没有错题可以重做！');
+
+      switchMode('normal');
+
+      return;
+
+    }
+
+    currentQuestions = bank.map(w=>({...w, isWrongRedo:true}));
+
+  } else if(mode==='consolidate'){
+
+    const bank = getWrongBank();
+
+    if(bank.length===0){
+
+      alert('错题库为空，先去做题吧！');
+
+      switchMode('normal');
+
+      return;
+
+    }
+
+    const weakKps = [...new Set(bank.map(w=>w.kp))];
+
+    let pool = allQuestions.filter(q=>weakKps.includes(q.kp) && !bank.find(w=>w.id===q.id));
+
+    if(pool.length<5) pool = allQuestions.filter(q=>!bank.find(w=>w.id===q.id));
+
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+
+  } else {
+
+    currentQuestions = [...allQuestions];
+
+  }
+
+
+
+  if(currentQuestions.length===0){
+
+    alert('没有题目！');
+
+    return;
+
+  }
+
+  renderQuestion();
+
+}
+
+
+
+function switchMode(mode){
+
+  if(mode==='review'){
+
+    document.getElementById('quizArea').style.display='none';
+
+    document.getElementById('resultCard').classList.remove('show');
+
+    document.getElementById('reviewArea').style.display='block';
+
+    document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+
+    currentMode='review';
+
+    renderReview();
+
+    return;
+
+  }
+
+  startQuiz(mode);
+
+}
+
+
+
+function renderQuestion(){
+
+  saveProgress();
+
+  const q = currentQuestions[currentQIndex];
+
+  const isSubmitted = submitted[q.id] !== undefined;
+
+  const total = currentQuestions.length;
+
+  const pct = ((currentQIndex+1)/total)*100;
+
+  document.getElementById('progress').style.width = pct+'%';
+
+  document.getElementById('progressText').textContent = `第 ${currentQIndex+1} / ${total} 题`;
+
+
+
+  let html = `<div class="question-card">`;
+
+  html += `<span class="question-num">第 ${currentQIndex+1} 题</span>`;
+
+  html += `<span class="question-tag">${q.kp}</span>`;
+
+  if(q.type==='coding'){
+
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+
+    html += `<span class="difficulty-tag ${diffMap[q.difficulty]||''}">${q.difficulty}</span>`;
+
+  }
+
+  if(q.type==='coding'){
+
+    html += `<div class="question-text"><strong>${q.title}</strong></div>`;
+
+    html += `<div class="question-desc">${q.desc.replace(/\n/g,'<br>')}</div>`;
+
+    html += `<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>`;
+
+    html += `<div class="btn-group">`;
+
+    html += `<button class="btn btn-vscode" onclick="openInVSCode(currentQuestions[currentQIndex])">📂 在VSCode中打开</button>`;
+
+    html += `<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>`;
+
+    html += `<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>`;
+
+    html += `</div>`;
+
+    html += `<div class="hint-box" id="hintBox">💡 ${q.hint}</div>`;
+
+    html += `<div class="test-result" id="testResult"></div>`;
+
+    html += `<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>${q.answer.replace(/</g,'&lt;')}</pre></div>`;
+
+  } else {
+
+    html += `<div class="question-text">${q.text}</div>`;
+
+    if(q.type==='single' || q.type==='judge'){
+
+      html += `<div class="options">`;
+
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+
+      q.options.forEach((opt,i)=>{
+
+        if(isSubmitted){
+
+          const cls = labels[i]===q.correct?'correct':(labels[i]===answers[q.id]?'wrong':'');
+
+          html += `<div class="option ${cls}" style="pointer-events:none" onclick=""><span class="option-label">${labels[i]}.</span>${opt}</div>`;
+
+        } else {
+
+          const sel = answers[q.id]===labels[i]?'selected':'';
+
+          html += `<div class="option ${sel}" onclick="selectOption('${labels[i]}', event)"><span class="option-label">${labels[i]}.</span>${opt}</div>`;
+
+        }
+
+      });
+
+      html += `</div>`;
+
+    } else if(q.type==='fill'){
+
+      html += `<div class="question-text">${q.text}</div>`;
+
+    }
+
+  }
+
+  html += `<div class="explanation${isSubmitted?' show':''}" id="expl"><div class="explanation-title">${isSubmitted?(submitted[q.id]?'✅ 正确':'❌ 错误'):'📖 解析'}</div>${q.expl||''}</div>`;
+
+  html += `<div class="btn-group">`;
+
+  if(currentQIndex>0) html += `<button class="btn" onclick="prevQ()">上一题</button>`;
+
+  if(q.type==='coding'){
+
+</button>`;
+
+  } else {
+
+    if(isSubmitted){
+
+</button>`;
+
+      else html += `<button class="btn btn-primary" onclick="goNext()">🏁 查看成绩</button>`;
+
+    } else {
+
+      html += `<button class="btn btn-primary" onclick="submitQ()">提交答案</button>`;
+
+    }
+
+  }
+
+  html += `</div></div>`;
+
+  document.getElementById('quizContainer').innerHTML = html;
+
+
+
+  if(q.type==='fill' && isSubmitted){
+
+    const userAns = answers[q.id]||[];
+
+    document.querySelectorAll('.fill-blank').forEach((inp,i)=>{
+
+      inp.disabled = true;
+
+      if(userAns[i] && userAns[i].toLowerCase()===q.correct[i].toLowerCase()){
+
+        inp.style.background='#d4edda';inp.style.borderColor='#27ae60';
+
+      } else {
+
+        inp.style.background='#f8d7da';inp.style.borderColor='#e74c3c';
+
+        inp.title = '正确答案: '+q.correct[i];
+
+      }
+
+    });
+
+  }
+
+}
+
+
+
+function selectOption(label, e){
+
+  const q = currentQuestions[currentQIndex];
+
+  answers[q.id] = label;
+
+  document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+
+  e.currentTarget.classList.add('selected');
+
+}
+
+
+
+function showHint(){
+
+  document.getElementById('hintBox').classList.toggle('show');
+
+}
+
+function showAnswerCoding(){
+
+  document.getElementById('answerDisplay').classList.toggle('show');
+
+}
+
+
+
+function submitQ(){
+
+  const q = currentQuestions[currentQIndex];
+
+  let userAns = answers[q.id];
+
+  let isCorrect = false;
+
+
+
+  if(q.type==='fill'){
+
+    const inputs = document.querySelectorAll('.fill-blank');
+
+    userAns = Array.from(inputs).map(i=>i.value.trim());
+
+    isCorrect = q.correct.every((c,i)=>userAns[i] && userAns[i].toLowerCase()===c.toLowerCase());
+
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+
+  } else {
+
+    if(!userAns){
+
+      alert('请先选择一个答案！');
+
+      return;
+
+    }
+
+    isCorrect = userAns===q.correct;
+
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+
+  }
+
+
+
+  submitted[q.id] = isCorrect;
+
+  saveProgress();
+
+  renderQuestion();
+
+}
+
+
+
+function prevQ(){
+
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+
+}
+
+function goNext(){
+  if(currentQIndex < currentQuestions.length - 1){
+    currentQIndex++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+  window.scrollTo(0,0);
+}
+
+function nextQ(){
+
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+
+  else finishQuiz();
+
+}
+
+
+
+function finishQuiz(){
+
+  saveProgress();
+
+  let correct=0, wrongList=[];
+
+  currentQuestions.forEach(q=>{
+
+    if(q.type==='coding') return;
+
+    const ua = answers[q.id];
+
+    let ok=false;
+
+    if(q.type==='fill'){
+
+      const ual = (ua||[]);
+
+      ok = Array.isArray(ual) && q.correct.every((c,i)=>ual[i] && ual[i].toLowerCase()===c.toLowerCase());
+
+    } else { ok = ua===q.correct; }
+
+    if(ok) correct++; else wrongList.push({q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+
+  });
+
+
+
+  const total = currentQuestions.filter(q=>q.type!=='coding').length;
+
+  const wrong = total - correct;
+
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+
+
+  document.getElementById('quizArea').style.display='none';
+
+  document.getElementById('resultCard').classList.add('show');
+
+  document.getElementById('score').textContent = score;
+
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+
+  document.getElementById('correctCount').textContent = correct;
+
+  document.getElementById('wrongCount').textContent = wrong;
+
+  document.getElementById('totalCount').textContent = total;
+
+
+
+  if(wrongList.length>0){
+
+    document.getElementById('wrongBankPreview').style.display='block';
+
+    let html='';
+
+    wrongList.forEach(w=>{
+
+      html += `<div class="wrong-item"><div class="wq">${w.q.kp}: ${w.q.text.substring(0,50)}...</div><div class="wa">你的答案: ${w.userAns}</div><div class="wc">正确答案: ${w.q.correctText||w.q.correct}</div></div>`;
+
+    });
+
+    document.getElementById('wrongPreviewList').innerHTML = html;
+
+  } else {
+
+    document.getElementById('wrongBankPreview').style.display='none';
+
+  }
+
+  clearProgress();
+
+}
+
+
+
+function renderReview(){
+
+  const bank = getWrongBank();
+
+  document.getElementById('wrongBankCount').textContent = bank.length;
+
+  switchReviewTab('list');
+
+}
+
+
+
+function switchReviewTab(tab, e){
+
+  document.querySelectorAll('.review-tab').forEach(t=>t.classList.remove('active'));
+
+  e?.target?.classList.add('active');
+
+  if(!e) document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+
+  if(tab==='list') renderWrongList();
+
+  else renderKnowledgeReview();
+
+}
+
+
+
+function renderWrongList(){
+
+  const bank = getWrongBank();
+
+  const el = document.getElementById('wrongBankList');
+
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  let html='';
+
+  bank.sort((a,b)=>b.time-a.time).forEach((w,i)=>{
+
+    html += `<div class="kp-section" style="border-left-color:#e74c3c">`;
+
+    html += `<div class="kp-header"><div class="kp-title">${i+1}. ${w.kp}</div>`;
+
+    html += `<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong(${w.id})">删除</button></div>`;
+
+    html += `<div class="kp-content">${w.text}</div>`;
+
+    if(w.options){
+
+      html += `<div class="options" style="margin-top:8px">`;
+
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+
+      w.options.forEach((opt,j)=>{
+
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+
+        html += `<div class="option ${cls}" style="cursor:default;pointer-events:none"><span class="option-label">${labels[j]}.</span>${opt}</div>`;
+
+      });
+
+      html += `</div>`;
+
+    }
+
+    html += `<div class="explanation show"><div class="explanation-title">📖 解析</div>${w.expl||''}</div>`;
+
+    html += `</div>`;
+
+  });
+
+  el.innerHTML = html;
+
+}
+
+
+
+function removeWrong(id){
+
+  if(!confirm('确定删除这道错题吗？')) return;
+
+  const bank = getWrongBank().filter(w=>w.id!==id);
+
+  saveWrongBank(bank);
+
+  renderReview();
+
+}
+
+
+
+function clearWrongBank(){
+
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+
+  saveWrongBank([]);
+
+  renderReview();
+
+}
+
+
+
+function renderKnowledgeReview(){
+
+  const bank = getWrongBank();
+
+  const el = document.getElementById('knowledgeReview');
+
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+
+
+  const kpCount = {};
+
+  bank.forEach(w=>{kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+
+  const sorted = Object.entries(kpCount).sort((a,b)=>b[1]-a[1]);
+
+
+
+  let html = `<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 ${sorted.length} 个薄弱知识点</p>`;
+
+  sorted.forEach(([kp,count])=>{
+
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+
+    const related = bank.filter(w=>w.kp===kp);
+
+    html += `<div class="kp-section">`;
+
+    html += `<div class="kp-header"><div class="kp-title">${info.title}</div><span class="kp-badge">错 ${count} 次</span></div>`;
+
+    html += `<div class="kp-content">${info.content}</div>`;
+
+    html += `<div class="kp-wrong-list">相关错题：<br>`;
+
+    related.forEach(r=>{
+
+      html += `• ${r.text.substring(0,60)}${r.text.length>60?'...':''}<br>`;
+
+    });
+
+    html += `</div></div>`;
+
+  });
+
+  el.innerHTML = html;
+
+}
+
+
+
+window.addEventListener('beforeunload', saveProgress);
+
+
+
+(function(){
+
+  const p = loadProgress();
+
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+
+      currentMode = p.mode;
+
+      currentQIndex = p.index;
+
+      answers = p.answers || {};
+
+      let pool;
+
+      if(p.mode==='coding') pool = codingQuestions;
+
+      else pool = allQuestions;
+
+      currentQuestions = p.ids.map(id=>pool.find(q=>q.id===id)).filter(Boolean);
+
+      if(currentQuestions.length>0){
+
+        document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+        const tm = {normal:0,coding:1,wrongredo:2};
+
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+
+        renderQuestion();
+
+        return;
+
+      }
+
+    }
+
+    clearProgress();
+
+  }
+
+  startQuiz('normal');
+
+})();
+
+</script>
+
+</body>
+
+</html>
