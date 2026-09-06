@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day31 变量的作用域和生命周期 · 知识卡片</title>
+<style>
+  :root {
+    --bg: #f0f3f8;
+    --card-bg: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.14);
+    --radius: 14px;
+    --concept: #FF9F43;
+    --syntax: #2E86DE;
+    --error: #EE5253;
+    --pointer: #6C5CE7;
+    --application: #10AC84;
+    --summary: #FDCB6E;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px; }
+  .header .badge { font-size: 0.8rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+  .main-layout { display: flex; gap: 24px; padding: 24px 40px; max-width: 1500px; margin: 0 auto; }
+  .content-area { flex: 1; min-width: 0; }
+  .filter-bar {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+  }
+  .filter-btn {
+    padding: 7px 18px; border-radius: 20px; border: 1.5px solid #dfe6e9;
+    background: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+    color: var(--text-secondary); transition: var(--transition);
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: #74b9ff; color: #0984e3; }
+  .filter-btn.active { background: #0984e3; color: #fff; border-color: #0984e3; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border-left: 5px solid #ccc;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    animation: fadeIn 0.4s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .card.hidden { display: none; }
+  .card .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .card .card-cat {
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; opacity: 0.8;
+  }
+  .card .card-level {
+    font-size: 0.7rem; font-weight: 700; padding: 2px 10px;
+    border-radius: 10px; background: #ffeaa7; color: #d63031;
+  }
+  .card .card-level.key { background: #fab1a0; color: #b71c1c; }
+  .card .card-level.important { background: #ffeaa7; color: #d63031; }
+  .card .card-name {
+    font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card .card-key {
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "Courier New", monospace;
+    font-size: 0.88rem; background: #f8f9fa; padding: 6px 10px;
+    border-radius: 6px; color: #2d3436; margin-bottom: 10px;
+    display: inline-block; word-break: break-all;
+  }
+  .card .card-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px; }
+  .card .card-memo {
+    font-size: 0.8rem; padding: 8px 12px; background: #fff9e6; border-radius: 8px;
+    border-left: 3px solid #f9ca24; color: #6d5c00; line-height: 1.5;
+  }
+  .card .card-memo.error-memo { background: #fff0f0; border-left-color: #e74c3c; color: #8b0000; }
+  .card .card-memo.pointer-memo { background: #f3efff; border-left-color: #6C5CE7; color: #3d2e8f; }
+  .side-panel {
+    width: 260px; flex-shrink: 0;
+    position: sticky; top: 100px; align-self: flex-start;
+  }
+  .panel-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .panel-card h3 { font-size: 0.95rem; margin-bottom: 14px; color: #2d3436; }
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .stat-num { font-weight: 700; }
+  .reset-btn {
+    width: 100%; padding: 10px; border: 1.5px solid #dfe6e9; border-radius: 10px;
+    background: #fff; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary);
+    transition: var(--transition); margin-top: 8px;
+  }
+  .reset-btn:hover { border-color: #0984e3; color: #0984e3; }
+  @media (max-width: 1100px) {
+    .main-layout { flex-direction: column; padding: 16px; }
+    .side-panel { width: 100%; position: static; display: flex; gap: 12px; flex-wrap: wrap; }
+    .side-panel .panel-card { flex: 1; min-width: 200px; margin-bottom: 0; }
+    .card-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    .header { padding: 20px; }
+    .header h1 { font-size: 1.2rem; }
+    .card-grid { grid-template-columns: 1fr; }
+    .side-panel .panel-card { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Day31 · 变量的作用域和生命周期 - 知识卡片</h1>
+    <span class="badge">共 <span id="totalCount">16</span> 张卡片</span>
+  </div>
+</div>
+
+<div class="main-layout">
+  <div class="content-area">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">全部</button>
+      <button class="filter-btn" data-filter="concept" style="--c: #FF9F43">概念/规则</button>
+      <button class="filter-btn" data-filter="syntax" style="--c: #2E86DE">语法/代码</button>
+      <button class="filter-btn" data-filter="error" style="--c: #EE5253">易错/坑/禁忌</button>
+      <button class="filter-btn" data-filter="pointer" style="--c: #6C5CE7">指针专题</button>
+      <button class="filter-btn" data-filter="application" style="--c: #10AC84">应用/实战</button>
+      <button class="filter-btn" data-filter="summary" style="--c: #FDCB6E">总结/对比</button>
+    </div>
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+
+  <aside class="side-panel" id="sidePanel">
+    <div class="panel-card">
+      <h3>📊 分类统计</h3>
+      <div id="statsContainer"></div>
+      <button class="reset-btn" id="resetBtn">🔄 重置筛选</button>
+    </div>
+    <div class="panel-card">
+      <h3>🔑 考试等级</h3>
+      <div class="stat-row"><span><span class="stat-dot" style="background:#b71c1c"></span>必考</span><span class="stat-num" id="statKey">0</span></div>
+      <div class="stat-row"><span><span class="stat-dot" style="background:#d63031"></span>重点</span><span class="stat-num" id="statImportant">0</span></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const cardsData = [
+    {cat:'concept',level:'必考',key:'auto int a',name:'auto自动变量',desc:'局部变量默认存储类型，存储在栈区。作用域为当前{}内，生命周期随函数调用结束而销毁。auto可省略，int a就是auto int a',memo:'💡 默认存储类型！auto int a等价于int a'},
+    {cat:'error',level:'必考',key:'{ auto int a; } a++',name:'auto作用域陷阱',desc:'a定义在while的{}内，出了}就不可见。a++在while外面会报错。作用域=从定义处到当前{}结束',memo:'⚠️ 出了{}就销毁！作用域是空间维度'},
+    {cat:'concept',level:'必考',key:'register int i',name:'register寄存器变量',desc:'建议编译器将变量存入CPU寄存器，提高访问速度。适用高频循环变量。寄存器>>内存速度',memo:'💡 只是建议！编译器决定是否采纳'},
+    {cat:'error',level:'必考',key:'&i (register)',name:'register不能取地址',desc:'register变量没有内存地址，&i和int*p=&i都会报错。因为寄存器不在内存中，没有地址概念',memo:'⚠️ register变量不能取地址！不能取指针！'},
+    {cat:'concept',level:'必考',key:'static int a',name:'static静态局部变量',desc:'将局部变量从栈区移到全局数据区，生命周期延长到整个程序。但作用域不变(仍为当前{})。未初始化自动为0。只在第一次调用时初始化一次',memo:'💡 生命周期变长但作用域不变！只初始化一次'},
+    {cat:'application',level:'必考',key:'fun()调用5次输出',name:'static累加效果',desc:'static int a; a++; 每次调用fun()，a都在上次基础上+1。输出1 2 3 4 5，地址始终不变(在全局数据区)',memo:'💡 对比auto: 每次都是随机值+1'},
+    {cat:'concept',level:'必考',key:'extern int global_a',name:'extern跨文件引用',desc:'声明在其他文件中定义的全局变量或函数。extern是声明不是定义，不分配内存。编译时告诉编译器变量在别处定义，链接时再找',memo:'💡 声明≠定义！extern不分配内存'},
+    {cat:'application',level:'必考',key:'t1.c + static.c',name:'多文件编译示例',desc:'t1.c定义global_a=100和print_hello()。static.c用extern声明后使用。gcc static.c t1.c -o main 链接合并',memo:'💡 多文件编译：gcc t1.c static.c -o main'},
+    {cat:'syntax',level:'必考',key:'声明vs定义',name:'extern声明与定义区别',desc:'定义:int a=100;分配内存。声明:extern int a;不分配内存。一个变量只能定义一次，但可以声明多次',memo:'💡 定义分配内存，声明不分配'},
+    {cat:'concept',level:'必考',key:'volatile int num',name:'volatile防止优化',desc:'告诉编译器变量可能被不可见的方式改变，每次访问必须从内存读取，不要优化到寄存器。场景:硬件寄存器/中断/多线程',memo:'💡 不加volatile可能读不到最新值！'},
+    {cat:'summary',level:'必考',key:'四大存储类型对比',name:'auto/register/static/extern总结',desc:'auto:栈区/函数调用期/随机值。register:寄存器/函数调用期/随机值。static:全局数据区/整个程序/默认0。extern:跨文件/整个程序',memo:'💡 看存储位置+生命周期+作用域三维度'},
+    {cat:'concept',level:'必考',key:'作用域vs生命周期',name:'核心概念区分',desc:'作用域(Scope):变量在哪里可以被访问(空间维度)。生命周期(Lifetime):变量什么时候存在(时间维度)。static局部变量:作用域不变={}内，生命周期变长=整个程序',memo:'💡 作用域=空间，生命周期=时间'},
+    {cat:'pointer',level:'必考',key:'static修饰全局变量',name:'static全局变量',desc:'static修饰全局变量:限制作用域到当前文件(文件级私有)，其他文件extern也无法访问。static修饰函数同理:限制为当前文件可见',memo:'💡 static全局=文件私有！extern也访问不了'},
+    {cat:'error',level:'重点',key:'register现代编译器',name:'register现代意义',desc:'现代gcc/g++自动优化高频变量到寄存器，手动register只是建议。register变量不能取地址限制依然有效。实际上register在现代C中很少手动使用',memo:'💡 现代编译器自动优化，register少用手动加'},
+    {cat:'summary',level:'必考',key:'8大易错点',name:'Day31易错总结',desc:'register取地址报错、auto出作用域访问报错、static每次初始化(错,只一次)、extern当定义用、volatile忘记加、static全局变量作用域限制、register不一定存入寄存器、auto未初始化随机值',memo:'📌 Day31核心易错点全汇总'},
+    {cat:'application',level:'重点',key:'static int a=10 vs static int a',name:'static初始化时机',desc:'static int a=10;和static int a;都只在第一次调用时初始化。=10是显式初始化，不写则默认0。后续调用保留上次值，不会重新初始化',memo:'💡 只初始化一次！=10或默认0'}
+];
+
+const catColors = {
+    concept: '#FF9F43',
+    syntax: '#2E86DE',
+    error: '#EE5253',
+    pointer: '#6C5CE7',
+    application: '#10AC84',
+    summary: '#FDCB6E'
+};
+
+const catNames = {
+    concept: '概念/规则',
+    syntax: '语法/代码',
+    error: '易错/坑/禁忌',
+    pointer: '指针专题',
+    application: '应用/实战',
+    summary: '总结/对比'
+};
+
+let currentFilter = 'all';
+
+function renderCards() {
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+    let visibleCount = 0;
+    cardsData.forEach((c, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.borderLeftColor = catColors[c.cat];
+        card.style.animationDelay = (i * 0.03) + 's';
+        card.dataset.cat = c.cat;
+        if (currentFilter !== 'all' && c.cat !== currentFilter) {
+            card.classList.add('hidden');
+        } else {
+            visibleCount++;
+        }
+
+        const levelClass = c.level === '必考' ? 'key' : 'important';
+        let memoClass = '';
+        if (c.cat === 'error') memoClass = 'error-memo';
+        else if (c.cat === 'pointer') memoClass = 'pointer-memo';
+
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="card-cat" style="color:${catColors[c.cat]}">${catNames[c.cat]}</span>
+                <span class="card-level ${levelClass}">${c.level}</span>
+            </div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-key">${c.key}</div>
+            <div class="card-desc">${c.desc}</div>
+            <div class="card-memo ${memoClass}">${c.memo}</div>
+        `;
+        grid.appendChild(card);
+    });
+    document.getElementById('totalCount').textContent = visibleCount;
+    updateStats();
+    updateLevelStats();
+}
+
+function updateStats() {
+    const container = document.getElementById('statsContainer');
+    const counts = {};
+    cardsData.forEach(c => {
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+            counts[c.cat] = (counts[c.cat] || 0) + 1;
+        }
+    });
+    let html = '';
+    for (const [cat, name] of Object.entries(catNames)) {
+        const n = counts[cat] || 0;
+        html += `<div class="stat-row"><span><span class="stat-dot" style="background:${catColors[cat]}"></span>${name}</span><span class="stat-num">${n}</span></div>`;
+    }
+    container.innerHTML = html;
+}
+
+function updateLevelStats() {
+    let keyCount = 0, impCount = 0;
+    cardsData.forEach(c => {
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+            if (c.level === '必考') keyCount++;
+            else impCount++;
+        }
+    });
+    document.getElementById('statKey').textContent = keyCount;
+    document.getElementById('statImportant').textContent = impCount;
+}
+
+document.getElementById('filterBar').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderCards();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+    renderCards();
+});
+
+renderCards();
+</script>
+
+</body>
+</html>
