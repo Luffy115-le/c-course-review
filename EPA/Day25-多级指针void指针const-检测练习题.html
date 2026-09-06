@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day25 多级指针 void指针 const - 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#4CAF50}
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+.difficulty-mid{background:#fff3e0;color:#e65100}
+.difficulty-hard{background:#ffebee;color:#c62828}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+.code-editor:focus{outline:none;border-color:#4CAF50}
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+.hint-box.show{display:block}
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+.test-result.show{display:block}
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+.answer-display.show{display:block}
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#4CAF50;color:white}
+.btn-primary:hover{background:#45a049}
+.btn-secondary{background:#2196F3;color:white}
+.btn-secondary:hover{background:#1976D2}
+.btn-warn{background:#ff9800;color:white}
+.btn-warn:hover{background:#f57c00}
+.btn-vscode{background:#007ACC;color:white}
+.btn-vscode:hover{background:#005A9E}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#4CAF50}
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.vscode-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#1565c0}
+.vscode-info code{background:#bbdefb;padding:2px 6px;border-radius:3px;font-family:Consolas,monospace}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day25 多级指针 void指针 const - 检测练习题</h1>
+<p>多级指针定义 · 多级指针内存图 · 二级指针修改值 · void指针定义 · void强转解引用 · const在*左 · const在*右 · const两边都有 · const函数参数保护 · 二级指针交换指针</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 14 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list')">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge')">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day25';
+const DAY_NUM = 25;
+
+const allQuestions = [
+  {"id":1,"type":"single","kp":"多级指针定义","text":"int a=10; int *p=&a; int **pp=&p; 要取到a的值是？","options":["A. *pp","B. pp","C. **pp","D. &pp"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>链式解引用：<br>• pp = &p（p的地址）<br>• *pp = p = &a（a的地址，还是个指针）<br>• **pp = *(&a) = a = 10<br>必须解两次引用才能拿到int值a。"},
+ 是指针<br>• 指向什么？int* → 指向int*的指针<br>所以 pp是二级指针，存的是一级指针(int*)的地址。"},
+  {"id":3,"type":"single","kp":"void强转解引用","text":"void *vp=&a; 以下正确的是？","options":["A. printf(\"%d\\n\", *vp);","B. printf(\"%d\\n\", vp);","C. printf(\"%d\\n\", *(int *)vp);","D. printf(\"%d\\n\", (int)vp);"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong><br>A：*vp直接解void* ❌编译错误<br>B：vp是地址，打印地址而不是值 ❌<br>C：先强转为(int*)再解引用 ✅正确<br>D：把地址强转成int无意义 ❌<br>void*必须先强转具体类型才能解引用。"},
+左定值：*p（指向的值）不可改，但p本身（指向）可以切换。<br>A、B、C都在修改*p的值 → ❌编译错误<br>D只修改p的指向（从&a改成&b）→ ✅合法"},
+右定指：p（指向）不可改，但*p（指向的值）可以改。<br>A：修改*p即修改a的值 → ✅合法<br>B、C、D都在修改p本身的指向/地址 → ❌编译错误<br>注意int *const p必须在定义时初始化。"},
+  {"id":6,"type":"single","kp":"二级指针交换指针","text":"要交换两个int*指针（交换它们的指向），参数类型应该是？","options":["A. int *pa, int *pb","B. int **ppa, int **ppb","C. int a, int b","D. const int *pa, const int *pb"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>要交换函数外的一级指针pa和pb，需要传它们的地址进去修改。pa是int*，&pa就是int**。所以参数用二级指针int**ppa和int**ppb，函数内交换*ppa和*ppb的值。"},
+  {"id":7,"type":"single","kp":"void指针定义","text":"以下哪个不是void指针的特点？","options":["A. 可以指向任何类型的地址","B. 标准库函数（malloc/qsort/memcpy）大量使用","C. 是C语言实现泛型的基础","D. 可以直接解引用获取值"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>void指针不能直接解引用！因为void*没有告诉编译器指向什么类型，不知道取多少字节、按什么格式解析。必须先强转为具体类型(int*/char*/double*)再解引用。"},
+  {"id":8,"type":"single","kp":"void指针定义","text":"malloc的返回类型是？","options":["A. void *","B. int *","C. char *","D. 无返回值"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>malloc返回void*（通用指针），可以自动转换为任何其他类型指针而不需要强转（C语言中）。例如：int*p = malloc(sizeof(int)*10); 不需要写(int*)强转，但写了也不报错。"},
+ *p（值）不可改 → 左定值<br>• const在*的<u>右边</u> → p（指向）不可改 → 右定指<br>把*号当分界线看const在哪一侧即可。"},
+ *p解1次<br>• int** pp → **pp解2次<br>• int*** ppp → ***ppp解3次<br>N级指针必须N次解引用才能拿到最终的非指针变量值。"},
+  {"id":11,"type":"judge","kp":"多级指针定义","text":"int a=10; int **pp=&a; 可以编译通过。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。类型不匹配：<br>&a是int*（a的地址），而int**pp需要存int*的地址（即int**类型）。正确写法：<br>int*p=&a; int**pp=&p; 先取一级指针p的地址赋给pp。直接&a赋给int**会编译报错。"},
+  {"id":12,"type":"judge","kp":"void指针定义","text":"void *vp 可以接受任何类型的地址，这是C的泛型机制基础。","options":["A. 正确","B. 错误"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>正确。void*是万能指针，任何类型的地址都可以赋值给void*。标准库大量利用此特性实现泛型：malloc返回void*、qsort比较函数参数const void*、memcpy参数void*都是经典应用。"},
+  {"id":13,"type":"judge","kp":"const在*左","text":"const char *msg = \"hi\"; msg[0]='H'; 合法。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。两种保护同时起作用：<br>1. const char*限制了*msg不可改（msg[0]等价于*(msg+0)即*msg）<br>2. 字符串\"hi\"本身在只读常量区<br>双重原因导致msg[0]='H'修改失败，编译报错或运行时段错误。"},
+  {"id":14,"type":"judge","kp":"多级指针定义","text":"int **pp 和 int (*q)[4] 是同一类型。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误。完全不同的两种类型：<br>• int**pp：二级指针，指向一级指针(int*)<br>• int(*q)[4]：数组指针，指向含4个int的数组<br>虽然两者都用两次**pp和(*q)[i]都能取到int值，但本质类型完全不同，不能直接互相赋值。"}
+];
+
+const codingQuestions = [
+  {"id":101,"type":"coding","kp":"二级指针修改值","difficulty":"入门","title":"多级指针练习","desc":"定义 int a=10, b=20; int *p1=&a, *p2=&b; int **pp=&p1;\n第一步：打印 *p1、*p2、**pp 的值；\n第二步：执行 pp=&p2; **pp=999;\n第三步：最后打印 b 的值，确认 b 已被改为 999。","hint":"pp一开始存&p1所以**pp=a；pp=&p2切换指向，现在**pp就是*p2=b，所以**pp=999就等于b=999。","answer":"#include <stdio.h>\n\nint main() {\n    int a = 10, b = 20;\n    int *p1 = &a, *p2 = &b;\n    int **pp = &p1;\n\n    printf(\"*p1 = %d\\n\", *p1);\n    printf(\"*p2 = %d\\n\", *p2);\n    printf(\"**pp = %d\\n\", **pp);\n\n    pp = &p2;\n    **pp = 999;\n\n    printf(\"修改后 b = %d\\n\", b);\n\n    return 0;\n}","test_input":"","expected_output":"*p1 = 10\n*p2 = 20\n**pp = 10\n修改后 b = 999"},
+ vp按int打印\n• type='d' → vp按double打印\n• type='c' → vp按char打印\nmain中：int a=100; double d=3.14; char c='X';\n分别传&a、&d、&c 调用 printNum 验证。","hint":"void*必须强转才能解引用：switch(type) { case 'i': printf(\"%d\", *(int*)vp); break; case 'd': printf(\"%.2f\", *(double*)vp); break; case 'c': printf(\"%c\", *(char*)vp); break; }","answer":"#include <stdio.h>\n\nvoid printNum(void *vp, char type) {\n    switch (type) {\n        case 'i':\n            printf(\"%d\\n\", *(int *)vp);\n            break;\n        case 'd':\n            printf(\"%.2f\\n\", *(double *)vp);\n            break;\n        case 'c':\n            printf(\"%c\\n\", *(char *)vp);\n            break;\n    }\n}\n\nint main() {\n    int a = 100;\n    double d = 3.14;\n    char c = 'X';\n\n    printNum(&a, 'i');\n    printNum(&d, 'd');\n    printNum(&c, 'c');\n\n    return 0;\n}","test_input":"","expected_output":"100\n3.14\nX"},
+  {"id":103,"type":"coding","kp":"const函数参数保护","difficulty":"中等","title":"const保护函数参数","desc":"①实现 int sumArr(const int *arr, int n)：遍历求和并返回，加const确保函数不修改arr；\n②实现 void doubleArr(int *arr, int n)：将数组每个元素 ×2（不加const，因为要修改）；\nmain中：int arr[] = {1,2,3,4,5}; 先调sumArr打印原总和；再调doubleArr修改数组；最后再调sumArr打印修改后总和验证翻倍。","hint":"const参数保证只读。sumArr中不能写arr[i]=xxx。doubleArr不加const，直接arr[i]*=2即可修改。","answer":"#include <stdio.h>\n\nint sumArr(const int *arr, int n) {\n    int sum = 0;\n    int i;\n    for (i = 0; i < n; i++) {\n        sum += arr[i];\n    }\n    return sum;\n}\n\nvoid doubleArr(int *arr, int n) {\n    int i;\n    for (i = 0; i < n; i++) {\n        arr[i] *= 2;\n    }\n}\n\nint main() {\n    int arr[] = {1, 2, 3, 4, 5};\n    int n = 5;\n\n    printf(\"原总和 = %d\\n\", sumArr(arr, n));\n    doubleArr(arr, n);\n    printf(\"翻倍后总和 = %d\\n\", sumArr(arr, n));\n\n    return 0;\n}","test_input":"","expected_output":"原总和 = 15\n翻倍后总和 = 30"}
+];
+
+const kpMap = {
+ <code>*p</code>解1次得int<br>• <code>int** pp</code>：二级指针 → <code>**pp</code>解2次得int<br>• <code>int*** ppp</code>：三级指针 → <code>***ppp</code>解3次得int<br>🔴 N级指针必须N次解引用才能拿到最终值。"},
+  "多级指针内存图":{"title":"多级指针内存模型","content":"指针自己也是变量，有自己的地址。<br>例：int a=100; int*p=&a; int**pp=&p;<br>• a地址0x100存值100<br>• p地址0x200存值0x100（即&a）<br>• pp地址0x300存值0x200（即&p）<br>每个指针变量占8字节（64位），都可以被更高一级指针指向。"},
+ 修改a=999<br>• <code>pp=&p2; **pp=888</code> → 修改b=888<br>先切换pp的指向，再通过**pp写值即可修改不同目标变量。"},
+  "void指针定义":{"title":"void*万能通用指针","content":"<code>void *vp;</code> 可指向任何类型地址：<br>• <code>vp=&a; vp=&d; vp=&c;</code> 全部合法<br>• C语言"泛型"机制基础<br>• 标准库大量使用：malloc返回void*、qsort参数const void*、memcpy/memset参数void*<br>❌ 限制：不能直接解引用，不能直接做指针运算。"},
+ 按int解析4字节<br>• <code>*(char*)vp</code> → 按char解析1字节<br>• <code>*(double*)vp</code> → 按double解析8字节<br>🔴 <code>*vp</code>直接解 → 编译错误！<br>🔴 强转类型必须与实际数据类型匹配，否则垃圾值/越界。"},
+ 值不变（左定值）","content":"<code>const int *p = &a;</code><br>• *p不可改：<code>*p=100;</code> ❌编译错误<br>• p可以切换指向：<code>p=&b;</code> ✅合法<br>典型应用：const char* msg = \"hello\"; 字符串内容只读。函数参数中const限定指针所指内容不被修改。"},
+ 指向不变（右定指）","content":"<code>int * const p = &a;</code><br>• p不可改：<code>p=&b;</code> ❌编译错误<br>• *p可改值：<code>*p=100;</code> ✅合法<br>🔴 必须在定义时初始化！p从一而终只指向a，但a的值可以通过*p修改。"},
+ 纯只读","content":"<code>const int * const p = &a;</code><br>• p不可改（*右边的const）<br>• *p也不可改（*左边的const）<br>最强只读模式，p死死绑定a，不能换指向也不能通过p改值，只能读取。"},
+  "const函数参数保护":{"title":"const参数保护与接口契约","content":"只读参数加const是好习惯：<br><code>int sumArr(const int *arr, int n)</code><br>作用：<br>1. 防止函数内误修改（编译报错保护）<br>2. 告诉调用者：此函数不会修改传入的数据<br>这是一个接口契约，也是代码自文档化。qsort的compare函数也用const void*。"},
+  "二级指针交换指针":{"title":"二级指针交换一级指针","content":"要交换两个int*指针（pa和pb的指向），必须传它们的地址：<br><code>void swapPtr(int **ppa, int **ppb)</code><br>函数内：<br><code>int *tmp = *ppa; *ppa = *ppb; *ppb = tmp;</code><br>调用：<code>swapPtr(&pa, &pb);</code><br>传&pa即int**，这样才能在函数内修改pa的值（pa是int*变量）。"}
+};
+
+const extraQuestions = [];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(function(x){return x.id===q.id})){
+    bank.push({
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+      options:q.options,correct:q.correct,correctText:q.correctText,
+      expl:q.expl,userAns:userAns,time:Date.now()
+    });
+    saveWrongBank(bank);
+  }
+}
+function saveProgress(){
+  if(currentMode==='review') return;
+  const prog = {
+    mode:currentMode, index:currentQIndex, answers:answers,
+    ids:currentQuestions.map(function(q){return q.id}), time:Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+}
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+}
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+function shuffle(arr){
+  const a=[];
+  for(let i=0;i<arr.length;i++) a.push(arr[i]);
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+function openInVSCode(q) {
+  const code = q.answer || q.hint || '// 请在此编写代码';
+  const blob = new Blob([code], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Day'+DAY_NUM+'_'+q.id+'.c';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  const info = document.createElement('div');
+  info.className = 'vscode-info';
+ Open File → 选择下载的 '+a.download+'</code><br>或按快捷键 <code>Ctrl+O</code>';
+  const container = document.getElementById('quizContainer');
+  const oldInfo = container.querySelector('.vscode-info');
+  if (oldInfo) oldInfo.remove();
+  container.querySelector('.question-card').appendChild(info);
+}
+
+function startQuiz(mode){
+  clearProgress();
+  currentMode = mode;
+  currentQIndex = 0;
+  answers = {};
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('reviewArea').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+  if(mode==='coding'){
+    currentQuestions = [];
+    for(let i=0;i<codingQuestions.length;i++) currentQuestions.push(codingQuestions[i]);
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      switchMode('normal');
+      return;
+    }
+    currentQuestions = bank.map(function(w){return Object.assign({},w,{isWrongRedo:true})});
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，先去做题吧！');
+      switchMode('normal');
+      return;
+    }
+    const weakKps = [];
+    const seen={};
+    for(let i=0;i<bank.length;i++){if(!seen[bank[i].kp]){weakKps.push(bank[i].kp);seen[bank[i].kp]=true;}}
+    let pool = allQuestions.filter(function(q){return weakKps.indexOf(q.kp)>=0 && !bank.find(function(w){return w.id===q.id})});
+    if(pool.length<5) pool = allQuestions.filter(function(q){return !bank.find(function(w){return w.id===q.id})});
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  } else {
+    currentQuestions = [];
+    for(let i=0;i<allQuestions.length;i++) currentQuestions.push(allQuestions[i]);
+  }
+
+  if(currentQuestions.length===0){
+    alert('没有题目！');
+    return;
+  }
+  renderQuestion();
+}
+
+function switchMode(mode){
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+    currentMode='review';
+    renderReview();
+    return;
+  }
+  startQuiz(mode);
+}
+
+function renderQuestion(){
+  saveProgress();
+  const q = currentQuestions[currentQIndex];
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = '第 '+(currentQIndex+1)+' / '+total+' 题';
+
+  let html = '<div class="question-card">';
+  html += '<span class="question-num">第 '+(currentQIndex+1)+' 题</span>';
+  html += '<span class="question-tag">'+q.kp+'</span>';
+  if(q.type==='coding'){
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+    html += '<span class="difficulty-tag '+(diffMap[q.difficulty]||'')+'">'+q.difficulty+'</span>';
+  }
+  if(q.type==='coding'){
+    html += '<div class="question-text"><strong>'+q.title+'</strong></div>';
+    html += '<div class="question-desc">'+q.desc.replace(/\n/g,'<br>')+'</div>';
+    html += '<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>';
+    html += '<div class="btn-group">';
+    html += '<button class="btn btn-vscode" onclick="openInVSCode(currentQuestions[currentQIndex])">📂 在VSCode中打开</button>';
+    html += '<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>';
+    html += '<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>';
+    html += '</div>';
+    html += '<div class="hint-box" id="hintBox">💡 '+q.hint+'</div>';
+    html += '<div class="test-result" id="testResult"></div>';
+    html += '<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>'+q.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre></div>';
+  } else {
+    html += '<div class="question-text">'+q.text+'</div>';
+    if(q.type==='single' || q.type==='judge'){
+      html += '<div class="options">';
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      q.options.forEach(function(opt,i){
+        const sel = answers[q.id]===labels[i]?'selected':'';
+        html += '<div class="option '+sel+'" onclick="selectOption(\''+labels[i]+'\', event)"><span class="option-label">'+labels[i]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    } else if(q.type==='fill'){
+      html += '<div class="question-text">'+q.text+'</div>';
+    }
+  }
+  html += '<div class="explanation" id="expl"><div class="explanation-title">📖 解析</div>'+(q.expl||'')+'</div>';
+  html += '<div class="btn-group">';
+  if(currentQIndex>0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if(q.type==='coding'){
+</button>';
+  } else {
+    html += '<button class="btn btn-primary" onclick="submitQ(event)">提交答案</button>';
+</button>';
+    else html += '<button class="btn btn-secondary" onclick="finishQuiz()" id="finishBtn" style="display:none">🏁 完成答题</button>';
+  }
+  html += '</div></div>';
+  document.getElementById('quizContainer').innerHTML = html;
+}
+
+function selectOption(label, e){
+  const q = currentQuestions[currentQIndex];
+  answers[q.id] = label;
+  document.querySelectorAll('.option').forEach(function(o){o.classList.remove('selected')});
+  e.currentTarget.classList.add('selected');
+}
+
+function showHint(){
+  document.getElementById('hintBox').classList.toggle('show');
+}
+function showAnswerCoding(){
+  document.getElementById('answerDisplay').classList.toggle('show');
+}
+
+function submitQ(e){
+  const q = currentQuestions[currentQIndex];
+  let userAns = answers[q.id];
+  let isCorrect = false;
+
+  if(q.type==='fill'){
+    const inputs = document.querySelectorAll('.fill-blank');
+    userAns = Array.from(inputs).map(function(i){return i.value.trim()});
+    isCorrect = q.correct.every(function(c,i){return userAns[i] && userAns[i].toLowerCase()===c.toLowerCase()});
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+  } else {
+    if(!userAns){
+      alert('请先选择一个答案！');
+      return;
+    }
+    isCorrect = userAns===q.correct;
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+  }
+
+  if(q.type==='single' || q.type==='judge'){
+    document.querySelectorAll('.option').forEach(function(o,i){
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      if(labels[i]===q.correct) o.classList.add('correct');
+      else if(labels[i]===userAns) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+    });
+  } else if(q.type==='fill'){
+    document.querySelectorAll('.fill-blank').forEach(function(inp,i){
+      inp.disabled = true;
+      if(inp.value.trim().toLowerCase()===q.correct[i].toLowerCase()){
+        inp.style.background='#d4edda';inp.style.borderColor='#27ae60';
+      } else {
+        inp.style.background='#f8d7da';inp.style.borderColor='#e74c3c';
+        inp.title = '正确答案: '+q.correct[i];
+      }
+    });
+  }
+
+  document.getElementById('expl').classList.add('show');
+  const nb = document.getElementById('nextBtn');
+  const fb = document.getElementById('finishBtn');
+  if(nb) nb.removeAttribute('style');
+  if(fb) fb.removeAttribute('style');
+  e.currentTarget.style.display='none';
+  saveProgress();
+}
+
+function prevQ(){
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+}
+function nextQ(){
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+  else finishQuiz();
+}
+
+function finishQuiz(){
+  saveProgress();
+  let correct=0, wrongList=[];
+  currentQuestions.forEach(function(q){
+    if(q.type==='coding') return;
+    const ua = answers[q.id];
+    let ok=false;
+    if(q.type==='fill'){
+      const ual = (ua||[]);
+      ok = Array.isArray(ual) && q.correct.every(function(c,i){return ual[i] && ual[i].toLowerCase()===c.toLowerCase()});
+    } else { ok = ua===q.correct; }
+    if(ok) correct++; else wrongList.push({q:q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+  });
+
+  const total = currentQuestions.filter(function(q){return q.type!=='coding'}).length;
+  const wrong = total - correct;
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+  document.getElementById('quizArea').style.display='none';
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('score').textContent = score;
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(wrongList.length>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    let html='';
+    wrongList.forEach(function(w){
+      html += '<div class="wrong-item"><div class="wq">'+w.q.kp+': '+w.q.text.substring(0,50)+'...</div><div class="wa">你的答案: '+w.userAns+'</div><div class="wc">正确答案: '+(w.q.correctText||w.q.correct)+'</div></div>';
+    });
+    document.getElementById('wrongPreviewList').innerHTML = html;
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+  clearProgress();
+}
+
+function renderReview(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  switchReviewTab('list');
+}
+
+function switchReviewTab(tab){
+  document.querySelectorAll('.review-tab').forEach(function(t){t.classList.remove('active')});
+  if(event&&event.target) event.target.classList.add('active');
+  else document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+  if(tab==='list') renderWrongList();
+  else renderKnowledgeReview();
+}
+
+function renderWrongList(){
+  const bank = getWrongBank();
+  const el = document.getElementById('wrongBankList');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+  let html='';
+  bank.sort(function(a,b){return b.time-a.time}).forEach(function(w,i){
+    html += '<div class="kp-section" style="border-left-color:#e74c3c">';
+    html += '<div class="kp-header"><div class="kp-title">'+(i+1)+'. '+w.kp+'</div>';
+    html += '<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong('+w.id+')">删除</button></div>';
+    html += '<div class="kp-content">'+w.text+'</div>';
+    if(w.options){
+      html += '<div class="options" style="margin-top:8px">';
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+      w.options.forEach(function(opt,j){
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+        html += '<div class="option '+cls+'" style="cursor:default;pointer-events:none"><span class="option-label">'+labels[j]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div class="explanation show"><div class="explanation-title">📖 解析</div>'+(w.expl||'')+'</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function removeWrong(id){
+  if(!confirm('确定删除这道错题吗？')) return;
+  const bank = getWrongBank().filter(function(w){return w.id!==id});
+  saveWrongBank(bank);
+  renderReview();
+}
+
+function clearWrongBank(){
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+  saveWrongBank([]);
+  renderReview();
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const el = document.getElementById('knowledgeReview');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  const kpCount = {};
+  bank.forEach(function(w){kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+  const sorted = Object.keys(kpCount).map(function(k){return [k,kpCount[k]]}).sort(function(a,b){return b[1]-a[1]});
+
+  let html = '<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 '+sorted.length+' 个薄弱知识点</p>';
+  sorted.forEach(function(entry){
+    const kp=entry[0],count=entry[1];
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+    const related = bank.filter(function(w){return w.kp===kp});
+    html += '<div class="kp-section">';
+    html += '<div class="kp-header"><div class="kp-title">'+info.title+'</div><span class="kp-badge">错 '+count+' 次</span></div>';
+    html += '<div class="kp-content">'+info.content+'</div>';
+    html += '<div class="kp-wrong-list">相关错题：<br>';
+    related.forEach(function(r){
+      html += '• '+r.text.substring(0,60)+(r.text.length>60?'...':'')+'<br>';
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+window.addEventListener('beforeunload', saveProgress);
+
+(function(){
+  const p = loadProgress();
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+      currentMode = p.mode;
+      currentQIndex = p.index;
+      answers = p.answers || {};
+      let pool;
+      if(p.mode==='coding') pool = codingQuestions;
+      else pool = allQuestions;
+      currentQuestions = p.ids.map(function(id){return pool.find(function(q){return q.id===id})}).filter(Boolean);
+      if(currentQuestions.length>0){
+        document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+        const tm = {normal:0,coding:1,wrongredo:2};
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+        renderQuestion();
+        return;
+      }
+    }
+    clearProgress();
+  }
+  startQuiz('normal');
+})();
+</script>
+</body>
+</html>
