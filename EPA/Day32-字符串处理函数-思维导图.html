@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day32 字符串处理函数 - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day32 字符串处理函数 - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day32 字符串处理函数
+
+## strlen求长度
+### 基本用法
+#### 计算字符串长度不含'\\0'
+#### 遇第一个'\\0'就停止
+#### sizeof含'\\0' strlen不含
+### 转义字符与strlen
+strlen=1
+strlen=3
+strlen=3(i,a,换行)
+### 要点
+#### \\x69='i'十六进制ASCII105
+#### \\141='a'八进制ASCII97
+#### \\t制表符\\v垂直制表符\\\\\\\\反斜杠
+
+## strcpy/strcat/strcmp
+### strcpy
+#### 把src拷贝到dest含'\\0'
+#### dest必须够大(>=strlen(src)+1)
+#### dest原有内容被覆盖
+#### 返回dest首地址
+### strcat
+#### 把src追加到dest末尾
+#### 覆盖dest的'\\0'末尾补新'\\0'
+#### dest必须够大
+### strcmp
+#### 逐字符比较ASCII码
+#### <0:s1<s2 =0:相等 >0:s1>s2
+#### 不能用==比较地址
+#### 返回正负零不保证具体数值
+### 组合示例
+#### strcpy(dest,"Turbo")
+#### strcat(dest," ")
+#### strcat(dest,"C++")
+#### 结果:"Turbo C++"
+
+## strncpy带长度拷贝
+### 基本用法
+#### strncpy(dest,src,n)最多拷贝n个字符
+#### n<strlen(src)只拷贝n个不含'\\0'
+### 经典陷阱
+#### n<strlen时不补'\\0'!
+#### 必须手动dest[n]='\\0'
+#### 不补'\\0'时puts打印乱码
+#### dest="he*****..."(原内容残留)
+### 三种情况
+#### n<strlen:只拷n个需手动补'\\0'
+#### n=strlen:拷全部需手动补'\\0'
+#### n>strlen:拷全部+'\\0'填充不需补
+
+## strncat/strncmp带长度版
+### strncat
+#### 最多追加src前n个字符到dest末尾
+#### 自动补'\\0'(与strncpy不同!)
+#### src长度<n则追加全部
+### strncmp
+#### 只比较前n个字符
+#### 任一字符串遇'\\0'也停止
+#### "abcdefgg"vs"abcsds" n=2返回0
+#### n=5返回负数
+### 补'\\0'对比
+#### strncpy不补'\\0'(n<strlen时)
+#### strncat自动补'\\0'
+#### 这是两者关键区别
+
+## 查找函数与字符分类
+### strchr
+#### 在s中查找字符c第一次出现位置
+#### 返回指针不是下标
+#### 找不到返回NULL必须检查
+#### r-s得到下标
+### strstr
+#### 在s1中查找子串s2第一次出现位置
+#### 返回指针
+#### 找不到返回NULL
+#### strchr找字符 strstr找子串
+### 字符分类函数
+#### isalpha是否字母
+#### isupper是否大写
+#### isdigit是否数字
+#### isalnum字母或数字
+#### isspace空白字符
+#### 需#include<ctype.h>
+### 字符转换函数
+#### toupper小写转大写
+#### tolower大写转小写
+#### 非字母原样返回
+#### str[i]=toupper(str[i])逐字符转换
+
+## 总结与易错点
+### 12大函数一览
+#### string.h: strlen/strcpy/strncpy
+#### string.h: strcat/strncat/strcmp/strncmp
+#### string.h: strchr/strstr
+#### ctype.h: isalpha/isupper/toupper/tolower
+### 8大易错点
+#### strncpy不补'\\0'
+#### strcmp用==比较地址
+#### strchr不检查NULL
+#### strcpy dest不够大越界
+#### strlen不含'\\0'
+#### strcat覆盖dest的'\\0'
+#### strncat vs strncpy补'\\0'区别
+#### ctype.h忘记引入
+### 口诀
+#### strlen不含'\\0'sizeof含
+#### strncpy需手动补'\\0'
+#### strncat自动补'\\0'
+#### strcmp返回正负零不能用==
+#### strchr/strstr返回指针找NULL检查
+#### 字符函数用ctype.h`;
+      const { root } = transformer.transform(md);
+
+      const branchColors = [
+        '#FF9F43',
+        '#2E86DE',
+        '#6C5CE7',
+        '#10AC84',
+        '#EE5253',
+        '#FDCB6E'
+      ];
+      if (root.children) {
+        root.children.forEach(function(child, i) {
+          if (i < branchColors.length) {
+            child.payload = child.payload || {};
+            child.payload.color = branchColors[i];
+            child.payload.freeze = true;
+          }
+        });
+      }
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
