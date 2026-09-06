@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day26 函数的基本用法及传参 - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day26 函数的基本用法及传参 - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day26 函数的基本用法及传参
+
+## 函数基本用法
+### 三大好处
+#### 代码复用
+#### 封装实现
+#### 拆分大问题
+### 定义格式
+#### 返回类型
+#### 函数名
+#### 参数列表
+#### 函数体
+#### return返回值
+### 四种形式
+#### 无参无返void菜单
+#### 无参有返输入
+#### 有参无返打印
+#### 有参有返计算判断
+
+## 函数调用与声明
+### 调用过程
+#### main暂停保存现场
+#### 跳转子函数入口
+#### return释放栈帧
+#### 返回main继续
+### 三种调用方式
+#### 语句调用print();
+#### 赋值变量m=get_max();
+#### 嵌套表达式连用
+### 声明
+#### 签名先告诉编译器
+#### 声明可多次定义只一次
+#### 形参名可省int f(int);
+#### .h写声明好习惯.c实现
+
+## 典型函数应用
+### 求最大值get_max
+#### if-else两return
+#### a<b return b else a
+#### 比较大小经典例题
+### 判断素数fun_prime
+#### n==1直接返回0
+#### for i从2到n-1
+#### 有整除n%i==0返回0
+#### 循环结束return 1素数
+### 分层统计fun_prime_sta
+#### fun_prime判断单个
+#### sta遍历1~n范围
+#### printf打印每个素数
+#### count统计return个数
+#### 单一职责原则
+### pow_fun幂函数
+#### ret初始值为1
+#### ret*=x乘n次
+#### global_a++全局共享
+#### 体现全局变量可见性
+
+## 全局变量与两种传递
+### 全局变量
+#### 所有函数可见可改
+#### 默认初始化为0
+#### 生命周期整个程序
+#### 局部同名遮蔽全局
+#### 少用加g_前缀防重
+### 值传递
+形参a,b
+#### swap改a,b不碰x,y
+#### 栈帧独立互不相干
+#### 只读场景适合用
+### 指针传递
+#### 拷贝&m&n地址值
+#### *p=*q解引用改本尊
+#### swap_int真交换生效
+#### 数组传参天然就是这一种
+### 值传递 vs 指针传递
+#### 对比场景写法
+#### 能否回写实参
+#### f(a)只读 vs f(&a)可改
+#### 多返回值数组必用指针
+
+## 易错点
+### 7大坑
+#### 忘记函数声明编译报错
+#### void函数return x报错
+#### return后代码死代码
+#### swap靠值传递白日做梦
+#### 同名局部遮蔽全局
+#### 数组sizeof丢长度
+#### 声明定义形参名无关
+
+## 综合案例
+### 冒泡排序带优化
+#### bool flag标记本轮
+#### if(!flag)break提前跳出
+#### 外层i<n-1趟数
+#### 内层j<n-1-i递减
+#### 相邻比较交换
+### 重要口诀
+#### 值传不改实参
+#### 要改实参传&pa
+#### const只读不写
+#### 数组传参必带n`;
+      const { root } = transformer.transform(md);
+
+      const branchColors = [
+        '#FF9F43',
+        '#2E86DE',
+        '#6C5CE7',
+        '#10AC84',
+        '#EE5253',
+        '#FDCB6E'
+      ];
+      if (root.children) {
+        root.children.forEach(function(child, i) {
+          if (i < branchColors.length) {
+            child.payload = child.payload || {};
+            child.payload.color = branchColors[i];
+            child.payload.freeze = true;
+          }
+        });
+      }
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
