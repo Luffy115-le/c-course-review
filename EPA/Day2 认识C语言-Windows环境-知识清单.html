@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="utf-8"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Day2 认识C语言-Windows环境</title>
+
+<script>
+
+MathJax = {
+
+  tex: {
+
+    inlineMath: [['$', '$'], ['\(', '\)']],
+
+    displayMath: [['$$', '$$'], ['\[', '\]']]
+
+  }
+
+};
+
+</script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+
+<style>
+
+/* === ExamPass Shared Styles === */
+
+/* Paper-like warm background, clean typography, responsive */
+
+
+
+:root {
+
+  --paper: #fdf6e3;
+
+  --paper-dark: #f5ecd7;
+
+  --ink: #2c2c2c;
+
+  --ink-light: #555;
+
+  --accent: #2563eb;
+
+  --accent-hover: #1d4ed8;
+
+  --divider: #d6c8a8;
+
+  --card-bg: #fef9ef;
+
+  --card-border: #e8dcc8;
+
+  --correct: #22c55e;
+
+  --correct-bg: #f0fdf4;
+
+  --wrong: #ef4444;
+
+  --wrong-bg: #fef2f2;
+
+  --tag-bg: #fef3c7;
+
+  --tag-text: #92400e;
+
+  --radius: 6px;
+
+}
+
+
+
+* { box-sizing: border-box; }
+
+
+
+body {
+
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+
+  background: var(--paper);
+
+}
+
+
+
+@media print {
+
+  body { font-size: 10.5pt; background: #fff; }
+
+  .no-print { display: none !important; }
+
+  h1, h2, h3 { page-break-after: avoid; }
+
+}
+
+
+
+/* ── Header ── */
+
+#exampass-header {
+
+  display: flex; justify-content: space-between; align-items: baseline;
+
+  padding: 6px 0; margin-bottom: 0;
+
+}
+
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+
+.header-url  { font-size: 0.78em; color: #999; }
+
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+
+
+/* ── Typography ── */
+
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+
+a { color: var(--accent); text-decoration: none; }
+
+a:hover { text-decoration: underline; }
+
+
+
+/* ── Tables ── */
+
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+
+th { background: var(--paper-dark); font-weight: 700; }
+
+
+
+/* ── Knowledge point vs explanation ── */
+
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+
+
+/* ── Block elements ── */
+
+blockquote {
+
+  border-left: 3px solid #c0392b; background: #fef9ef;
+
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+
+}
+
+/* Modern monospace stack — avoids the ugly Courier New fallback on Windows. */
+
+:root {
+
+  --mono: "Cascadia Code", "JetBrains Mono", "Fira Code", "Source Code Pro",
+
+          Consolas, "SF Mono", Menlo, "DejaVu Sans Mono", monospace;
+
+}
+
+code {
+
+  font-family: var(--mono);
+
+  background: #eee8d8; color: #8a4b1e;
+
+  padding: 1px 5px; border-radius: 4px; font-size: 0.9em;
+
+}
+
+pre {
+
+  font-family: var(--mono);
+
+  background: #2d2a26; color: #ece6da;
+
+  padding: 14px 16px; border-radius: var(--radius);
+
+  overflow-x: auto; line-height: 1.6; font-size: 0.9em;
+
+  border: 1px solid #3d3934; tab-size: 2;
+
+}
+
+pre code {
+
+  background: none; color: inherit; padding: 0; font-size: 1em; border-radius: 0;
+
+}
+
+/* kp/exp spans inside <pre> must inherit the light code color, not their own dark color */
+
+pre .kp, pre .exp { color: inherit; }
+
+
+
+/* ── Long display formulas: scroll inside their column, never overflow ── */
+
+mjx-container[display="true"] {
+
+  max-width: 100%;
+
+  overflow-x: auto;
+
+  overflow-y: hidden;
+
+}
+
+
+
+/* ── TOC ── */
+
+div.toc {
+
+  background: var(--card-bg); padding: 14px 18px;
+
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+
+}
+
+div.toc ul { padding-left: 18px; }
+
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+
+
+/* ── Priority tags ── */
+
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+
+/* ── Checkpoint self-test ── */
+
+.checkpoint {
+
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius);
+
+  padding: 10px 16px; margin: 18px 0;
+
+  font-size: 0.95em;
+
+}
+
+.checkpoint::before {
+
+  content: '🧠 自测：';
+
+  font-weight: 700; color: #1e40af;
+
+}
+
+.checkpoint .cp-answer { margin-top: 10px; border-top: 1px dashed #bfdbfe; padding-top: 8px; }
+
+.checkpoint .cp-answer summary {
+
+  cursor: pointer; color: #1e40af; font-weight: 600; user-select: none;
+
+  list-style: none;
+
+}
+
+.checkpoint .cp-answer summary::before { content: '💡 '; }
+
+.checkpoint .cp-answer summary::-webkit-details-marker { display: none; }
+
+.checkpoint .cp-answer[open] summary { margin-bottom: 6px; }
+
+.checkpoint .cp-answer ol, .checkpoint .cp-answer p { font-weight: 400; color: var(--ink); }
+
+
+
+/* ── TL;DR summary ── */
+
+.tldr {
+
+  background: #fefce8; border-left: 3px solid #eab308;
+
+  padding: 8px 14px; margin: 10px 0;
+
+  font-weight: 600; font-size: 0.95em;
+
+}
+
+
+
+/* ── Responsive ── */
+
+@media (max-width: 640px) {
+
+  body { max-width: 100%; padding: 12px 10px 40px; font-size: 11pt; }
+
+  h1 { font-size: 1.3em; }
+
+  h2 { font-size: 1.12em; }
+
+  table { font-size: 0.85em; }
+
+  td, th { padding: 4px 6px; }
+
+  pre { font-size: 0.85em; padding: 6px; }
+
+}
+
+@media (max-width: 400px) {
+
+  body { padding: 8px 6px 32px; font-size: 10.5pt; }
+
+}
+
+
+
+
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<header id="exampass-header">
+
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+
+</header>
+
+<hr class="header-divider">
+
+
+
+<h1>Day2 认识C语言-Windows环境</h1>
+
+<div class="toc">
+
+<h2>目录</h2>
+
+<ul>
+
+<li><a href="#s20617976">1. C 语言开发环境</a></li>
+
+  <li><a href="#s17918063">1.1 三种开发环境 </a></li>
+
+<li><a href="#s12484034">2. 第一个 C 语言程序</a></li>
+
+  <li><a href="#s38321378">2.1 程序结构剖析 </a></li>
+
+  <li><a href="#s34313467">2.2 输出与换行 </a></li>
+
+<li><a href="#s32804114">3. 程序的运行过程</a></li>
+
+  <li><a href="#s74371750">3.1 程序设计三步 </a></li>
+
+<li><a href="#s39331139">4. C 语言特性——三高</a></li>
+
+  <li><a href="#s31862388">4.1 效率高（编译型）</a></li>
+
+  <li><a href="#s69341633">4.2 灵活度高 </a></li>
+
+  <li><a href="#s90472089">4.3 可移植性高 </a></li>
+
+  <li><a href="#s89080932">4.4 如何学好 C 语言 </a></li>
+
+</ul>
+
+</div>
+
+<div class="tldr"><strong>TL;DR：</strong>第一个 C 程序由 #include、main 函数、printf、return 四要素构成；C 是<strong>编译型</strong>语言，效率高但跨平台弱；C 语言有「三高」——效率高、灵活度高、可移植性高。</div>
+
+
+
+<h2 id="s20617976">1. C 语言开发环境</h2>
+
+<h3 id="s17918063">1.1 三种开发环境 <span class="pg-chip" data-page="2">页2</span></h3>
+
+<p><span class="kp">① 在线环境 OnlineGDB；② Windows: Dev-C++；③ Linux: vi+gcc+gdb</span>。<span class="exp">Windows 下还有 Visual Studio、Qt Creator、Codeblocks、Keil 等可选。</span></p>
+
+<span class="tag-freq">高频</span>
+
+
+
+<h2 id="s12484034">2. 第一个 C 语言程序</h2>
+
+<h3 id="s38321378">2.1 程序结构剖析 <span class="pg-chip" data-page="5">页5</span></h3>
+
+<p><span class="kp">#include &lt;stdio.h&gt; 引入输入输出头文件；int main() 是程序唯一入口；printf 是库函数；return 0 对应 main 的 int 返回值</span>。<span class="exp">stdio.h = standard input/output header；.h 文件叫头文件；main 函数有且仅有一个；{}内为函数体，可写多条语句。</span></p>
+
+<blockquote>易错：① 不引入 stdio.h 会报警告；② main 拼写不能错；③ 每条语句以分号结尾；④ 标点必须用英文符号；⑤ 花括号必须配对。</blockquote>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s34313467">2.2 输出与换行 <span class="pg-chip" data-page="6-8">页6</span></h3>
+
+<p><span class="kp">printf 双引号内为输出内容；\n 是换行符；printf 可写多行，程序顺序执行</span>。<span class="exp">要打印多行可用多个 printf，或在字符串中加 \n 实现换行显示。</span></p>
+
+<span class="tag-key">重点</span>
+
+<div class="checkpoint">若想打印两行 "Hello" 和 "World"，最少需要几个 \n？<details class="cp-answer"><summary>参考答案</summary>1 个 \n，放在 "Hello\nWorld" 中，或分两个 printf 各自带 \n。</details></div>
+
+
+
+<h2 id="s32804114">3. 程序的运行过程</h2>
+
+<h3 id="s74371750">3.1 程序设计三步 <span class="pg-chip" data-page="2">页2</span></h3>
+
+ 编译、链接 → 执行、调试</span>。<span class="exp">源代码(test.c)经编译器(gcc)编译为可执行文件(a.out)，再由 CPU 执行。无语法错误才能编译成功。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h2 id="s39331139">4. C 语言特性——三高</h2>
+
+<h3 id="s31862388">4.1 效率高（编译型）<span class="pg-chip" data-page="4-6">页4</span></h3>
+
+<p><span class="kp">C 是编译型语言：源代码统一交给编译器，编译成机器语言并打包为可执行文件，CPU 直接执行</span>。<span class="exp">解释型语言(Python/JS)由解释器逐行翻译执行。编译型优点是执行效率高、缺点是跨平台能力弱、不便调试；解释型相反。</span></p>
+
+<blockquote>易错：编译只做一遍，以后不需重新编译——这是编译型效率高的关键；解释型每次运行都要逐句翻译。</blockquote>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s69341633">4.2 灵活度高 <span class="pg-chip" data-page="8">页8</span></h3>
+
+<p><span class="kp">C 提供多种运算符、底层的位操作、指针、直接操作硬件的能力</span>。<span class="exp">语法限制不严格，程序设计自由度大；既具高级语言易学性，又有汇编对硬件的操作能力。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s90472089">4.3 可移植性高 <span class="pg-chip" data-page="9-10">页9</span></h3>
+
+<p><span class="kp">C 是标准化语言，代码可在不同 OS 和计算机上运行，只需简单修改</span>。<span class="exp">统计表明单片机上不同机器 C 编译程序 80% 代码通用。源代码相同，经不同编译器可转为不同机器代码。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s89080932">4.4 如何学好 C 语言 <span class="pg-chip" data-page="2">页2</span></h3>
+
+<p><span class="kp">理解思路不纠结语法；多模仿、多敲、多练；改进、思考、独立编写</span>。</p>
+
+<span class="tag-info">了解</span>
+
+
+
+
+
+</body>
+
+</html>
+
