@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day21 指针与数组 - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day21 指针与数组 - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day21 指针与数组
+
+## 数组名本质
+### 常量指针
+#### a = &a[0]
+#### 不能修改
+#### 固定指向首元素
+### 等价关系
+#### a+i ⇔ &a[i]
+#### *(a+i) ⇔ a[i]
+
+## 四种等价写法
+### 四种方式
+#### a[i]
+#### *(a+i)
+#### *(p+i)
+#### p[i]
+### 编译器转换
+*(a+i)
+#### 本质相同
+
+## 数组名 vs 指针变量
+### sizeof区别
+#### sizeof(a)=整个数组
+#### sizeof(p)=指针大小
+#### 核心区别
+### 修改性区别
+#### a是常量不能修改
+#### p是变量可修改
+#### p可任意改变指向
+
+## sizeof深入辨析
+### 结果汇总表
+#### sizeof(a)=16
+#### sizeof(*a)=4
+#### sizeof(a+1)=8
+#### sizeof(&a[0])=8
+### 数组名退化
+#### 只有sizeof(a)和&a不退化
+#### 其他都退化为指针
+#### sizeof(a+1)=8
+
+## 指针负下标
+### 负下标语法
+#### p[-1] ⇔ *(p-1)
+#### 合法语法
+#### 注意越界
+### 指针改变指向
+#### p = &a[2]
+#### p[0]当前
+#### p[1]后一个
+#### p[-1]前一个
+
+## 易错点总结
+### 6大易错点
+#### sizeof(a)≠sizeof(p)
+#### a++错误
+#### a+1退化为指针
+#### 四种等价写法
+#### 负下标合法
+#### 退化2个例外`;
+      const { root } = transformer.transform(md);
+
+      // 给6条主干设置不同颜色
+      const branchColors = [
+        '#FF9F43', // 主干1: 数组名本质 - 橙色
+        '#2E86DE', // 主干2: 四种等价写法 - 蓝色
+        '#EE5253', // 主干3: 数组名vs指针变量 - 红色
+        '#6C5CE7', // 主干4: sizeof深入辨析 - 紫色
+        '#10AC84', // 主干5: 指针负下标 - 绿色
+        '#FDCB6E'  // 主干6: 易错点总结 - 黄色
+      ];
+      if (root.children) {
+        root.children.forEach(function(child, i) {
+          if (i < branchColors.length) {
+            child.payload = child.payload || {};
+            child.payload.color = branchColors[i];
+            child.payload.freeze = true;
+          }
+        });
+      }
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
