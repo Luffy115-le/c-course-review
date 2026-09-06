@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day21 指针与数组 · 知识卡片</title>
+<style>
+  :root {
+    --bg: #f0f3f8;
+    --card-bg: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.14);
+    --radius: 14px;
+    --syntax: #2E86DE;
+    --error: #EE5253;
+    --sizeof: #6C5CE7;
+    --concept: #FF9F43;
+    --array: #10AC84;
+    --summary: #FDCB6E;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px; }
+  .header .badge { font-size: 0.8rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+  .main-layout { display: flex; gap: 24px; padding: 24px 40px; max-width: 1500px; margin: 0 auto; }
+  .content-area { flex: 1; min-width: 0; }
+  .filter-bar {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+  }
+  .filter-btn {
+    padding: 7px 18px; border-radius: 20px; border: 1.5px solid #dfe6e9;
+    background: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+    color: var(--text-secondary); transition: var(--transition);
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: #74b9ff; color: #0984e3; }
+  .filter-btn.active { background: #0984e3; color: #fff; border-color: #0984e3; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border-left: 5px solid #ccc;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    animation: fadeIn 0.4s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .card.hidden { display: none; }
+  .card .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .card .card-cat {
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; opacity: 0.8;
+  }
+  .card .card-level {
+    font-size: 0.7rem; font-weight: 700; padding: 2px 10px;
+    border-radius: 10px; background: #ffeaa7; color: #d63031;
+  }
+  .card .card-level.key { background: #fab1a0; color: #b71c1c; }
+  .card .card-level.important { background: #ffeaa7; color: #d63031; }
+  .card .card-name {
+    font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card .card-key {
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "Courier New", monospace;
+    font-size: 0.88rem; background: #f8f9fa; padding: 6px 10px;
+    border-radius: 6px; color: #2d3436; margin-bottom: 10px;
+    display: inline-block; word-break: break-all;
+  }
+  .card .card-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px; }
+  .card .card-memo {
+    font-size: 0.8rem; padding: 8px 12px; background: #fff9e6; border-radius: 8px;
+    border-left: 3px solid #f9ca24; color: #6d5c00; line-height: 1.5;
+  }
+  .card .card-memo.error-memo { background: #fff0f0; border-left-color: #e74c3c; color: #8b0000; }
+  .card .card-memo.warn-memo { background: #fff8e1; border-left-color: #ff9800; color: #6d4c00; }
+  .side-panel {
+    width: 260px; flex-shrink: 0;
+    position: sticky; top: 100px; align-self: flex-start;
+  }
+  .panel-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .panel-card h3 { font-size: 0.95rem; margin-bottom: 14px; color: #2d3436; }
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .stat-num { font-weight: 700; }
+  .reset-btn {
+    width: 100%; padding: 10px; border: 1.5px solid #dfe6e9; border-radius: 10px;
+    background: #fff; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary);
+    transition: var(--transition); margin-top: 8px;
+  }
+  .reset-btn:hover { border-color: #0984e3; color: #0984e3; }
+  @media (max-width: 1100px) {
+    .main-layout { flex-direction: column; padding: 16px; }
+    .side-panel { width: 100%; position: static; display: flex; gap: 12px; flex-wrap: wrap; }
+    .side-panel .panel-card { flex: 1; min-width: 200px; margin-bottom: 0; }
+    .card-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    .header { padding: 20px; }
+    .header h1 { font-size: 1.2rem; }
+    .card-grid { grid-template-columns: 1fr; }
+    .side-panel .panel-card { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Day21 · 指针与数组</h1>
+    <span class="badge">共 <span id="totalCount">17</span> 张卡片</span>
+  </div>
+</div>
+
+<div class="main-layout">
+  <div class="content-area">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">全部</button>
+      <button class="filter-btn" data-filter="concept" style="--c: #FF9F43">概念/规则</button>
+      <button class="filter-btn" data-filter="syntax" style="--c: #2E86DE">语法/代码</button>
+      <button class="filter-btn" data-filter="error" style="--c: #EE5253">易错/坑/禁忌</button>
+      <button class="filter-btn" data-filter="sizeof" style="--c: #6C5CE7">sizeof专题</button>
+      <button class="filter-btn" data-filter="array" style="--c: #10AC84">数组与指针</button>
+      <button class="filter-btn" data-filter="summary" style="--c: #FDCB6E">总结/对比</button>
+    </div>
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+
+  <aside class="side-panel" id="sidePanel">
+    <div class="panel-card">
+      <h3>📊 分类统计</h3>
+      <div id="statsContainer"></div>
+      <button class="reset-btn" id="resetBtn">🔄 重置筛选</button>
+    </div>
+    <div class="panel-card">
+      <h3>🔑 考试等级</h3>
+      <div class="stat-row"><span><span class="stat-dot" style="background:#b71c1c"></span>必考</span><span class="stat-num" id="statKey">0</span></div>
+      <div class="stat-row"><span><span class="stat-dot" style="background:#d63031"></span>重点</span><span class="stat-num" id="statImportant">0</span></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const cardsData = [
+    {cat:'concept',level:'必考',key:'a = &a[0]',name:'数组名的本质',desc:'数组名a的本质是常量指针，指向数组首元素a[0]。a等价于&a[0]，a+i等价于&a[i]，*(a+i)等价于a[i]。',memo:'📌 a ⇔ &a[0]，a+i ⇔ &a[i]，*(a+i) ⇔ a[i]'},
+    {cat:'error',level:'必考',key:'a++ 错误！',name:'数组名是常量',desc:'数组名a是常量指针，不能修改。a++、a=a+1都是错误的。但可以用指针变量p=a，然后p++移动指针。',memo:'🔴 a++ ❌，p++ ✅（p=a后）'},
+    {cat:'array',level:'必考',key:'a[i] ⇔ *(a+i) ⇔ *(p+i) ⇔ p[i]',name:'四种等价写法',desc:'当int *p=a时，a[i]、*(a+i)、*(p+i)、p[i]四种写法完全等价。编译器会把a[i]自动转换为*(a+i)。',memo:'💡 四种写法等价，编译器统一转换为*(a+i)'},
+    {cat:'error',level:'必考',key:'sizeof(a)=24 vs sizeof(p)=8',name:'sizeof的区别',desc:'sizeof(a)得到整个数组的大小（如6×4=24），sizeof(p)只得到指针的大小（64位=8）。这是数组名和指针最关键的区别！',memo:'🔴 sizeof(a)=整个数组大小，sizeof(p)=指针大小！'},
+    {cat:'sizeof',level:'必考',key:'sizeof(a+1)=8',name:'数组名退化',desc:'只有sizeof(a)和&a时数组名代表整个数组。其他情况下（a+1、*a、&a[0]）数组名都退化为指向首元素的指针。sizeof(a+1)=8而不是4。',memo:'🔴 数组名退化：除了sizeof(a)和&a，其他都变指针'},
+    {cat:'sizeof',level:'重点',key:'sizeof结果汇总表',name:'sizeof表达式汇总',desc:'sizeof(a)=16(整个数组)，sizeof(*a)=4(int)，sizeof(a+1)=8(指针)，sizeof(a[1])=4(int)，sizeof(&a[0])=8(指针)，sizeof(&a[0]+1)=8(指针)。',memo:'📌 记牢6种sizeof表达式的结果！'},
+    {cat:'array',level:'重点',key:'p[-1] = *(p-1)',name:'指针负下标',desc:'指针可以用负下标，p[-1]等价于*(p-1)，表示指针当前位置的前一个元素。合法但需注意不要越界。',memo:'🟡 p[-1] ⇔ *(p-1)，负下标合法但注意越界'},
+    {cat:'concept',level:'重点',key:'a是常量，p是变量',name:'数组名vs指针变量',desc:'数组名a是常量指针：不能修改、固定指向首元素、sizeof得整个数组。指针变量p是变量：可以修改、可任意改变指向、sizeof只得指针大小。',memo:'📌 a=常量指针，p=变量指针，核心区别有3点'},
+    {cat:'syntax',level:'必考',key:'p = &a[2];',name:'指针改变指向',desc:'指针可以改变指向：p=a后p指向a[0]，p=&a[2]后p指向a[2]。此时p[1]=a[3]，p[-1]=a[1]。数组名a不能这样做。',memo:'💡 指针可自由改变指向，数组名不行'},
+    {cat:'error',level:'必考',key:'数组名退化的2个例外',name:'退化例外情况',desc:'数组名退化为指针有两个例外：1. sizeof(数组名) - 得整个数组大小；2. &数组名 - 得整个数组的地址（指向整个数组的指针）。',memo:'🔴 只有sizeof(a)和&a时数组名不退化'},
+    {cat:'summary',level:'必考',key:'数组名vs指针对比表',name:'数组名与指针对比',desc:'数组名a：常量、不能修改、sizeof=整个数组、固定指向首元素。指针变量p：变量、可以修改、sizeof=指针大小、可任意改变指向。',memo:'📌 对比表格记心间，4点区别要分清'},
+    {cat:'array',level:'重点',key:'p[i] = *(p+i)',name:'指针下标法',desc:'指针可以用下标语法p[i]访问元素，等价于*(p+i)。当p指向数组中间时，p[0]是当前元素，p[1]是后一个，p[-1]是前一个。',memo:'💡 p[i] ⇔ *(p+i)，指针下标一样好用'},
+    {cat:'syntax',level:'重点',key:'printf("%p", a+i)',name:'打印数组元素地址',desc:'a+i表示第i个元素的地址（&a[i]）。用%p格式打印可以直观看到每个元素的地址是连续的，相邻元素地址差sizeof(int)=4。',memo:'📌 a+i = &a[i]，地址连续递增sizeof(类型)'},
+    {cat:'error',level:'重点',key:'sizeof(a+1)≠4',name:'a+1退化为指针',desc:'sizeof(a+1)的结果是8而不是4，因为a+1是地址表达式，数组名退化为指针。只有当数组名单独出现在sizeof中时才代表整个数组。',memo:'🔴 sizeof(a+1)=8(指针)，不是4(int)'},
+*(a+i)',name:'编译器内部转换',desc:'编译器在编译时会把a[i]自动转换为*(a+i)，所以a[i]和*(a+i)完全等价。这也解释了为什么四种写法都一样。',memo:'💡 编译器统一转换，四种写法本质相同'},
+    {cat:'summary',level:'必考',key:'指针与数组6大易错点',name:'易错点总结',desc:'1.sizeof(a)≠sizeof(p)；2.a是常量不能a++；3.a+1退化为指针sizeof=8；4.四种等价写法；5.指针负下标p[-1]合法；6.数组名退化只有2个例外。',memo:'🔴 6大易错点，考试必考题！'},
+    {cat:'sizeof',level:'重点',key:'sizeof(*a)=4',name:'sizeof(*a)解析',desc:'*a是数组首元素a[0]，类型是int，所以sizeof(*a)=4。注意与sizeof(a)=16的区别：一个是元素大小，一个是整个数组大小。',memo:'📌 sizeof(*a)=元素大小，sizeof(a)=整个数组大小'},
+];
+
+const catColors = {
+    syntax: '#2E86DE',
+    error: '#EE5253',
+    sizeof: '#6C5CE7',
+    concept: '#FF9F43',
+    array: '#10AC84',
+    summary: '#FDCB6E'
+};
+
+const catNames = {
+    syntax: '语法/代码',
+    error: '易错/坑/禁忌',
+    sizeof: 'sizeof专题',
+    concept: '概念/规则',
+    array: '数组与指针',
+    summary: '总结/对比'
+};
+
+let currentFilter = 'all';
+
+function renderCards() {
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+    let visibleCount = 0;
+    cardsData.forEach((c, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.borderLeftColor = catColors[c.cat];
+        card.style.animationDelay = (i * 0.03) + 's';
+        card.dataset.cat = c.cat;
+        if (currentFilter !== 'all' && c.cat !== currentFilter) {
+            card.classList.add('hidden');
+        } else {
+            visibleCount++;
+        }
+
+        const levelClass = c.level === '必考' ? 'key' : 'important';
+        const memoClass = c.cat === 'error' ? 'error-memo' : (c.cat === 'sizeof' ? 'warn-memo' : '');
+
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="card-cat" style="color:${catColors[c.cat]}">${catNames[c.cat]}</span>
+                <span class="card-level ${levelClass}">${c.level}</span>
+            </div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-key">${c.key}</div>
+            <div class="card-desc">${c.desc}</div>
+            <div class="card-memo ${memoClass}">${c.memo}</div>
+        `;
+        grid.appendChild(card);
+    });
+    document.getElementById('totalCount').textContent = visibleCount;
+    updateStats();
+    updateLevelStats();
+}
+
+function updateStats() {
+    const container = document.getElementById('statsContainer');
+    const counts = {};
+    cardsData.forEach(c => {
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+            counts[c.cat] = (counts[c.cat] || 0) + 1;
+        }
+    });
+    let html = '';
+    for (const [cat, name] of Object.entries(catNames)) {
+        const n = counts[cat] || 0;
+        html += `<div class="stat-row"><span><span class="stat-dot" style="background:${catColors[cat]}"></span>${name}</span><span class="stat-num">${n}</span></div>`;
+    }
+    container.innerHTML = html;
+}
+
+function updateLevelStats() {
+    let keyCount = 0, impCount = 0;
+    cardsData.forEach(c => {
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+            if (c.level === '必考') keyCount++;
+            else impCount++;
+        }
+    });
+    document.getElementById('statKey').textContent = keyCount;
+    document.getElementById('statImportant').textContent = impCount;
+}
+
+document.getElementById('filterBar').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderCards();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+    renderCards();
+});
+
+renderCards();
+</script>
+
+</body>
+</html>
