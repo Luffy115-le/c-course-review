@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day26 函数的基本用法及传参 · 知识卡片</title>
+<style>
+  :root {
+    --bg: #f0f3f8;
+    --card-bg: #ffffff;
+    --text: #2d3436;
+    --text-secondary: #636e72;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.14);
+    --radius: 14px;
+    --concept: #FF9F43;
+    --syntax: #2E86DE;
+    --error: #EE5253;
+    --pointer: #6C5CE7;
+    --application: #10AC84;
+    --summary: #FDCB6E;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px; }
+  .header .badge { font-size: 0.8rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+  .main-layout { display: flex; gap: 24px; padding: 24px 40px; max-width: 1500px; margin: 0 auto; }
+  .content-area { flex: 1; min-width: 0; }
+  .filter-bar {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+  }
+  .filter-btn {
+    padding: 7px 18px; border-radius: 20px; border: 1.5px solid #dfe6e9;
+    background: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+    color: var(--text-secondary); transition: var(--transition);
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: #74b9ff; color: #0984e3; }
+  .filter-btn.active { background: #0984e3; color: #fff; border-color: #0984e3; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border-left: 5px solid #ccc;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    animation: fadeIn 0.4s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .card.hidden { display: none; }
+  .card .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .card .card-cat {
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; opacity: 0.8;
+  }
+  .card .card-level {
+    font-size: 0.7rem; font-weight: 700; padding: 2px 10px;
+    border-radius: 10px; background: #ffeaa7; color: #d63031;
+  }
+  .card .card-level.key { background: #fab1a0; color: #b71c1c; }
+  .card .card-level.important { background: #ffeaa7; color: #d63031; }
+  .card .card-name {
+    font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card .card-key {
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "Courier New", monospace;
+    font-size: 0.88rem; background: #f8f9fa; padding: 6px 10px;
+    border-radius: 6px; color: #2d3436; margin-bottom: 10px;
+    display: inline-block; word-break: break-all;
+  }
+  .card .card-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px; }
+  .card .card-memo {
+    font-size: 0.8rem; padding: 8px 12px; background: #fff9e6; border-radius: 8px;
+    border-left: 3px solid #f9ca24; color: #6d5c00; line-height: 1.5;
+  }
+  .card .card-memo.error-memo { background: #fff0f0; border-left-color: #e74c3c; color: #8b0000; }
+  .card .card-memo.pointer-memo { background: #f3efff; border-left-color: #6C5CE7; color: #3d2e8f; }
+  .side-panel {
+    width: 260px; flex-shrink: 0;
+    position: sticky; top: 100px; align-self: flex-start;
+  }
+  .panel-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .panel-card h3 { font-size: 0.95rem; margin-bottom: 14px; color: #2d3436; }
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .stat-num { font-weight: 700; }
+  .reset-btn {
+    width: 100%; padding: 10px; border: 1.5px solid #dfe6e9; border-radius: 10px;
+    background: #fff; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary);
+    transition: var(--transition); margin-top: 8px;
+  }
+  .reset-btn:hover { border-color: #0984e3; color: #0984e3; }
+  @media (max-width: 1100px) {
+    .main-layout { flex-direction: column; padding: 16px; }
+    .side-panel { width: 100%; position: static; display: flex; gap: 12px; flex-wrap: wrap; }
+    .side-panel .panel-card { flex: 1; min-width: 200px; margin-bottom: 0; }
+    .card-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    .header { padding: 20px; }
+    .header h1 { font-size: 1.2rem; }
+    .card-grid { grid-template-columns: 1fr; }
+    .side-panel .panel-card { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Day26 · 函数的基本用法及传参</h1>
+    <span class="badge">共 <span id="totalCount">16</span> 张卡片</span>
+  </div>
+</div>
+
+<div class="main-layout">
+  <div class="content-area">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">全部</button>
+      <button class="filter-btn" data-filter="concept" style="--c: #FF9F43">概念/规则</button>
+      <button class="filter-btn" data-filter="syntax" style="--c: #2E86DE">语法/代码</button>
+      <button class="filter-btn" data-filter="error" style="--c: #EE5253">易错/坑/禁忌</button>
+      <button class="filter-btn" data-filter="pointer" style="--c: #6C5CE7">指针专题</button>
+      <button class="filter-btn" data-filter="application" style="--c: #10AC84">应用/实战</button>
+      <button class="filter-btn" data-filter="summary" style="--c: #FDCB6E">总结/对比</button>
+    </div>
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+
+  <aside class="side-panel" id="sidePanel">
+    <div class="panel-card">
+      <h3>📊 分类统计</h3>
+      <div id="statsContainer"></div>
+      <button class="reset-btn" id="resetBtn">🔄 重置筛选</button>
+    </div>
+    <div class="panel-card">
+      <h3>🔑 考试等级</h3>
+      <div class="stat-row"><span><span class="stat-dot" style="background:#b71c1c"></span>必考</span><span class="stat-num" id="statKey">0</span></div>
+      <div class="stat-row"><span><span class="stat-dot" style="background:#d63031"></span>重点</span><span class="stat-num" id="statImportant">0</span></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const cardsData = [
+    {cat:'concept',level:'必考',key:'复用+封装+拆分',name:'函数三大好处',desc:'复用：一次编写多次调用，避免重复代码；封装：隐藏内部实现，只看函数签名就能用；拆分：大问题拆成多个小函数，每个函数只做一件事，逻辑清晰好维护。',memo:'📌 复用=少写代码 / 封装=不用管内部 / 拆分=化繁为简'},
+    {cat:'syntax',level:'必考',key:'返回值 函数名(参数){}',name:'函数定义格式',desc:'标准格式：返回值类型 + 函数名 + (参数类型1 参数名1, 参数类型2 参数名2, ...) + { 函数体语句; return 返回值; }。无返回值写void，有返回值return后类型要匹配。',memo:'💡 返回类型+函数名+(形参列表)+{函数体+return}'},
+    {cat:'syntax',level:'必考',key:'四种形式对比表',name:'无参/有参 × 无返/有返',desc:'①无参无返：void menu() 常用于打印菜单；②无参有返：int input() 常用于获取用户输入并返回；③有参无返：void print_star(int n) 常用于打印图形/输出；④有参有返：int add(int a,int b) 用于计算/判断，最常用。',memo:'📌 有参有返用最多！计算/判断类都用它'},
+跳转→执行→返回',name:'调用三步骤',desc:'调用过程四阶段：①main函数暂停执行，保存当前现场；②CPU跳转到子函数入口地址开始执行；③子函数遇到return或执行到末尾结束；④CPU回到main中调用点的下一条语句继续执行。',memo:'📌 main暂停 → 跳转子函数 → 子函数执行 → 返回main继续'},
+    {cat:'application',level:'必考',key:'int get_max(int a,int b)',name:'求最大值',desc:'典型有参有返函数：int get_max(int a, int b) { if(a<b) return b; else return a; }。注意两个return分支只会执行其中一个，函数一旦return就立刻结束，后面的代码不会执行。',memo:'💡 if-else两return分支，执行一个就立刻结束函数'},
+    {cat:'syntax',level:'必考',key:'声明int f(int);',name:'函数声明',desc:'如果调用在定义之前，必须先声明告诉编译器函数签名。声明格式：返回类型 函数名(参数类型列表); 特点：①声明可多次，定义只能一次；②声明形参名可省略（int f(int,int);合法）；③定义放main前面可免声明；④好习惯：.h写声明，.c写实现。',memo:'📌 调用在前要声明！定义在前免声明！声明形参名可省！'},
+0；2到n-1有因数→0；其余→1（素数）'},
+    {cat:'application',level:'重点',key:'fun_prime_sta(n)',name:'分层函数设计',desc:'单一职责原则：fun_prime(n)只负责判断单个n是不是素数；fun_prime_sta(int n)负责：①遍历1~n ②调用fun_prime判断 ③printf打印素数 ④统计个数 ⑤return总个数。分层设计让每个函数逻辑简单，易调试、易复用。',memo:'📌 一个函数只做一件事！判断和统计分开写！'},
+    {cat:'application',level:'重点',key:'global_a',name:'全局变量',desc:'定义在所有函数外部的变量叫全局变量：①所有函数都能访问和修改它；②默认初始化为0（局部变量是随机值）；③生命周期=整个程序运行期间；④和局部变量同名时，局部变量优先遮蔽全局；⑤好习惯：全局加g_前缀防重名。',memo:'💡 所有函数可见 / 默认0 / 局部同名优先遮蔽 / 少用+g_前缀'},
+    {cat:'error',level:'必考',key:'void swap(int a,int b)',name:'值传递不改实参',desc:'值传递本质：int a=x, int b=y，是把实参x,y的值拷贝一份给形参a,b。swap函数内a,b交换了，但x,y本尊完全没碰到！调用swap(x,y)后x=200,y=100还是原来的值，一点没变。这是最常见的坑！',memo:'🔴 值传递=拷贝副本！形参改了和实参半毛钱关系都没有！'},
+    {cat:'pointer',level:'必考',key:'void fun_swap(int*p,int*q)',name:'指针传递改实参',desc:'想改实参必须传地址！调用：swap(&m, &n)；函数：void fun_swap(int *p, int *q) { int t=*p; *p=*q; *q=t; }。p存&m，q存&n，*p就是m本尊，*q就是n本尊，交换*p和*q就是真交换，m=20,n=10✅生效！',memo:'📌 传&取地址，*解引用改本尊！指针传递才是真交换！'},
+拷贝副本→不改实参→只读场景；指针传递：f(&a)传地址→拷贝地址值→*px可改实参→需回写/多返回值/数组场景。本质上指针传递也是值传递的一种，只是拷贝的是地址而不是数据值。',memo:'📌 值传=只读不改 / 指针传=传&可改本尊 / 数组天然就是指针传'},
+必须先声明！否则编译报错！'},
+    {cat:'error',level:'必考',key:'void函数写return x',name:'void不能return值',desc:'返回类型是void的函数，表示没有返回值。①正确：写return;（不带值）或者干脆不写return；②错误：写return 10; return x; return 0; 这些都会直接编译错误！void函数就是不能带返回值。',memo:'🔴 void=无返回！return后面不能跟任何值！return;合法，return 0;报错！'},
+ 打印1不是100！C语言遵循就近原则：局部变量和全局变量同名时，函数内优先使用局部变量，全局被"遮蔽"看不见。好习惯：全局变量统一加g_前缀（g_x）避免重名。',memo:'🔴 同名=局部赢！全局被遮蔽！加g_前缀防坑！'},
+    {cat:'application',level:'重点',key:'冒泡排序flag优化',name:'数组排序带bool标志',desc:'void array_sort(int *arr, int n) 冒泡排序加优化：①外层i从0到n-2；②内层bool flag=true; 标记本轮是否有交换；③j从0到n-2-i（冒泡范围递减）；④相邻交换后flag=false；⑤内层结束if(!flag) break; 已有序提前跳出，省时间。',memo:'💡 flag标记是否交换 + 已有序提前break + j范围n-1-i递减'}
+];
+
+const catColors = {
+    concept: '#FF9F43',
+    syntax: '#2E86DE',
+    error: '#EE5253',
+    pointer: '#6C5CE7',
+    application: '#10AC84',
+    summary: '#FDCB6E'
+};
+
+const catNames = {
+    concept: '概念/规则',
+    syntax: '语法/代码',
+    error: '易错/坑/禁忌',
+    pointer: '指针专题',
+    application: '应用/实战',
+    summary: '总结/对比'
+};
+
+let currentFilter = 'all';
+
+function renderCards() {
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+    let visibleCount = 0;
+    cardsData.forEach((c, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.borderLeftColor = catColors[c.cat];
+        card.style.animationDelay = (i * 0.03) + 's';
+        card.dataset.cat = c.cat;
+        if (currentFilter !== 'all' && c.cat !== currentFilter) {
+            card.classList.add('hidden');
+        } else {
+            visibleCount++;
+        }
+
+        const levelClass = c.level === '必考' ? 'key' : 'important';
+        let memoClass = '';
+        if (c.cat === 'error') memoClass = 'error-memo';
+        else if (c.cat === 'pointer') memoClass = 'pointer-memo';
+
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="card-cat" style="color:${catColors[c.cat]}">${catNames[c.cat]}</span>
+                <span class="card-level ${levelClass}">${c.level}</span>
+            </div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-key">${c.key}</div>
+            <div class="card-desc">${c.desc}</div>
+            <div class="card-memo ${memoClass}">${c.memo}</div>
+        `;
+        grid.appendChild(card);
+    });
+    document.getElementById('totalCount').textContent = visibleCount;
+    updateStats();
+    updateLevelStats();
+}
+
+function updateStats() {
+    const container = document.getElementById('statsContainer');
+    const counts = {};
+    cardsData.forEach(c => {
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+            counts[c.cat] = (counts[c.cat] || 0) + 1;
+        }
+    });
+    let html = '';
+    for (const [cat, name] of Object.entries(catNames)) {
+        const n = counts[cat] || 0;
+        html += `<div class="stat-row"><span><span class="stat-dot" style="background:${catColors[cat]}"></span>${name}</span><span class="stat-num">${n}</span></div>`;
+    }
+    container.innerHTML = html;
+}
+
+function updateLevelStats() {
+    let keyCount = 0, impCount = 0;
+    cardsData.forEach(c => {
+        if (currentFilter === 'all' || c.cat === currentFilter) {
+            if (c.level === '必考') keyCount++;
+            else impCount++;
+        }
+    });
+    document.getElementById('statKey').textContent = keyCount;
+    document.getElementById('statImportant').textContent = impCount;
+}
+
+document.getElementById('filterBar').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderCards();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+    renderCards();
+});
+
+renderCards();
+</script>
+
+</body>
+</html>
