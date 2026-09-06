@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day17 二维数组 - 知识卡片</title>
+
+<style>
+
+{margin:0;padding:0;box-sizing:border-box}
+
+body{font-family:'Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
+
+.container{max-width:1200px;margin:0 auto}
+
+.header{text-align:center;color:white;margin-bottom:30px}
+
+.header h1{font-size:28px;margin-bottom:8px}
+
+.header p{opacity:.9;font-size:14px}
+
+.filter-bar{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+
+.filter-btn{padding:8px 16px;border:none;border-radius:20px;background:rgba(255,255,255,.2);color:white;cursor:pointer;transition:.3s;font-size:13px}
+
+.filter-btn:hover,.filter-btn.active{background:white;color:#764ba2}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px}
+
+.card{background:white;border-radius:12px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:.3s;cursor:pointer}
+
+.card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.15)}
+
+.card.2d_basic{border-left:4px solid #7f8c8d}
+
+.card.2d_basic .card-tag{background:#7f8c8d}
+
+.card.memory{border-left:4px solid #7f8c8d}
+
+.card.memory .card-tag{background:#7f8c8d}
+
+.card.apply{border-left:4px solid #7f8c8d}
+
+.card.apply .card-tag{background:#7f8c8d}
+
+.card.matrix{border-left:4px solid #7f8c8d}
+
+.card.matrix .card-tag{background:#7f8c8d}
+
+.card.yanghui{border-left:4px solid #7f8c8d}
+
+.card.yanghui .card-tag{background:#7f8c8d}
+
+.card.error{border-left:4px solid #34495e}
+
+.card.error .card-tag{background:#34495e}
+
+
+
+.card-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;color:white;margin-bottom:10px}
+
+.card-key{font-size:18px;font-weight:bold;color:#2c3e50;margin-bottom:8px;font-family:'Consolas',monospace;background:#f8f9fa;padding:8px 12px;border-radius:6px;display:inline-block}
+
+.card-name{font-size:14px;color:#7f8c8d;margin-bottom:10px}
+
+.card-desc{font-size:13px;color:#34495e;line-height:1.6}
+
+.card-memo{font-size:12px;color:#e74c3c;margin-top:10px;padding-top:10px;border-top:1px dashed #eee;font-style:italic}
+
+.stats{position:fixed;bottom:20px;right:20px;background:white;padding:15px 20px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.2);font-size:13px}
+
+.stats .stat-item{display:flex;align-items:center;gap:8px;margin:5px 0}
+
+.stats .dot{width:10px;height:10px;border-radius:50%}
+
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr}}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>🎴 Day17 二维数组 知识卡片</h1>
+
+<p>共 16 张知识卡片，支持分类筛选</p>
+
+</div>
+
+<div class="filter-bar">
+
+<button class="filter-btn active" onclick="filter('all')">全部</button>
+
+<button class="filter-btn" onclick="filter('2d_basic')">2d_basic</button>
+
+<button class="filter-btn" onclick="filter('memory')">memory</button>
+
+<button class="filter-btn" onclick="filter('apply')">apply</button>
+
+<button class="filter-btn" onclick="filter('matrix')">matrix</button>
+
+<button class="filter-btn" onclick="filter('yanghui')">yanghui</button>
+
+<button class="filter-btn" onclick="filter('error')">常见错误</button>
+
+
+
+</div>
+
+<div class="cards-grid" id="cards">
+
+
+
+<div class="card 2d_basic" data-cat="2d_basic">
+
+<div class="card-tag">2d_basic · 必考</div>
+
+<div class="card-key">int a[3][2];</div>
+
+<div class="card-name">二维数组定义</div>
+
+<div class="card-desc">类型名 数组名[行数][列数]; 行数列数都必须是常量。二维数组可以理解为"数组的数组"。</div>
+
+<div class="card-memo">💡 二维数组 = 一维数组的数组</div>
+
+</div>
+
+
+
+<div class="card 2d_basic" data-cat="2d_basic">
+
+<div class="card-tag">2d_basic · 必考</div>
+
+<div class="card-key">按行初始化</div>
+
+<div class="card-name">二维数组初始化</div>
+
+<div class="card-desc">按行初始化：int a[3][2]={{4,9},{2,8},{5,7}}; 清晰推荐。部分初始化未赋值的元素自动为0。</div>
+
+<div class="card-memo">💡 推荐用按行初始化，清晰不易错</div>
+
+</div>
+
+
+
+<div class="card 2d_basic" data-cat="2d_basic">
+
+<div class="card-tag">2d_basic · 必考</div>
+
+<div class="card-key">a[][2]</div>
+
+<div class="card-name">省略行数</div>
+
+<div class="card-desc">初始化全部数据时可以省略行数：int a[][2]={...}; 但<strong>列数绝对不能省略</strong>！编译器需要知道一行多少元素。</div>
+
+<div class="card-memo">⚠️ 行数可省，列数不可省！</div>
+
+</div>
+
+
+
+<div class="card 2d_basic" data-cat="2d_basic">
+
+<div class="card-tag">2d_basic · 必考</div>
+
+<div class="card-key">a[i][j]</div>
+
+<div class="card-name">二维数组访问</div>
+
+<div class="card-desc">数组名[行下标][列下标]。行下标i和列下标j都从0开始。a[0][0]是第一个元素。</div>
+
+<div class="card-memo">💡 先写行，再写列，都从0开始</div>
+
+</div>
+
+
+
+<div class="card 2d_basic" data-cat="2d_basic">
+
+<div class="card-tag">2d_basic · 必考</div>
+
+<div class="card-key">双层循环</div>
+
+<div class="card-name">二维数组遍历</div>
+
+<div class="card-desc">外层循环控制行，内层循环控制列。for(i=0;i<行数;i++) for(j=0;j<列数;j++) 处理a[i][j]。</div>
+
+<div class="card-memo">💡 外层行，内层列，别搞反！</div>
+
+</div>
+
+
+
+<div class="card memory" data-cat="memory">
+
+<div class="card-tag">memory · 重点</div>
+
+<div class="card-key">按行连续存放</div>
+
+<div class="card-name">二维数组内存</div>
+
+<div class="card-desc">二维数组<strong>按行连续存放</strong>（行优先）。先存第0行所有元素，再存第1行...同一行地址连续，行与行之间也连续。</div>
+
+<div class="card-memo">💡 行优先存储：先存完一行，再存下一行</div>
+
+</div>
+
+
+
+<div class="card memory" data-cat="memory">
+
+<div class="card-tag">memory · 重点</div>
+
+<div class="card-key">sizeof(a)</div>
+
+<div class="card-name">动态获取行列数</div>
+
+<div class="card-desc">行数 = sizeof(a) / sizeof(a[0])（总字节÷一行字节）。列数 = sizeof(a[0]) / sizeof(int)（一行字节÷一个元素字节）。</div>
+
+<div class="card-memo">💡 行数=总/行，列数=行/元素</div>
+
+</div>
+
+
+
+<div class="card memory" data-cat="memory">
+
+<div class="card-tag">memory · 重点</div>
+
+<div class="card-key">a[0]是行地址</div>
+
+<div class="card-name">行地址与元素地址</div>
+
+<div class="card-desc">a[0]是第0行的首地址，等于&a[0][0]。a[1]是第1行的首地址，等于&a[1][0]。同一行相邻元素地址差sizeof(int)。</div>
+
+<div class="card-memo">💡 a[i] 就是第i行的首地址</div>
+
+</div>
+
+
+
+<div class="card apply" data-cat="apply">
+
+<div class="card-tag">apply · 必考</div>
+
+<div class="card-key">双层累加</div>
+
+<div class="card-name">二维数组求和</div>
+
+<div class="card-desc">sum=0; 双层循环遍历每个元素 sum+=a[i][j]; 求行和：每行开始前row_sum=0，内层累加。</div>
+
+<div class="card-memo">💡 求行和记得每行开始前清零</div>
+
+</div>
+
+
+
+<div class="card apply" data-cat="apply">
+
+<div class="card-tag">apply · 必考</div>
+
+<div class="card-key">找最大+位置</div>
+
+<div class="card-name">找最大值及位置</div>
+
+<div class="card-desc">max=a[0][0]; 双层循环比较，遇更大就更新max并记录line_num=i, column_num=j。最后输出值和位置。</div>
+
+<div class="card-memo">💡 不仅要记最大值，还要记行列位置</div>
+
+</div>
+
+
+
+<div class="card apply" data-cat="apply">
+
+<div class="card-tag">apply · 重点</div>
+
+<div class="card-key">j<=i</div>
+
+<div class="card-name">下三角输出</div>
+
+<div class="card-desc">输出左下三角：内层循环条件 j<=i。输出上三角：j>=i。对角线：i==j。</div>
+
+<div class="card-memo">💡 下三角 j<=i，上三角 j>=i</div>
+
+</div>
+
+
+
+<div class="card matrix" data-cat="matrix">
+
+<div class="card-tag">matrix · 必考</div>
+
+<div class="card-key">b[i][j]=a[j][i]</div>
+
+<div class="card-name">矩阵转置</div>
+
+ 转置后n行m列。</div>
+
+<div class="card-memo">💡 转置 = 行列互换，下标交换</div>
+
+</div>
+
+
+
+<div class="card matrix" data-cat="matrix">
+
+<div class="card-tag">matrix · 重点</div>
+
+<div class="card-key">转置存新数组</div>
+
+<div class="card-name">转置两种方法</div>
+
+<div class="card-desc">方法一：边转置边输出（直接输出a[j][i]）。方法二：存入新数组b[i][j]=a[j][i]（推荐，后续可继续操作）。</div>
+
+<div class="card-memo">💡 存入新数组更灵活</div>
+
+</div>
+
+
+
+<div class="card yanghui" data-cat="yanghui">
+
+<div class="card-tag">yanghui · 重点</div>
+
+<div class="card-key">a[i][0]=a[i][i]=1</div>
+
+<div class="card-name">杨辉三角规律</div>
+
+<div class="card-desc">①第i行有i+1个数 ②每行首尾都是1：a[i][0]=1, a[i][i]=1 ③中间数=左上+正上：a[i][j]=a[i-1][j-1]+a[i-1][j]。</div>
+
+<div class="card-memo">💡 首尾为1，中间=左上+正上</div>
+
+</div>
+
+
+
+<div class="card yanghui" data-cat="yanghui">
+
+<div class="card-tag">yanghui · 重点</div>
+
+<div class="card-key">杨辉代码</div>
+
+<div class="card-name">杨辉三角代码</div>
+
+<div class="card-desc">先初始化为0。外层循环i从0到n-1：a[i][0]=1; 内层j从1到i-1：a[i][j]=a[i-1][j-1]+a[i-1][j]; a[i][i]=1;</div>
+
+<div class="card-memo">💡 先清零，再设首尾，最后填中间</div>
+
+</div>
+
+
+
+<div class="card error" data-cat="error">
+
+<div class="card-tag">常见错误 · 必考</div>
+
+<div class="card-key">Day17易错点</div>
+
+<div class="card-name">Day17八大易错点</div>
+
+<div class="card-desc">①列数省略 ②a[i,j]错误写法 ③下标从1开始 ④单层循环遍历 ⑤转置下标写反 ⑥行和不清零 ⑦遍历行列搞反 ⑧杨辉不初始化就用</div>
+
+<div class="card-memo">⚠️ 二维数组坑更多，加倍小心！</div>
+
+</div>
+
+
+
+</div>
+
+<div class="stats">
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>2d_basic 5</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>memory 3</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>apply 3</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>matrix 2</div>
+
+<div class="stat-item"><div class="dot" style="background:#7f8c8d"></div>yanghui 2</div>
+
+<div class="stat-item"><div class="dot" style="background:#34495e"></div>常见错误 1</div>
+
+<div style="border-top:1px solid #eee;margin-top:8px;padding-top:8px;font-weight:bold">总计：16 张</div>
+
+</div>
+
+</div>
+
+<script>
+
+function filter(cat){
+
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+
+    event.target.classList.add('active');
+
+    document.querySelectorAll('.card').forEach(c=>{
+
+        c.style.display = (cat==='all' || c.dataset.cat===cat) ? 'block' : 'none';
+
+    });
+
+}
+
+</script>
+
+</body>
+
+</html>
