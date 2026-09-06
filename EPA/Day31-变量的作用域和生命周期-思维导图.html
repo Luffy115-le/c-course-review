@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day31 变量的作用域和生命周期 - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day31 变量的作用域和生命周期 - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day31 变量的作用域和生命周期
+
+## auto自动变量
+### 基本概念
+#### 局部变量默认存储类型
+#### 存储在栈区
+#### auto可省略(int a就是auto int a)
+#### 未初始化为随机值
+### 作用域与生命周期
+#### 作用域=从定义处到当前{}结束
+#### 生命周期=函数调用时创建返回时销毁
+#### 出{}不可访问
+### 作用域陷阱
+#### {auto int a;} 外面a++报错
+#### 作用域是空间维度
+
+## register寄存器变量
+### 基本概念
+#### 建议编译器存入CPU寄存器
+#### 访问速度极快(寄存器>>内存)
+#### 适用高频循环变量
+### 三大限制
+#### 不能取地址(&i报错)
+#### 不能取指针(int*p=&i非法)
+#### 没有内存地址(寄存器不在内存中)
+### 现代意义
+#### 现代编译器自动优化
+#### register只是建议编译器决定
+#### 现代C很少手动使用
+
+## static静态变量
+### static局部变量
+#### 从栈区移到全局数据区
+#### 生命周期延长到整个程序
+#### 作用域不变(仍为当前{})
+#### 未初始化默认为0
+#### 只在第一次调用时初始化一次
+### 累加效果
+#### static int a; a++; 每次调用保留上次值
+#### fun()调用5次输出1 2 3 4 5
+#### 地址始终不变(全局数据区)
+### static全局变量/函数
+#### 限制作用域到当前文件(文件级私有)
+#### 其他文件extern也无法访问
+#### static修饰函数同理
+
+## extern跨文件引用
+### extern声明
+#### 声明其他文件中定义的全局变量/函数
+#### extern是声明不是定义
+#### 不分配内存
+#### 编译时告诉编译器变量在别处
+### 声明vs定义
+#### 定义int a=100分配内存
+#### 声明extern int a不分配内存
+#### 一个变量只能定义一次可声明多次
+### 多文件编译
+#### t1.c定义global_a和print_hello
+#### static.c用extern引用
+#### gcc t1.c static.c -o main链接合并
+
+## volatile与易错点
+### volatile防止优化
+#### 告诉编译器每次从内存读取
+#### 不要优化到寄存器
+#### 场景:硬件寄存器/中断/多线程
+#### 不加可能读不到最新值
+### 8大易错点
+#### register取地址报错
+#### auto出作用域访问报错
+#### static每次初始化(错只一次)
+#### extern当定义用
+#### volatile忘记加
+#### static全局变量作用域限制
+#### register不一定存入寄存器
+#### auto未初始化随机值
+
+## 总结对比
+### 四大存储类型对比
+#### auto栈区/函数调用期/随机值
+#### register寄存器/函数调用期/随机值
+#### static全局数据区/整个程序/默认0
+#### extern跨文件/整个程序
+### 作用域vs生命周期
+#### 作用域=空间维度(在哪里可访问)
+#### 生命周期=时间维度(什么时候存在)
+#### static局部变量:作用域不变={}内 生命周期变长=整个程序
+### 口诀
+#### auto默认可省略
+#### register不能取地址
+#### static延命不改域(只初始化一次)
+#### extern声明不定义
+#### volatile防优化每次读内存`;
+      const { root } = transformer.transform(md);
+
+      const branchColors = [
+        '#FF9F43',
+        '#2E86DE',
+        '#6C5CE7',
+        '#10AC84',
+        '#EE5253',
+        '#FDCB6E'
+      ];
+      if (root.children) {
+        root.children.forEach(function(child, i) {
+          if (i < branchColors.length) {
+            child.payload = child.payload || {};
+            child.payload.color = branchColors[i];
+            child.payload.freeze = true;
+          }
+        });
+      }
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
