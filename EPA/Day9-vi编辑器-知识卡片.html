@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day9 vi编辑器 - 知识卡片</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
+.container{max-width:1200px;margin:0 auto}
+.header{text-align:center;color:white;margin-bottom:30px}
+.header h1{font-size:28px;margin-bottom:8px}
+.header p{opacity:.9;font-size:14px}
+
+.filter-bar{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{padding:8px 16px;border:none;border-radius:20px;background:rgba(255,255,255,.2);color:white;cursor:pointer;transition:.3s;font-size:13px}
+.filter-btn:hover,.filter-btn.active{background:white;color:#667eea}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px}
+.card{background:white;border-radius:12px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:.3s;cursor:pointer;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.15)}
+.card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+
+.card.mode{border-left:4px solid #e74c3c}
+.card.move{border-left:4px solid #3498db}
+.card.edit{border-left:4px solid #27ae60}
+.card.file{border-left:4px solid #f39c12}
+.card.find{border-left:4px solid #9b59b6}
+.card.other{border-left:4px solid #1abc9c}
+
+.card-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;color:white;margin-bottom:10px}
+.card.mode .card-tag{background:#e74c3c}
+.card.move .card-tag{background:#3498db}
+.card.edit .card-tag{background:#27ae60}
+.card.file .card-tag{background:#f39c12}
+.card.find .card-tag{background:#9b59b6}
+.card.other .card-tag{background:#1abc9c}
+
+.card-key{font-size:22px;font-weight:bold;color:#2c3e50;margin-bottom:8px;font-family:'Consolas',monospace;background:#f8f9fa;padding:8px 12px;border-radius:6px;display:inline-block}
+.card-name{font-size:14px;color:#7f8c8d;margin-bottom:10px}
+.card-desc{font-size:13px;color:#34495e;line-height:1.6}
+.card-memo{font-size:12px;color:#e74c3c;margin-top:10px;padding-top:10px;border-top:1px dashed #eee;font-style:italic}
+
+.stats{position:fixed;bottom:20px;right:20px;background:white;padding:15px 20px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.2);font-size:13px}
+.stats .stat-item{display:flex;align-items:center;gap:8px;margin:5px 0}
+.stats .dot{width:10px;height:10px;border-radius:50%}
+
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🎴 Day9 vi 编辑器 - 知识卡片</h1>
+<p>点击卡片查看详情，按分类筛选快速定位</p>
+</div>
+
+<div class="filter-bar">
+<button class="filter-btn active" onclick="filter('all')">全部</button>
+<button class="filter-btn" onclick="filter('mode')">模式切换</button>
+<button class="filter-btn" onclick="filter('move')">光标移动</button>
+<button class="filter-btn" onclick="filter('edit')">编辑操作</button>
+<button class="filter-btn" onclick="filter('file')">文件操作</button>
+<button class="filter-btn" onclick="filter('find')">查找替换</button>
+<button class="filter-btn" onclick="filter('other')">其他</button>
+</div>
+
+<div class="cards-grid" id="cards">
+
+<!-- 模式切换 -->
+<div class="card mode" data-cat="mode">
+<div class="card-tag">模式切换 · 必考</div>
+<div class="card-key">Esc</div>
+<div class="card-name">返回命令模式</div>
+<div class="card-desc">从插入模式或底行模式返回命令模式。所有模式切换的枢纽。</div>
+<div class="card-memo">💡 记不清按什么的时候，先按 Esc 回到命令模式！</div>
+</div>
+
+<div class="card mode" data-cat="mode">
+<div class="card-tag">模式切换 · 必考</div>
+<div class="card-key">a / i / o</div>
+<div class="card-name">进入插入模式</div>
+<div class="card-desc">a = 光标后插入(after) | i = 光标前插入(in front) | o = 下方新开一行(open below)</div>
+<div class="card-memo">💡 大写 A/I/O = 行尾/行首/上方；s = 删除字符并插入</div>
+</div>
+
+<div class="card mode" data-cat="mode">
+<div class="card-tag">模式切换 · 必考</div>
+<div class="card-key">:</div>
+<div class="card-name">进入底行模式</div>
+<div class="card-desc">在命令模式下按 : 进入底行模式，可以执行保存、退出、查找替换等命令。</div>
+<div class="card-memo">⚠️ 插入模式不能直接进底行模式，必须先 Esc 回命令模式！</div>
+</div>
+
+<!-- 文件操作 -->
+<div class="card file" data-cat="file">
+<div class="card-tag">文件操作 · 必考</div>
+<div class="card-key">:wq</div>
+<div class="card-name">保存并退出</div>
+<div class="card-desc">Write & Quit。最常用的退出命令，先保存文件再退出 vi。</div>
+<div class="card-memo">💡 等价命令 :x</div>
+</div>
+
+<div class="card file" data-cat="file">
+<div class="card-tag">文件操作 · 必考</div>
+<div class="card-key">:q!</div>
+<div class="card-name">强制退出不保存</div>
+<div class="card-desc">Quit force。文件已修改但不想保存时使用，强制退出丢弃所有修改。</div>
+<div class="card-memo">⚠️ 修改错了想重来就用这个！</div>
+</div>
+
+<div class="card file" data-cat="file">
+<div class="card-tag">文件操作 · 重点</div>
+<div class="card-key">:w</div>
+<div class="card-name">保存不退出</div>
+<div class="card-desc">Write。保存文件但继续留在 vi 中编辑。</div>
+<div class="card-memo">💡 编辑过程中随时 :w 保存，防止意外丢失</div>
+</div>
+
+<div class="card file" data-cat="file">
+<div class="card-tag">文件操作 · 重点</div>
+<div class="card-key">vi +n 文件</div>
+<div class="card-name">打开并定位行</div>
+<div class="card-desc">打开文件并直接跳到第 n 行。编译报错时快速定位错误行。</div>
+<div class="card-memo">💡 vi + 文件 = 直接跳到文件末尾</div>
+</div>
+
+<!-- 光标移动 -->
+<div class="card move" data-cat="move">
+<div class="card-tag">光标移动 · 必考</div>
+<div class="card-key">h j k l</div>
+<div class="card-name">方向移动</div>
+ 右。手指不离开主键区。</div>
+<div class="card-memo">📌 h左l右，j像向下钩子，k像向上箭头</div>
+</div>
+
+<div class="card move" data-cat="move">
+<div class="card-tag">光标移动 · 重点</div>
+<div class="card-key">gg / G</div>
+<div class="card-name">文件首尾</div>
+<div class="card-desc">gg = 跳到文件顶部第1行 | G = 跳到文件末尾最后一行</div>
+<div class="card-memo">💡 15gg 或 15G = 跳到第15行</div>
+</div>
+
+<div class="card move" data-cat="move">
+<div class="card-tag">光标移动 · 重点</div>
+<div class="card-key">w / b</div>
+<div class="card-name">按单词移动</div>
+<div class="card-desc">w = 向后一个单词(word) | b = 向前一个单词(back)</div>
+<div class="card-memo">💡 快速在行内跳转，比逐字符移动快得多</div>
+</div>
+
+<div class="card move" data-cat="move">
+<div class="card-tag">光标移动 · 重点</div>
+<div class="card-key">0 / ^ / $</div>
+<div class="card-name">行内首尾</div>
+<div class="card-desc">0 = 行首(绝对) | ^ = 行首第一个非空白字符 | $ = 行尾</div>
+<div class="card-memo">⚠️ 0 和 ^ 的区别！0 是绝对行首，^ 跳过前导空格</div>
+</div>
+
+<div class="card move" data-cat="move">
+<div class="card-tag">光标移动 · 重点</div>
+<div class="card-key">Ctrl+b / Ctrl+f</div>
+<div class="card-name">翻页</div>
+<div class="card-desc">Ctrl+b = 向上翻页(back) | Ctrl+f = 向下翻页(forward)</div>
+<div class="card-memo">⚠️ b是回退=向上，f是前进=向下，和直觉相反！</div>
+</div>
+
+<div class="card move" data-cat="move">
+<div class="card-tag">光标移动 · 了解</div>
+<div class="card-key">H / M / L</div>
+<div class="card-name">屏幕位置</div>
+<div class="card-desc">H = 屏幕顶部(Head) | M = 屏幕中间(Middle) | L = 屏幕底部(Low)</div>
+<div class="card-memo">💡 快速将光标定位到屏幕可见区域</div>
+</div>
+
+<!-- 编辑操作 -->
+<div class="card edit" data-cat="edit">
+<div class="card-tag">编辑操作 · 必考</div>
+<div class="card-key">dd</div>
+<div class="card-name">删除一行</div>
+<div class="card-desc">删除光标所在一整行。内容进入剪贴板，可用 p 粘贴。</div>
+<div class="card-memo">💡 3dd = 删除3行；vi的删除=剪切！</div>
+</div>
+
+<div class="card edit" data-cat="edit">
+<div class="card-tag">编辑操作 · 必考</div>
+<div class="card-key">yy</div>
+<div class="card-name">复制一行</div>
+<div class="card-desc">复制(yank)光标所在一整行。3yy = 复制3行。</div>
+<div class="card-memo">💡 y0 = 复制到行首 | y$ = 复制到行尾</div>
+</div>
+
+<div class="card edit" data-cat="edit">
+<div class="card-tag">编辑操作 · 必考</div>
+<div class="card-key">p</div>
+<div class="card-name">粘贴</div>
+<div class="card-desc">在光标后(字符级)或当前行下方(行级)粘贴剪贴板内容。</div>
+<div class="card-memo">💡 yy + p = 快速复制一行</div>
+</div>
+
+<div class="card edit" data-cat="edit">
+<div class="card-tag">编辑操作 · 重点</div>
+<div class="card-key">x</div>
+<div class="card-name">删除字符</div>
+<div class="card-desc">删除光标所在字符。5x = 删除5个字符。</div>
+<div class="card-memo">💡 x 类似于 Delete 键</div>
+</div>
+
+<div class="card edit" data-cat="edit">
+<div class="card-tag">编辑操作 · 重点</div>
+<div class="card-key">u / Ctrl+r</div>
+<div class="card-name">撤销 / 恢复</div>
+<div class="card-desc">u = undo 撤销上次操作 | Ctrl+r = redo 恢复撤销</div>
+<div class="card-memo">📌 u = undo，r = redo</div>
+</div>
+
+<div class="card edit" data-cat="edit">
+<div class="card-tag">编辑操作 · 重点</div>
+<div class="card-key">r / R</div>
+<div class="card-name">替换</div>
+<div class="card-desc">r = 替换当前字符(自动回命令模式) | R = 进入替换模式连续替换</div>
+<div class="card-memo">💡 不需要进插入模式就能改单个字符！</div>
+</div>
+
+<div class="card edit" data-cat="edit">
+<div class="card-tag">编辑操作 · 重点</div>
+<div class="card-key">v / V</div>
+<div class="card-name">可视模式</div>
+<div class="card-desc">v = 字符级选择 | V = 行级选择。选好后按 d/y 删除/复制。</div>
+<div class="card-memo">💡 相当于鼠标选中文字的操作</div>
+</div>
+
+<!-- 查找替换 -->
+<div class="card find" data-cat="find">
+<div class="card-tag">查找替换 · 必考</div>
+<div class="card-key">/str</div>
+<div class="card-name">查找字符串</div>
+<div class="card-desc">从光标位置向下查找 str。n = 下一个，N = 上一个。</div>
+<div class="card-memo">💡 ?str = 向上查找</div>
+</div>
+
+<div class="card find" data-cat="find">
+<div class="card-tag">查找替换 · 必考</div>
+<div class="card-key">:%s/old/new/g</div>
+<div class="card-name">全文替换</div>
+<div class="card-desc">% = 全文 | s = substitute | g = 全局(每行所有匹配)。</div>
+<div class="card-memo">⚠️ 不加 g 只替换每行第一个！加 c 逐个确认。</div>
+</div>
+
+<div class="card find" data-cat="find">
+<div class="card-tag">查找替换 · 重点</div>
+<div class="card-key">:10,20s/old/new</div>
+<div class="card-name">范围替换</div>
+<div class="card-desc">10,20 = 第10到20行 | .,20 = 当前行到20行 | 5,$ = 第5行到末尾</div>
+<div class="card-memo">💡 灵活指定替换范围</div>
+</div>
+
+<!-- 其他 -->
+<div class="card other" data-cat="other">
+<div class="card-tag">其他 · 了解</div>
+<div class="card-key">:set nu</div>
+<div class="card-name">显示行号</div>
+<div class="card-desc">显示行号。:set nonu 取消显示。</div>
+<div class="card-memo">💡 定位错误、范围替换时很有用</div>
+</div>
+
+<div class="card other" data-cat="other">
+<div class="card-tag">其他 · 了解</div>
+<div class="card-key">:sp / :vsp</div>
+<div class="card-name">分屏</div>
+<div class="card-desc">:sp = 横向分屏 | :vsp = 竖向分屏。Ctrl+w+hjkl 切换窗口。</div>
+<div class="card-memo">💡 对照两个文件编辑时使用</div>
+</div>
+
+<div class="card other" data-cat="other">
+<div class="card-tag">其他 · 重点</div>
+<div class="card-key">d</div>
+<div class="card-name">交换文件处理</div>
+<div class="card-desc">vi 异常退出后，下次打开时按 d 删除 .swp 交换文件。</div>
+<div class="card-memo">⚠️ 看到警告界面不要慌，按 d 即可</div>
+</div>
+
+</div>
+</div>
+
+<div class="stats">
+<div style="font-weight:bold;margin-bottom:8px">📊 统计</div>
+<div class="stat-item"><div class="dot" style="background:#e74c3c"></div>模式切换 3</div>
+<div class="stat-item"><div class="dot" style="background:#3498db"></div>光标移动 6</div>
+<div class="stat-item"><div class="dot" style="background:#27ae60"></div>编辑操作 7</div>
+<div class="stat-item"><div class="dot" style="background:#f39c12"></div>文件操作 4</div>
+<div class="stat-item"><div class="dot" style="background:#9b59b6"></div>查找替换 3</div>
+<div class="stat-item"><div class="dot" style="background:#1abc9c"></div>其他 3</div>
+<div style="margin-top:10px;padding-top:10px;border-top:1px solid #eee;font-weight:bold">共 26 张卡片</div>
+</div>
+
+<script>
+function filter(cat){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.card').forEach(c=>{
+    c.style.display = (cat==='all'||c.dataset.cat===cat)?'block':'none';
+  });
+}
+</script>
+</body>
+</html>
