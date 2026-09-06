@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day5-Day8 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#27ae60}
+.mode-tab.active{background:#27ae60;color:white;border-color:#27ae60}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#27ae60,#2ecc71);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#27ae60;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#8e44ad;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#27ae60;background:#f0fff0}
+.option.selected{border-color:#27ae60;background:#e8f5e9}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#27ae60;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#27ae60}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#27ae60;color:white}
+.btn-primary:hover{background:#219a52}
+.btn-secondary{background:#3498db;color:white}
+.btn-secondary:hover{background:#2980b9}
+.btn-warn{background:#f39c12;color:white}
+.btn-warn:hover{background:#e67e22}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #27ae60;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#f39c12;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#27ae60}
+.review-tab.active{background:#27ae60;color:white;border-color:#27ae60}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day5-Day8 检测练习题（增强版）</h1>
+<p>支持错题重做、巩固练习、错题库持久化</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal', event)">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo', event)">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review', event)">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 20 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list', event)">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge', event)">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day5_8';
+
+const allQuestions = [
+  {id:1,type:'single',kp:'int字节',text:'在 32 位系统中，int 类型通常占多少字节？',options:['1 字节','2 字节','4 字节','8 字节'],correct:'C',expl:'32 位系统中 <strong>int 占 4 字节</strong>，范围约 -21亿 ~ +21亿。char 占 1 字节，short 占 2 字节，long long 占 8 字节。'},
+  {id:2,type:'single',kp:'float精度',text:'float 类型的有效数字大约是多少位？',options:['3~4 位','6~7 位','15~17 位','32 位'],correct:'B',expl:'<strong>float</strong>（单精度）约 6~7 位有效数字。<strong>double</strong>（双精度）约 15~17 位有效数字。'},
+  {id:3,type:'single',kp:'sizeof',text:'以下哪个运算符可以获取数据类型的字节数？',options:['size()','sizeof()','length()','bytes()'],correct:'B',expl:'<strong>sizeof()</strong> 是运算符（不是函数），返回数据类型或变量占用的字节数。如 sizeof(int) 返回 4。'},
+  {id:4,type:'single',kp:'char存ASCII',text:'char 类型在内存中存储的是什么？',options:['字符本身','ASCII 码值','Unicode 码','字符串'],correct:'B',expl:'char 本质存储的是<strong>ASCII 码值</strong>（整数），占 1 字节。\'A\' 实际存储 65，\'a\' 存储 97。'},
+  {id:5,type:'single',kp:'unsigned范围',text:'unsigned int 能表示的数值范围是？',options:['-2^31 ~ 2^31-1','0 ~ 2^32-1','-2^31 ~ 2^31','0 ~ 2^31-1'],correct:'B',expl:'<strong>unsigned int</strong> 无符号位，32 位全用来表示数值，范围 0 ~ 2^32-1（约 0 ~ 42 亿）。'},
+  {id:6,type:'single',kp:'const类型安全',text:'C 语言中，以下哪种方式定义的常量是类型安全的？',options:['#define MAX 100','const int MAX = 100;','int MAX = 100;','A 和 B 都是类型安全的'],correct:'B',expl:'<strong>const</strong> 定义常量有类型检查，是类型安全的。<strong>#define</strong> 是预处理器宏替换，没有类型检查。'},
+  {id:7,type:'single',kp:'强制转换',text:'(int)3.14 的值是？',options:['3.14','3','4','3.0'],correct:'B',expl:'强制类型转换<strong>直接截断小数部分</strong>，(int)3.14 = 3，不是四舍五入！'},
+  {id:8,type:'judge',kp:'未初始化变量',text:'C 语言中，未初始化的局部变量的值是 0。',correct:'B',options:['正确','错误'],expl:'未初始化的局部变量值是<strong>不确定的（垃圾值）</strong>，不一定是 0。全局变量和静态变量默认为 0。'},
+  {id:9,type:'single',kp:'整型提升',text:'char 和 short 在表达式中运算时，会自动提升为什么类型？',options:['long','float','int','double'],correct:'C',expl:'<strong>char 和 short 在运算时自动提升为 int</strong>，这叫整型提升（integer promotion）。'},
+  {id:10,type:'single',kp:'typedef',text:'C 语言中 typedef 的作用是？',options:['定义新的数据类型','给已有类型起别名','定义宏常量','定义变量'],correct:'B',expl:'<strong>typedef</strong> 是给已有类型起别名，不创造新类型。如 typedef int age_t; 后 age_t a; 等价于 int a;'},
+  {id:11,type:'single',kp:'整数除法',text:'表达式 5 / 2 的值是？（5 和 2 都是 int）',options:['2.5','2','3','2.0'],correct:'B',expl:'<strong>整数除法截断小数部分</strong>，5 / 2 = 2。要得到 2.5，需写 5.0 / 2 或 (double)5 / 2。'},
+  {id:12,type:'single',kp:'a++返回值',text:'设 int a = 5; 则表达式 a++ 的值是？',options:['4','5','6','不确定'],correct:'B',expl:'<strong>a++ 是后自增</strong>，先返回 a 的原值 5，然后 a 变为 6。如果是 ++a（前自增），则值为 6。'},
+  {id:13,type:'single',kp:'+=赋值',text:'设 int a = 3; 执行 a += 5; 后，a 的值是？',options:['3','5','8','15'],correct:'C',expl:'<strong>a += 5</strong> 等价于 a = a + 5，所以 3 + 5 = 8。'},
+  {id:14,type:'single',kp:'==和=',text:'在 C 语言中，判断两个整数 a 和 b 是否相等，应该使用？',options:['a = b','a == b','a === b','a != b'],correct:'B',expl:'<strong>==</strong> 是相等比较，<strong>=</strong> 是赋值。<strong>===</strong> 在 C 语言中不存在。!= 是不等于。这是最常见的错误！'},
+  {id:15,type:'single',kp:'真假判断',text:'在 C 语言中，以下哪个值表示"假"？',options:['1','-1','0','非零值'],correct:'C',expl:'C 语言中<strong> 0 表示假，非零表示真</strong>。-1、1、2 等都是真。关系表达式成立返回 1，不成立返回 0。'},
+  {id:16,type:'single',kp:'&&短路',text:'逻辑与 && 的短路求值规则是？',options:['左边为真时，右边不计算','左边为假时，右边不计算','两边都计算','左边为假时，结果为假但右边仍计算'],correct:'B',expl:'<strong>&& 短路求值</strong>：左边为假时，整个表达式必然为假，右边不再计算。|| 短路求值：左边为真时，右边不再计算。'},
+  {id:17,type:'single',kp:'&按位与',text:'表达式 5 & 3 的值是？（按位与）',options:['1','3','7','8'],correct:'A',expl:'5 = 101(二进制)，3 = 011(二进制)。101 & 011 = 001 = <strong>1</strong>。按位与：相同位都为 1 才为 1。'},
+  {id:18,type:'single',kp:'<<左移',text:'表达式 3 << 2 的值是？（左移）',options:['6','9','12','1'],correct:'C',expl:'<strong>3 << 2</strong> = 3 * 2^2 = <strong>12</strong>。左移 n 位等于乘以 2^n。3 = 011，左移 2 位 = 1100 = 12。'},
+  {id:19,type:'fill',kp:'三目运算符',text:'三目运算符的格式是：条件 ? 表达式1 : 表达式2，当条件为真时返回 <input class="fill-blank" data-idx="0" placeholder="?">，条件为假时返回 <input class="fill-blank" data-idx="1" placeholder="?">。',correct:['表达式1','表达式2'],correctText:'表达式1 | 表达式2',expl:'三目运算符 <strong>条件 ? 表达式1 : 表达式2</strong>：条件为真返回表达式1，为假返回表达式2。是 C 语言中唯一的三目运算符。'},
+  {id:20,type:'single',kp:'优先级',text:'以下运算符中，优先级最高的是？',options:['赋值运算符 =','逻辑或 ||','算术运算符 *','括号 ()'],correct:'D',expl:'<strong>括号 () 优先级最高</strong>。完整顺序：() > 单目 > * / % > + - > 移位 > 关系 > 位运算 > 逻辑 > 条件 > 赋值 > 逗号。不确定时用括号！'},
+];
+
+const extraQuestions = [
+  {id:101,type:'single',kp:'int字节',text:'在 64 位系统中，int 类型通常占多少字节？',options:['2 字节','4 字节','8 字节','16 字节'],correct:'B',expl:'无论 32 位还是 64 位系统，<strong>int 通常都是 4 字节</strong>。指针大小才会随系统位数变化。'},
+  {id:102,type:'single',kp:'int字节',text:'以下哪个数据类型在 32 位系统中占 2 字节？',options:['char','short','int','long long'],correct:'B',expl:'<strong>short</strong> 占 2 字节。char 占 1 字节，int 占 4 字节，long long 占 8 字节。'},
+  {id:103,type:'single',kp:'float精度',text:'double 类型的有效数字大约是多少位？',options:['3~4 位','6~7 位','15~17 位','64 位'],correct:'C',expl:'<strong>double</strong>（双精度）约 15~17 位有效数字。float（单精度）约 6~7 位有效数字。'},
+  {id:104,type:'single',kp:'float精度',text:'以下关于浮点数的说法，正确的是？',options:['float 比 double 精度高','浮点数可以精确表示所有小数','浮点数存在精度误差','double 占 4 字节'],correct:'C',expl:'<strong>浮点数存在精度误差</strong>，不能精确表示所有小数（如 0.1）。float 占 4 字节，double 占 8 字节。'},
+  {id:105,type:'single',kp:'sizeof',text:'sizeof(char) 的值是？',options:['0','1','2','不确定'],correct:'B',expl:'<strong>sizeof(char) = 1</strong>，这是 C 标准规定的，char 永远占 1 字节。'},
+  {id:106,type:'single',kp:'char存ASCII',text:'字符 \'0\' 的 ASCII 码值是多少？',options:['0','48','65','97'],correct:'B',expl:'\'0\' 的 ASCII 码是 <strong>48</strong>。\'A\' = 65，\'a\' = 97。数字字符 \'0\'-\'9\' 连续排列。'},
+  {id:107,type:'single',kp:'char存ASCII',text:'已知 \'A\' 的 ASCII 码是 65，则 \'D\' - \'A\' 的值是？',options:['3','4','68','\'D\''],correct:'A',expl:'char 参与运算时用 ASCII 码值。\'D\'=68，\'A\'=65，68-65 = <strong>3</strong>。这是字符转数字偏移量的常用技巧。'},
+  {id:108,type:'single',kp:'unsigned范围',text:'unsigned char 能表示的数值范围是？',options:['-128 ~ 127','0 ~ 255','0 ~ 127','0 ~ 65535'],correct:'B',expl:'<strong>unsigned char</strong> 占 1 字节（8位），无符号，范围 0 ~ 2^8-1 = <strong>0 ~ 255</strong>。'},
+  {id:109,type:'single',kp:'const类型安全',text:'关于 const 修饰的变量，以下说法正确的是？',options:['const 变量可以随意修改','const 变量在编译时一定被替换','const 变量有类型检查','const 和 #define 完全一样'],correct:'C',expl:'<strong>const 变量有类型检查</strong>，更安全。#define 是预处理器文本替换，无类型检查。const 变量本质是变量，只是不能被修改。'},
+  {id:110,type:'single',kp:'强制转换',text:'(int)(-3.9) 的值是？',options:['-3','-4','-3.9','3'],correct:'A',expl:'强制类型转换<strong>直接截断</strong>，向零取整。(int)-3.9 = <strong>-3</strong>，不是四舍五入，也不是向下取整。'},
+  {id:111,type:'judge',kp:'未初始化变量',text:'全局变量在未初始化时，默认值为 0。',correct:'A',options:['正确','错误'],expl:'<strong>全局变量和静态变量默认初始化为 0</strong>。但局部变量（auto）是垃圾值，必须手动初始化。'},
+  {id:112,type:'single',kp:'整型提升',text:'设 char c = \'A\'; 则 sizeof(c + 0) 的值是？',options:['1','2','4','8'],correct:'C',expl:'char 参与运算时发生<strong>整型提升</strong>，c + 0 的结果是 int 类型，所以 sizeof 等于 <strong>4</strong>（int 的大小）。'},
+  {id:113,type:'single',kp:'typedef',text:'typedef unsigned char uchar; 之后，以下说法正确的是？',options:['uchar 是新的数据类型','uchar 等价于 unsigned char','uchar 占 4 字节','uchar 只能存正数不能存字符'],correct:'B',expl:'<strong>typedef 只是给类型起别名</strong>，uchar 等价于 unsigned char，不是新类型。用法和 unsigned char 完全一样。'},
+  {id:114,type:'single',kp:'整数除法',text:'表达式 7 / 2 和 7 % 2 的值分别是？',options:['3.5 和 1','3 和 1','4 和 1','3 和 3'],correct:'B',expl:'整数除法 7/2 = <strong>3</strong>（截断小数），取模 7%2 = <strong>1</strong>（余数）。a = b*q + r，其中 0 ≤ r < |b|。'},
+  {id:115,type:'single',kp:'a++返回值',text:'设 int a = 3; 则表达式 ++a 的值是？',options:['2','3','4','不确定'],correct:'C',expl:'<strong>++a 是前自增</strong>，先让 a 加 1 变成 4，再返回新值 4。a++ 是后自增，先返回原值再自增。'},
+  {id:116,type:'single',kp:'+=赋值',text:'设 int a = 10; 执行 a %= 3; 后，a 的值是？',options:['1','3','7','10'],correct:'A',expl:'<strong>a %= 3</strong> 等价于 a = a % 3，10 % 3 = <strong>1</strong>。复合赋值：+=、-=、*=、/=、%= 等。'},
+  {id:117,type:'single',kp:'==和=',text:'设 int a = 5; 执行 if(a = 0) 后，以下说法正确的是？',options:['条件为真，a 还是 5','条件为假，a 变成 0','条件为真，a 变成 0','编译错误'],correct:'B',expl:'a = 0 是赋值语句，把 0 赋给 a，整个表达式的值是 0（假）。所以<strong>条件为假，a 变成 0</strong>。这是经典 bug！'},
+  {id:118,type:'single',kp:'真假判断',text:'表达式 (3 > 2) 的值是？',options:['true','1','0','3>2'],correct:'B',expl:'C 语言中关系表达式成立返回 <strong>1</strong>（整数），不成立返回 0。没有 bool 类型（C99 有 _Bool，但通常还是用 int 表示真假）。'},
+  {id:119,type:'single',kp:'&&短路',text:'设 int a = 0, b = 5; 执行 a++ && b++; 后，a 和 b 的值分别是？',options:['1 和 6','1 和 5','0 和 5','0 和 6'],correct:'B',expl:'<strong>&& 短路</strong>：左边 a++ 的值是 0（假），右边 b++ 不执行。所以 a=1（后自增执行了），b=<strong>5</strong>（没变化）。'},
+  {id:120,type:'single',kp:'&按位与',text:'表达式 6 & 4 的值是？',options:['2','4','6','10'],correct:'B',expl:'6 = 110，4 = 100。110 & 100 = 100 = <strong>4</strong>。按位与常用于清 0 或取某些位。'},
+  {id:121,type:'single',kp:'<<左移',text:'表达式 1 << 3 的值是？',options:['3','8','9','1'],correct:'B',expl:'<strong>1 << 3</strong> = 1 * 2^3 = <strong>8</strong>。左移 n 位等价于乘以 2^n（在不溢出的前提下）。'},
+  {id:122,type:'single',kp:'三目运算符',text:'表达式 5 > 3 ? 10 : 20 的值是？',options:['5','3','10','20'],correct:'C',expl:'5 > 3 为真，返回冒号前的值 <strong>10</strong>。三目运算符：条件 ? 真 : 假。'},
+  {id:123,type:'single',kp:'优先级',text:'表达式 2 + 3 * 4 的值是？',options:['20','14','24','9'],correct:'B',expl:'* 优先级高于 +，所以先算 3*4=12，再算 2+12=<strong>14</strong>。不确定就加括号！'},
+  {id:124,type:'single',kp:'优先级',text:'以下运算符优先级从高到低排列正确的是？',options:['+ > * > = > &&','* > + > && > =','= > && > + > *','&& > * > + > ='],correct:'B',expl:'正确顺序：<strong>算术 * / % > 算术 + - > 逻辑 && > 赋值 =</strong>。口诀：单算移关位逻条赋逗。'},
+];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let userAnswer = '';
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(x=>x.id===q.id)){
+    bank.push({
+      id:q.id, type:q.type, kp:q.kp, text:q.text,
+      options:q.options, correct:q.correct,
+      correctText:q.correctText || (q.options? q.options[q.correct.charCodeAt(0)-65] : q.correct.join('/')),
+      userAns:userAns,
+      wrongTime:new Date().toLocaleString()
+    });
+    saveWrongBank(bank);
+  }
+}
+
+function saveProgress(){
+  const progress = {
+    mode: currentMode,
+    qIndex: currentQIndex,
+    answers: answers,
+    questionIds: currentQuestions.map(q=>q.id),
+    timestamp: Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+function loadProgress(){
+  try{
+    const p = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+    if(p && p.timestamp && (Date.now() - p.timestamp < 7*24*60*60*1000)){
+      return p;
+    }
+  }catch(e){}
+  return null;
+}
+
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+
+function switchMode(mode, e){
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  (e||event).target.classList.add('active');
+  currentMode = mode;
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    renderWrongBank();
+  } else {
+    document.getElementById('reviewArea').style.display='none';
+    document.getElementById('quizArea').style.display='block';
+    startQuiz(mode);
+  }
+}
+
+function startQuiz(mode, resume=false){
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('quizArea').style.display='block';
+  document.getElementById('reviewArea').style.display='none';
+  answers = {};
+  userAnswer = '';
+  currentQIndex = 0;
+  currentMode = mode;
+
+  if(mode==='normal'){
+    currentQuestions = allQuestions.slice();
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      startQuiz('normal');
+      return;
+    }
+    currentQuestions = allQuestions.filter(q=>bank.find(b=>b.id===q.id)) || bank.map(b=>({
+      id:b.id,type:b.type,kp:b.kp,text:b.text,options:b.options,correct:b.correct,correctText:b.correctText,expl:''
+    }));
+    if(currentQuestions.length===0) currentQuestions = bank.map(b=>({
+      id:b.id,type:b.type,kp:b.kp,text:b.text,options:b.options,correct:b.correct,correctText:b.correctText,expl:'来自错题库的题目'
+    }));
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，不需要巩固！');
+      startQuiz('normal');
+      return;
+    }
+    const kps = [...new Set(bank.map(b=>b.kp))];
+    let pool = extraQuestions.filter(q=>kps.includes(q.kp));
+    if(pool.length===0) pool = extraQuestions.slice();
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  }
+
+  if(resume){
+    const p = loadProgress();
+    if(p && p.mode === mode){
+      answers = p.answers || {};
+      currentQIndex = p.qIndex || 0;
+    }
+  }
+
+  renderQuestion();
+  updateProgress();
+  saveProgress();
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function renderQuestion(){
+  const q = currentQuestions[currentQIndex];
+  const container = document.getElementById('quizContainer');
+  let typeLabel = q.type==='single'?'单选':q.type==='fill'?'填空':'判断';
+  let html = `<div class="question-card" data-idx="${currentQIndex}">
+    <div class="question-num">${typeLabel}题 · 第${currentQIndex+1}题<span class="question-tag">${q.kp}</span></div>
+    <div class="question-text">${q.text}</div>`;
+
+  const isAnswered = answers[currentQIndex] !== undefined;
+
+  if(q.type==='single' || q.type==='judge'){
+    const letters = ['A','B','C','D'];
+    html += '<div class="options">';
+    q.options.forEach((opt,i)=>{
+      const letter = letters[i];
+      let cls = 'option';
+      if(isAnswered){
+        if(letter === q.correct) cls += ' correct';
+        else if(letter === userAnswer) cls += ' wrong';
+        cls += '" style="pointer-events:none';
+      }
+      html += `<div class="${cls}" data-value="${letter}" onclick="selectOption(this,${currentQIndex})">
+        <span class="option-label">${letter}</span>${opt}</div>`;
+    });
+    html += '</div>';
+  }
+
+  if(isAnswered){
+    html += `<div class="explanation show" id="expl-${currentQIndex}">
+      <div class="explanation-title">${answers[currentQIndex] ? '✅ 正确！' : '❌ 错误！'}</div>${q.expl}</div>`;
+    html += `<div class="btn-group">
+' : '🏁 查看成绩'}</button>
+      </div>`;
+  } else {
+    html += `<div class="explanation" id="expl-${currentQIndex}">
+      <div class="explanation-title">✅ 解析</div>${q.expl}</div>`;
+    html += `<div class="btn-group">
+      <button class="btn btn-primary" onclick="submitAnswer(${currentQIndex})" id="submit-${currentQIndex}">提交答案</button>
+      </div>`;
+  }
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function selectOption(el, idx){
+  const card = document.querySelector(`[data-idx="${idx}"]`);
+  card.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  userAnswer = el.dataset.value;
+}
+
+function submitAnswer(idx){
+  const q = currentQuestions[idx];
+  if(!userAnswer && (q.type==='single' || q.type==='judge')){
+    alert('请先选择一个答案！');
+    return;
+  }
+
+  let isCorrect = false;
+  if(q.type==='single' || q.type==='judge'){
+    isCorrect = userAnswer === q.correct;
+  } else if(q.type==='fill'){
+    const card = document.querySelector(`[data-idx="${idx}"]`);
+    const inputs = card.querySelectorAll('.fill-blank');
+    const vals = [];
+    inputs.forEach(i=>vals.push(i.value.trim().toLowerCase()));
+    userAnswer = vals.join(' / ');
+    isCorrect = q.correct.every((c,i)=>vals[i]===c.toLowerCase() || (q.correctAlt && q.correctAlt[i] && q.correctAlt[i].some(a=>vals[i]===a.toLowerCase())));
+  }
+
+  answers[idx] = isCorrect;
+  if(!isCorrect) addToWrongBank(q, userAnswer || '未作答');
+  saveProgress();
+  renderQuestion();
+}
+
+function goNext(){
+  if(currentQIndex < currentQuestions.length - 1){
+    currentQIndex++;
+    userAnswer = '';
+    renderQuestion();
+    updateProgress();
+    saveProgress();
+  } else {
+    showResult();
+    clearProgress();
+  }
+  window.scrollTo(0,0);
+}
+
+function updateProgress(){
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = `第 ${currentQIndex+1} / ${total} 题`;
+}
+
+function showResult(){
+  let correct = 0;
+  for(let k in answers) if(answers[k]) correct++;
+  const total = currentQuestions.length;
+  const wrong = total - correct;
+  const pct = Math.round(correct/total*100);
+
+  document.getElementById('quizArea').style.display='none';
+  const r = document.getElementById('resultCard');
+  r.classList.add('show');
+  document.getElementById('score').textContent = pct+'分';
+  document.getElementById('score').style.color = pct>=80?'#27ae60':pct>=60?'#f39c12':'#e74c3c';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(pct===100) document.getElementById('message').textContent='🎉 满分！掌握得非常棒！';
+  else if(pct>=80) document.getElementById('message').textContent='👍 不错！错题已加入错题库。';
+  else if(pct>=60) document.getElementById('message').textContent='📚 继续加油！建议重做错题。';
+  else document.getElementById('message').textContent='💪 需要加强，建议巩固练习。';
+
+  if(wrong>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    const list = document.getElementById('wrongPreviewList');
+    list.innerHTML = '';
+    let count = 0;
+    for(let k in answers){
+      if(!answers[k] && count<5){
+        const q = currentQuestions[k];
+        list.innerHTML += `<div class="wrong-item"><div class="wq">第${parseInt(k)+1}题：${q.text.substring(0,40)}...</div></div>`;
+        count++;
+      }
+    }
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+}
+
+function renderWrongBank(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  const list = document.getElementById('wrongBankList');
+  if(bank.length===0){
+    list.innerHTML = '<div class="empty-state">✨ 错题库为空，继续保持！</div>';
+    return;
+  }
+  list.innerHTML = bank.map(q=>`
+    <div class="wrong-item">
+      <div class="wq">【${q.kp}】${q.text.replace(/<[^>]+>/g,'').substring(0,80)}...</div>
+      <div class="wa">你的答案：${q.userAns}</div>
+      <div class="wc">正确答案：${q.correctText || (q.options? q.options[q.correct.charCodeAt(0)-65] : q.correct)}</div>
+      <div style="font-size:11px;color:#999;margin-top:3px">${q.wrongTime}</div>
+    </div>`).join('');
+}
+
+function clearWrongBank(){
+  if(confirm('确定要清空错题库吗？此操作不可撤销。')){
+    localStorage.removeItem(QUIZ_KEY);
+    renderWrongBank();
+    renderKnowledgeReview();
+  }
+}
+
+const knowledgeMap = {
+  'int字节': {
+    title: 'int 类型的字节数与范围',
+    content: `<p><strong>int</strong> 在 32 位和 64 位系统中通常占 <strong>4 字节</strong>（32 位）。</p>
+    <p>• 范围：<strong>-2^31 ~ 2^31-1</strong>（约 -21 亿 ~ +21 亿）</p>
+    <p>• <code>char</code> 占 1 字节，<code>short</code> 占 2 字节，<code>long long</code> 占 8 字节</p>
+    <p><strong>📌 注意</strong>：指针大小随系统位数变化（32位系统4字节，64位系统8字节），但 int 一般都是 4 字节</p>`
+  },
+  'float精度': {
+    title: 'float 与 double 的精度',
+    content: `<p><strong>浮点数精度</strong>：</p>
+    <p>• <code>float</code>（单精度）占 4 字节，有效数字约 <strong>6~7 位</strong></p>
+    <p>• <code>double</code>（双精度）占 8 字节，有效数字约 <strong>15~17 位</strong></p>
+    <p><strong>⚠️ 易错</strong>：浮点数存在<strong>精度误差</strong>，不能精确表示所有小数（如 0.1）</p>
+    <p><strong>📌 建议</strong>：比较浮点数时用 <code>fabs(a-b) &lt; 1e-6</code> 而不是 <code>a == b</code></p>`
+  },
+  'sizeof': {
+    title: 'sizeof 运算符',
+    content: `<p><strong>sizeof()</strong> 是<strong>运算符</strong>（不是函数），返回数据类型或变量占用的<strong>字节数</strong>。</p>
+    <p>• <code>sizeof(int)</code> = 4</p>
+    <p>• <code>sizeof(char)</code> = 1（C 标准规定，永远 1 字节）</p>
+    <p>• <code>sizeof(short)</code> = 2</p>
+    <p>• <code>sizeof(long long)</code> = 8</p>
+    <p><strong>💡 用途</strong>：跨平台编程时获取类型大小，避免硬编码</p>`
+  },
+  'char存ASCII': {
+    title: 'char 与 ASCII 码',
+    content: `<p><strong>char</strong> 本质存储的是 <strong>ASCII 码值</strong>（整数），占 1 字节。</p>
+    <p>• <code>'A'</code> = 65，<code>'a'</code> = 97，<code>'0'</code> = 48</p>
+    <p>• 大小写差 32：<code>'A' + 32 = 'a'</code></p>
+    <p>• 数字字符连续：<code>'9' - '0' = 9</code>（字符转数字常用技巧）</p>
+    <p><strong>⚠️ 易错</strong>：char 参与运算时用的是 ASCII 码值，不是字符本身</p>
+    <p>例：<code>'D' - 'A'</code> = 68 - 65 = <strong>3</strong></p>`
+  },
+  'unsigned范围': {
+    title: 'unsigned 无符号类型',
+    content: `<p><strong>unsigned</strong> = 无符号位，所有位都用来表示数值，只能表示非负数。</p>
+    <p>• <code>unsigned int</code>：0 ~ 2^32-1（约 0 ~ 42 亿）</p>
+    <p>• <code>unsigned char</code>：0 ~ 255</p>
+    <p>• 对比 <code>int</code>：-2^31 ~ 2^31-1</p>
+    <p><strong>📌 记忆</strong>：n 位无符号范围 0 ~ 2^n-1；有符号范围 -2^(n-1) ~ 2^(n-1)-1</p>`
+  },
+  'const类型安全': {
+    title: 'const 与 #define 的区别',
+    content: `<p><strong>const</strong> 定义常量：</p>
+    <p>• <strong>有类型检查</strong>，类型安全</p>
+    <p>• 本质是只读变量，有内存地址</p>
+    <p>• 作用域遵循变量规则</p>
+    <p><strong>#define</strong> 宏常量：</p>
+    <p>• 预处理器<strong>文本替换</strong>，没有类型检查</p>
+    <p>• 不占内存，无地址</p>
+    <p>• 全局有效（除非 #undef）</p>
+    <p><strong>📌 建议</strong>：C++ 中推荐 const，C 中看场景选择</p>`
+  },
+  '强制转换': {
+    title: '强制类型转换',
+    content: `<p><strong>强制类型转换</strong>语法：<code>(类型)表达式</code></p>
+    <p>• <code>(int)3.14</code> = <strong>3</strong>（直接截断小数部分，不是四舍五入）</p>
+    <p>• <code>(int)-3.9</code> = <strong>-3</strong>（向零取整，不是向下取整）</p>
+    <p>• <code>(double)5 / 2</code> = 2.5（先转换再除）</p>
+    <p><strong>⚠️ 易错</strong>：浮点转整型是<strong>截断</strong>，不是四舍五入！</p>
+    <p><strong>📌 想四舍五入</strong>：用 <code>(int)(x + 0.5)</code>（仅正数）或 <code>round()</code> 函数</p>`
+  },
+  '未初始化变量': {
+    title: '未初始化变量的值',
+    content: `<p><strong>变量未初始化时的默认值</strong>：</p>
+    <p>• <strong>局部变量</strong>（auto）：值<strong>不确定（垃圾值）</strong>，必须手动初始化</p>
+    <p>• <strong>全局变量、静态变量</strong>（static）：默认初始化为 <strong>0</strong></p>
+    <p><strong>⚠️ 易错</strong>：局部变量不初始化就使用是常见 bug！</p>
+    <p><strong>📌 建议</strong>：定义变量时养成初始化的习惯：<code>int a = 0;</code></p>`
+  },
+  '整型提升': {
+    title: '整型提升（Integer Promotion）',
+    content: `<p><strong>整型提升</strong>：<code>char</code> 和 <code>short</code> 在表达式中运算时，会自动提升为 <strong>int</strong> 类型。</p>
+    <p>例：<code>char c = 'A'; sizeof(c + 0)</code> = <strong>4</strong>（int 的大小，不是 1）</p>
+    <p><strong>原因</strong>：CPU 处理 int 比 char/short 更高效</p>
+    <p><strong>📌 影响</strong>：</p>
+    <p>• 运算结果类型是 int，不是 char</p>
+    <p>• 不会溢出（小类型提升后空间更大）</p>
+    <p>• 赋值回 char 时会再次截断</p>`
+  },
+  'typedef': {
+    title: 'typedef 类型别名',
+    content: `<p><strong>typedef</strong> 作用：给<strong>已有类型起别名</strong>，不创造新类型。</p>
+    <p>语法：<code>typedef 原类型 别名;</code></p>
+    <p>例：</p>
+ <code>age_t a;</code> 等价于 <code>int a;</code></p>
+ uchar 等价于 unsigned char</p>
+    <p><strong>💡 用途</strong>：</p>
+    <p>• 提高代码可读性（如 <code>age_t</code> 比 <code>int</code> 更清晰）</p>
+    <p>• 跨平台兼容（如 <code>size_t</code>、<code>int32_t</code>）</p>
+    <p>• 简化复杂类型（如函数指针）</p>`
+  },
+  '整数除法': {
+    title: '整数除法与取模',
+    content: `<p><strong>整数除法</strong>：<strong>截断小数部分</strong>（向零取整）。</p>
+    <p>• <code>5 / 2</code> = <strong>2</strong>（不是 2.5）</p>
+    <p>• <code>7 / 2</code> = 3，<code>7 % 2</code> = 1（商和余数）</p>
+    <p>• <code>-7 / 2</code> = -3（向零取整）</p>
+    <p><strong>📌 得到小数结果</strong>：</p>
+    <p>• <code>5.0 / 2</code> = 2.5（一个操作数是浮点）</p>
+    <p>• <code>(double)5 / 2</code> = 2.5（强制转换）</p>
+    <p><strong>取模 %</strong>：只能用于整数，结果是余数</p>`
+  },
+  'a++返回值': {
+    title: 'a++ 与 ++a 的区别',
+    content: `<p><strong>自增运算符</strong>：</p>
+    <p>• <code>a++</code>（后自增）：<strong>先返回原值，再 +1</strong></p>
+ b = 5, a = 6</p>
+    <p>• <code>++a</code>（前自增）：<strong>先 +1，再返回新值</strong></p>
+ b = 6, a = 6</p>
+    <p><strong>⚠️ 易错</strong>：a++ 表达式的值是原值，不是新值！</p>
+    <p><strong>📌 记忆</strong>：++ 在前先加再用，++ 在后先用再加</p>`
+  },
+  '+=赋值': {
+    title: '复合赋值运算符',
+    content: `<p><strong>复合赋值运算符</strong>：等价于"变量 = 变量 运算 表达式"</p>
+    <p>• <code>a += 5</code> 等价于 <code>a = a + 5</code></p>
+    <p>• <code>a -= 3</code> 等价于 <code>a = a - 3</code></p>
+    <p>• <code>a *= 2</code> 等价于 <code>a = a * 2</code></p>
+    <p>• <code>a /= 2</code> 等价于 <code>a = a / 2</code></p>
+    <p>• <code>a %= 3</code> 等价于 <code>a = a % 3</code></p>
+ a = 10 % 3 = <strong>1</strong></p>
+    <p><strong>💡 优点</strong>：代码简洁，且左侧只计算一次（对复杂表达式更高效）</p>`
+  },
+  '==和=': {
+    title: '== 与 = 的区别',
+    content: `<p><strong>= </strong>（一个等号）：赋值运算符</p>
+    <p><strong>==</strong>（两个等号）：<strong>相等比较</strong>运算符</p>
+    <p><strong>⚠️ 经典 bug</strong>：</p>
+ 把 0 赋给 a，表达式值为 0（假），不是比较！</p>
+ 判断 a 是否等于 0</p>
+    <p><strong>📌 C 语言没有 ===</strong>（那是 JavaScript/TypeScript 的）</p>
+    <p><strong>💡 防错技巧</strong>：把常量写前面 <code>if(0 == a)</code>，写错成 <code>0 = a</code> 编译器会报错</p>`
+  },
+  '真假判断': {
+    title: 'C 语言的真与假',
+    content: `<p>C 语言中<strong>没有真正的 bool 类型</strong>（C99 才有 _Bool）：</p>
+    <p>• <strong>0 表示假</strong>（包括 0、0.0、'\0'、NULL）</p>
+    <p>• <strong>非零表示真</strong>（1、-1、2、3.14 等都是真）</p>
+    <p><strong>关系表达式</strong>：</p>
+    <p>• 成立返回 <strong>1</strong>，不成立返回 <strong>0</strong></p>
+    <p>• <code>(3 > 2)</code> = 1</p>
+    <p>• <code>(2 > 3)</code> = 0</p>
+    <p><strong>📌 注意</strong>：<code>if(x)</code> 等价于 <code>if(x != 0)</code>，<code>if(!x)</code> 等价于 <code>if(x == 0)</code></p>`
+  },
+  '&&短路': {
+    title: '逻辑与 && 的短路求值',
+    content: `<p><strong>短路求值</strong>规则：</p>
+    <p>• <code>&&</code>（逻辑与）：<strong>左边为假时，右边不计算</strong>（整个表达式必为假）</p>
+    <p>• <code>||</code>（逻辑或）：<strong>左边为真时，右边不计算</strong>（整个表达式必为真）</p>
+    <p><strong>例</strong>：<code>int a=0, b=5; a++ && b++;</code></p>
+ a++ 的值是 0（假），b++ 不执行</p>
+ 结果：a = 1（后自增执行了），b = 5（没变化）</p>
+    <p><strong>💡 实用场景</strong>：<code>p != NULL && p->val > 0</code>，先判空再使用，避免空指针</p>`
+  },
+  '&按位与': {
+    title: '& 按位与 与 && 逻辑与',
+    content: `<p><strong>&</strong>（单&）：<strong>按位与</strong>，对二进制位逐位运算</p>
+    <p>• 规则：相同位都为 1 才为 1</p>
+    <p>• <code>5 & 3</code> = 101 & 011 = <strong>001</strong> = 1</p>
+    <p>• <code>6 & 4</code> = 110 & 100 = <strong>100</strong> = 4</p>
+    <p><strong>&&</strong>（双&）：<strong>逻辑与</strong>，对真假值运算</p>
+    <p>• 规则：两边都为真才为真（有短路求值）</p>
+    <p>• <code>5 && 3</code> = 1（都是非零，都为真）</p>
+    <p><strong>📌 区别</strong>：& 是位运算，&& 是逻辑运算（结果只有 0 或 1）</p>
+    <p><strong>💡 用途</strong>：& 常用于清零某些位、取某些位</p>`
+  },
+  '<<左移': {
+    title: '左移与右移运算符',
+    content: `<p><strong>左移</strong> <code>&lt;&lt;</code>：高位丢弃，低位补 0</p>
+    <p>• <strong>左移 n 位 = 乘 2^n</strong>（不溢出的前提下）</p>
+ 1100）</p>
+    <p>• <code>1 &lt;&lt; 3</code> = 1 * 2^3 = <strong>8</strong></p>
+    <p><strong>右移</strong> <code>&gt;&gt;</code>：</p>
+    <p>• 无符号数：高位补 0（逻辑右移）</p>
+    <p>• 有符号数：高位补符号位（算术右移，大多数编译器）</p>
+    <p>• 右移 n 位 = 除 2^n（向下取整）</p>
+    <p><strong>💡 用途</strong>：位运算比乘除法快，常用于底层编程</p>`
+  },
+  '三目运算符': {
+    title: '三目运算符（条件运算符）',
+    content: `<p><strong>三目运算符</strong>是 C 语言中唯一的三目运算符：</p>
+    <p>语法：<code>条件 ? 表达式1 : 表达式2</code></p>
+ 返回<strong>表达式1</strong></p>
+ 返回<strong>表达式2</strong></p>
+    <p><strong>例</strong>：</p>
+    <p>• <code>5 > 3 ? 10 : 20</code> = <strong>10</strong>（条件为真）</p>
+ 求 a、b 的最大值</p>
+    <p><strong>📌 等价于</strong>：</p>
+    <p><code>if(条件) max = a; else max = b;</code></p>
+    <p><strong>💡 优点</strong>：简洁；可用于表达式内部</p>`
+  },
+  '优先级': {
+    title: '运算符优先级',
+    content: `<p><strong>运算符优先级</strong>（从高到低）：</p>
+    <p>1. <strong>()</strong> 括号（最高）</p>
+    <p>2. <strong>单目运算符</strong>（!、~、++、--、-(负号)、*(解引用)、&(取地址)、sizeof）</p>
+    <p>3. <strong>算术运算符</strong>：* / % 高于 + -</p>
+    <p>4. <strong>移位运算符</strong>：&lt;&lt; &gt;&gt;</p>
+    <p>5. <strong>关系运算符</strong>：&lt; &lt;= &gt; &gt;= 高于 == !=</p>
+    <p>6. <strong>位运算</strong>：& ^ |</p>
+    <p>7. <strong>逻辑运算</strong>：&& 高于 ||</p>
+    <p>8. <strong>条件运算符</strong>：?:</p>
+    <p>9. <strong>赋值运算符</strong>：= += -= 等</p>
+    <p>10. <strong>逗号</strong> ,（最低）</p>
+    <p><strong>📌 口诀</strong>：单算移关位逻条赋逗</p>
+    <p><strong>💡 建议</strong>：不确定优先级时<strong>加括号</strong>，提高可读性！</p>`
+  }
+};
+
+function switchReviewTab(tab, e){
+  document.querySelectorAll('.review-tab').forEach(t=>t.classList.remove('active'));
+  (e||event).target.classList.add('active');
+  if(tab==='list'){
+    document.getElementById('wrongBankList').style.display='block';
+    document.getElementById('knowledgeReview').style.display='none';
+  } else {
+    document.getElementById('wrongBankList').style.display='none';
+    document.getElementById('knowledgeReview').style.display='block';
+    renderKnowledgeReview();
+  }
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const container = document.getElementById('knowledgeReview');
+  if(bank.length===0){
+    container.innerHTML = '<div class="empty-state">✨ 错题库为空，没有需要复习的知识点！</div>';
+    return;
+  }
+
+  const kpCount = {};
+  bank.forEach(q=>{
+    const kp = q.kp || '其他';
+    if(!kpCount[kp]) kpCount[kp] = {count:0, questions:[]};
+    kpCount[kp].count++;
+    kpCount[kp].questions.push(q);
+  });
+
+  const sortedKps = Object.entries(kpCount).sort((a,b)=>b[1].count-a[1].count);
+
+  let html = '<div style="margin-bottom:10px;font-size:13px;color:#666">根据错题自动生成的知识点复习，按错误频率排序：</div>';
+  html += '<div style="margin-bottom:12px;padding:10px;background:#e3f2fd;border-radius:8px;font-size:13px;color:#1565c0"><strong>📊 错误分析</strong>：共 ' + bank.length + ' 道错题，涉及 ' + sortedKps.length + ' 个知识点，建议优先复习错误最多的知识点</div>';
+
+  sortedKps.forEach(([kp, data], idx)=>{
+    const info = knowledgeMap[kp];
+    if(info){
+      html += `<div class="kp-section">
+        <div class="kp-header">
+          <span class="kp-title">${idx+1}. ${info.title}</span>
+          <span class="kp-badge">错 ${data.count} 次</span>
+        </div>
+        <div class="kp-content">${info.content}</div>
+        <div class="kp-wrong-list">📝 相关错题：${data.questions.map(q=>q.text.replace(/<[^>]+>/g,'').substring(0,40)).join(' | ')}</div>
+      </div>`;
+    } else {
+      html += `<div class="kp-section">
+        <div class="kp-header">
+          <span class="kp-title">${idx+1}. ${kp}</span>
+          <span class="kp-badge">错 ${data.count} 次</span>
+        </div>
+        <div class="kp-content">该知识点的详细复习内容尚未收录，建议查阅教材相关章节。</div>
+        <div class="kp-wrong-list">📝 相关错题：${data.questions.map(q=>q.text.replace(/<[^>]+>/g,'').substring(0,40)).join(' | ')}</div>
+      </div>`;
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+function init(){
+  const progress = loadProgress();
+  if(progress){
+    if(confirm(`检测到未完成的答题进度（第${progress.qIndex+1}题），是否继续？`)){
+      startQuiz(progress.mode, true);
+      return;
+    }
+  }
+  startQuiz('normal');
+}
+
+init();
+</script>
+</body>
+</html>
