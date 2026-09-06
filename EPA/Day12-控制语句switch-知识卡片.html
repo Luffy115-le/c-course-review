@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day12 控制语句switch - 知识卡片</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
+.container{max-width:1200px;margin:0 auto}
+.header{text-align:center;color:white;margin-bottom:30px}
+.header h1{font-size:28px;margin-bottom:8px}
+.header p{opacity:.9;font-size:14px}
+.filter-bar{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{padding:8px 16px;border:none;border-radius:20px;background:rgba(255,255,255,.2);color:white;cursor:pointer;transition:.3s;font-size:13px}
+.filter-btn:hover,.filter-btn.active{background:white;color:#764ba2}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px}
+.card{background:white;border-radius:12px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:.3s;cursor:pointer;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.15)}
+.card.syntax{border-left:4px solid #e74c3c}
+.card.break{border-left:4px solid #3498db}
+.card.fall{border-left:4px solid #27ae60}
+.card.def{border-left:4px solid #f39c12}
+.card.vs{border-left:4px solid #9b59b6}
+.card.calc{border-left:4px solid #1abc9c}
+.card.grade{border-left:4px solid #e67e22}
+.card.days{border-left:4px solid #c0392b}
+.card.menu{border-left:4px solid #16a085}
+.card.error{border-left:4px solid #34495e}
+.card-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;color:white;margin-bottom:10px}
+.card.syntax .card-tag{background:#e74c3c}
+.card.break .card-tag{background:#3498db}
+.card.fall .card-tag{background:#27ae60}
+.card.def .card-tag{background:#f39c12}
+.card.vs .card-tag{background:#9b59b6}
+.card.calc .card-tag{background:#1abc9c}
+.card.grade .card-tag{background:#e67e22}
+.card.days .card-tag{background:#c0392b}
+.card.menu .card-tag{background:#16a085}
+.card.error .card-tag{background:#34495e}
+.card-key{font-size:18px;font-weight:bold;color:#2c3e50;margin-bottom:8px;font-family:'Consolas',monospace;background:#f8f9fa;padding:8px 12px;border-radius:6px;display:inline-block}
+.card-name{font-size:14px;color:#7f8c8d;margin-bottom:10px}
+.card-desc{font-size:13px;color:#34495e;line-height:1.6}
+.card-memo{font-size:12px;color:#e74c3c;margin-top:10px;padding-top:10px;border-top:1px dashed #eee;font-style:italic}
+.stats{position:fixed;bottom:20px;right:20px;background:white;padding:15px 20px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.2);font-size:13px}
+.stats .stat-item{display:flex;align-items:center;gap:8px;margin:5px 0}
+.stats .dot{width:10px;height:10px;border-radius:50%}
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🎴 Day12 控制语句 switch 知识卡片</h1>
+<p>switch 语法 · break穿透 · 经典案例 · 常见错误</p>
+</div>
+
+<div class="filter-bar">
+<button class="filter-btn active" onclick="filter('all')">全部</button>
+<button class="filter-btn" onclick="filter('syntax')">语法基础</button>
+<button class="filter-btn" onclick="filter('break')">break作用</button>
+<button class="filter-btn" onclick="filter('fall')">case穿透</button>
+<button class="filter-btn" onclick="filter('def')">default</button>
+<button class="filter-btn" onclick="filter('vs')">switch vs if</button>
+<button class="filter-btn" onclick="filter('calc')">计算器案例</button>
+<button class="filter-btn" onclick="filter('grade')">成绩等级</button>
+<button class="filter-btn" onclick="filter('days')">天数计算</button>
+<button class="filter-btn" onclick="filter('menu')">菜单系统</button>
+<button class="filter-btn" onclick="filter('error')">常见错误</button>
+</div>
+
+<div class="cards-grid" id="cards">
+
+<!-- 语法基础 -->
+<div class="card syntax" data-cat="syntax">
+<div class="card-tag">语法基础 · 必考</div>
+<div class="card-key">switch(表达式)</div>
+<div class="card-name">switch 基本结构</div>
+<div class="card-desc">switch(表达式){ case 常量: 语句; break; ... default: 语句; break; }。表达式只能是整型（int/char/short/long/enum），不能是 float/double/字符串。</div>
+<div class="card-memo">⚠️ 表达式类型只能是整型！包括 char（本质是ASCII码）</div>
+</div>
+
+<div class="card syntax" data-cat="syntax">
+<div class="card-tag">语法基础 · 必考</div>
+<div class="card-key">case 常量:</div>
+<div class="card-name">case 分支</div>
+<div class="card-desc">每个 case 后面必须是常量（字面量或 const 常量），不能是变量。同一个 switch 中不能有两个相同值的 case。</div>
+<div class="card-memo">💡 case 后必须是常量，不能是变量 n！</div>
+</div>
+
+<div class="card syntax" data-cat="syntax">
+<div class="card-tag">语法基础 · 必考</div>
+<div class="card-key">执行流程</div>
+<div class="card-name">switch 执行步骤</div>
+<div class="card-desc">① 计算switch表达式的值 ② 从上到下与各case常量比较 ③ 相等则从该case开始顺序执行 ④ 遇到break跳出整个switch ⑤ 都不匹配执行default</div>
+<div class="card-memo">💡 匹配到后从该case一直往后执行，直到遇到break或结束</div>
+</div>
+
+<!-- break作用 -->
+<div class="card break" data-cat="break">
+<div class="card-tag">break · 必考</div>
+<div class="card-key">break;</div>
+<div class="card-name">跳出 switch</div>
+<div class="card-desc">break 用于立即跳出整个 switch 结构。99% 的情况下每个 case 后面都要加 break。忘记写 break 是 switch 最常见最隐蔽的 bug。</div>
+<div class="card-memo">⚠️ 忘记 break 是最常见的错误！务必每个 case 都加</div>
+</div>
+
+<div class="card break" data-cat="break">
+<div class="card-tag">break · 重点</div>
+<div class="card-key">无break的后果</div>
+<div class="card-name">没有 break 会怎样</div>
+<div class="card-desc">没有 break 时，匹配到 case 2 后会继续执行 case 3、case 4... 一直到 switch 结束。这叫做 case 穿透（fall-through）。</div>
+ 输出"星期二 星期三 星期四 其他"</div>
+</div>
+
+<!-- case穿透 -->
+<div class="card fall" data-cat="fall">
+<div class="card-tag">case穿透 · 必考</div>
+<div class="card-key">多case共用</div>
+<div class="card-name">正确利用穿透</div>
+<div class="card-desc">多个值执行相同操作时，让多个case共用一组语句。如 case 1: case 3: case 5: days=31; break; 让1/3/5月都共用 days=31。</div>
+<div class="card-memo">✅ 这是穿透的正确用法，代码更简洁</div>
+</div>
+
+<div class="card fall" data-cat="fall">
+<div class="card-tag">case穿透 · 重点</div>
+<div class="card-key">fall through</div>
+<div class="card-name">穿透编程规范</div>
+<div class="card-desc">故意使用穿透时，建议加注释 // fall through 说明是故意的，让其他程序员知道你不是忘记写 break。这是行业良好实践。</div>
+<div class="card-memo">📌 case 1:\ncase 2:\n    // fall through\n    do_something();\n    break;</div>
+</div>
+
+<!-- default -->
+<div class="card def" data-cat="def">
+<div class="card-tag">default · 必考</div>
+<div class="card-key">default:</div>
+<div class="card-name">默认分支</div>
+<div class="card-desc">default 处理所有 case 都不匹配的情况，相当于 if-else 中的最后一个 else。可以省略，但建议大多数情况都写，让程序更健壮。</div>
+<div class="card-memo">💡 建议写 default 处理异常输入</div>
+</div>
+
+<div class="card def" data-cat="def">
+<div class="card-tag">default · 了解</div>
+<div class="card-key">default位置</div>
+<div class="card-name">default 的位置</div>
+<div class="card-desc">default 不一定要写在最后，可以写在 switch 内的任何位置。但不管写在哪里，都只会在所有 case 都不匹配时才执行。强烈建议写在最后。</div>
+<div class="card-memo">📌 可以写在任何位置，但惯例是写在最后</div>
+</div>
+
+<!-- switch vs if -->
+<div class="card vs" data-cat="vs">
+<div class="card-tag">switch vs if · 必考</div>
+<div class="card-key">什么时候用switch</div>
+<div class="card-name">switch 的适用场景</div>
+<div class="card-desc">适合：① 判断同一个变量 ② 变量值是离散的有限的整数（或字符）③ 每个分支逻辑相对独立。如：星期几、月份、成绩等级、菜单选项、计算器。</div>
+<div class="card-memo">💡 switch 只能判断"等于某个值"，不能判断范围</div>
+</div>
+
+<div class="card vs" data-cat="vs">
+<div class="card-tag">switch vs if · 必考</div>
+<div class="card-key">什么时候用if</div>
+<div class="card-name">if-else 的适用场景</div>
+<div class="card-desc">适合：① 涉及多个不同变量 ② 范围判断（如 a>10 && a<20）③ 浮点数判断 ④ 字符串判断。if-else 更灵活，能处理任意布尔表达式。</div>
+ 只能用 if</div>
+</div>
+
+<!-- 计算器案例 -->
+<div class="card calc" data-cat="calc">
+<div class="card-tag">计算器案例 · 重点</div>
+<div class="card-key">switch(op)</div>
+<div class="card-name">简单计算器实现</div>
+<div class="card-desc">用 switch 判断 char 类型的运算符。case '+': case '-': case '*': case '/':。char 可以用于 switch，因为本质是 ASCII 码（整型）。</div>
+<div class="card-memo">💡 case 后面可以是字符常量如 '+'</div>
+</div>
+
+<div class="card calc" data-cat="calc">
+<div class="card-tag">计算器案例 · 重点</div>
+<div class="card-key">case嵌套if</div>
+<div class="card-name">switch内嵌套if</div>
+<div class="card-desc">switch 内部可以嵌套 if。如做除法时：case '/': if(b==0) printf("除数不能为0"); else printf("%.2f",(float)a/b); break;</div>
+<div class="card-memo">💡 switch 和 if 可以互相嵌套，非常灵活</div>
+</div>
+
+<!-- 成绩等级 -->
+<div class="card grade" data-cat="grade">
+<div class="card-tag">成绩等级 · 必考</div>
+<div class="card-key">score/10</div>
+<div class="card-name">除以10的技巧</div>
+ A, case 8 → B...</div>
+<div class="card-memo">💡 整数除法技巧：把范围问题转化为离散值问题</div>
+</div>
+
+<div class="card grade" data-cat="grade">
+<div class="card-tag">成绩等级 · 重点</div>
+<div class="card-key">case 10: case 9:</div>
+<div class="card-name">多分支穿透示例</div>
+<div class="card-desc">成绩等级中，100分和90-99分都是A级。case 10: 没有 break，穿透到 case 9: 共用 printf("A"); break;。这是穿透的经典应用。</div>
+ 100分和90+都是A</div>
+</div>
+
+<!-- 天数计算 -->
+<div class="card days" data-cat="days">
+<div class="card-tag">天数计算 · 难点</div>
+<div class="card-key">全部无break</div>
+<div class="card-name">计算当年第几天</div>
+<div class="card-desc">从 case 12 往 case 1 倒序写，所有 case 都没有 break。month=3 时从 case 3 开始，累加 2 月(28) + 1 月(31) 的天数。巧妙利用穿透！</div>
+<div class="card-memo">💡 经典技巧：倒序写 + 全部无 break + 巧妙穿透累加</div>
+</div>
+
+<div class="card days" data-cat="days">
+<div class="card-tag">天数计算 · 重点</div>
+<div class="card-key">闰年+1天</div>
+<div class="card-name">考虑闰年的处理</div>
+<div class="card-desc">switch 计算完前几月天数后，再判断闰年：if(闰年 && month>2) sum++。注意只有当月份大于2时才需要加1天。</div>
+ 多加1天</div>
+</div>
+
+<!-- 菜单系统 -->
+<div class="card menu" data-cat="menu">
+<div class="card-tag">菜单系统 · 重点</div>
+<div class="card-key">switch(choice)</div>
+<div class="card-name">菜单选择实现</div>
+<div class="card-desc">菜单选项是 switch 最典型的应用。打印菜单后，用户输入选项，switch 根据 choice 执行对应功能。case 0 常作为退出选项。</div>
+<div class="card-memo">💡 菜单 + switch = 绝配，几乎所有管理系统都这么写</div>
+</div>
+
+<!-- 常见错误 -->
+<div class="card error" data-cat="error">
+<div class="card-tag">常见错误 · 必考</div>
+<div class="card-key">6大易错点</div>
+<div class="card-name">switch常见错误汇总</div>
+<div class="card-desc">① 忘记写break（穿透bug）② 用变量做case ③ 用浮点数/字符串做switch表达式 ④ 重复的case值 ⑤ switch后加分号 ⑥ case后是范围值（如 case 90-100:）</div>
+<div class="card-memo">⚠️ 这6个错误务必记住，考试最爱考！</div>
+</div>
+
+<div class="card error" data-cat="error">
+<div class="card-tag">常见错误 · 重点</div>
+<div class="card-key">switch(n);</div>
+<div class="card-name">switch后加分号</div>
+<div class="card-desc">switch(n); { case 1: ... } 分号让 switch 的语句体变成空语句，后面的 { } 是一个独立的代码块，与 switch 完全无关！和 if 后加分号是一样的坑。</div>
+<div class="card-memo">⚠️ 又一个分号陷阱！switch 后面绝对不能多写分号</div>
+</div>
+
+</div>
+
+<div class="stats">
+<div class="stat-item"><div class="dot" style="background:#e74c3c"></div>语法基础 3</div>
+<div class="stat-item"><div class="dot" style="background:#3498db"></div>break作用 2</div>
+<div class="stat-item"><div class="dot" style="background:#27ae60"></div>case穿透 2</div>
+<div class="stat-item"><div class="dot" style="background:#f39c12"></div>default 2</div>
+<div class="stat-item"><div class="dot" style="background:#9b59b6"></div>switch vs if 2</div>
+<div class="stat-item"><div class="dot" style="background:#1abc9c"></div>计算器 2</div>
+<div class="stat-item"><div class="dot" style="background:#e67e22"></div>成绩等级 2</div>
+<div class="stat-item"><div class="dot" style="background:#c0392b"></div>天数计算 2</div>
+<div class="stat-item"><div class="dot" style="background:#16a085"></div>菜单系统 1</div>
+<div class="stat-item"><div class="dot" style="background:#34495e"></div>常见错误 2</div>
+<div style="border-top:1px solid #eee;margin-top:8px;padding-top:8px;font-weight:bold">总计：20 张</div>
+</div>
+
+</div>
+
+<script>
+function filter(cat){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.card').forEach(c=>{
+        c.style.display = (cat==='all' || c.dataset.cat===cat) ? 'block' : 'none';
+    });
+}
+</script>
+</body>
+</html>
