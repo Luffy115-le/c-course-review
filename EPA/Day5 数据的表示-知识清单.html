@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="utf-8"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Day5 数据的表示</title>
+
+<script>
+
+MathJax = {
+
+  tex: {
+
+    inlineMath: [['$', '$'], ['\(', '\)']],
+
+    displayMath: [['$$', '$$'], ['\[', '\]']]
+
+  }
+
+};
+
+</script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+
+<style>
+
+/* === ExamPass Shared Styles === */
+
+/* Paper-like warm background, clean typography, responsive */
+
+
+
+:root {
+
+  --paper: #fdf6e3;
+
+  --paper-dark: #f5ecd7;
+
+  --ink: #2c2c2c;
+
+  --ink-light: #555;
+
+  --accent: #2563eb;
+
+  --accent-hover: #1d4ed8;
+
+  --divider: #d6c8a8;
+
+  --card-bg: #fef9ef;
+
+  --card-border: #e8dcc8;
+
+  --correct: #22c55e;
+
+  --correct-bg: #f0fdf4;
+
+  --wrong: #ef4444;
+
+  --wrong-bg: #fef2f2;
+
+  --tag-bg: #fef3c7;
+
+  --tag-text: #92400e;
+
+  --radius: 6px;
+
+}
+
+
+
+* { box-sizing: border-box; }
+
+
+
+body {
+
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+
+  background: var(--paper);
+
+}
+
+
+
+@media print {
+
+  body { font-size: 10.5pt; background: #fff; }
+
+  .no-print { display: none !important; }
+
+  h1, h2, h3 { page-break-after: avoid; }
+
+}
+
+
+
+/* ── Header ── */
+
+#exampass-header {
+
+  display: flex; justify-content: space-between; align-items: baseline;
+
+  padding: 6px 0; margin-bottom: 0;
+
+}
+
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+
+.header-url  { font-size: 0.78em; color: #999; }
+
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+
+
+/* ── Typography ── */
+
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+
+a { color: var(--accent); text-decoration: none; }
+
+a:hover { text-decoration: underline; }
+
+
+
+/* ── Tables ── */
+
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+
+th { background: var(--paper-dark); font-weight: 700; }
+
+
+
+/* ── Knowledge point vs explanation ── */
+
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+
+
+/* ── Block elements ── */
+
+blockquote {
+
+  border-left: 3px solid #c0392b; background: #fef9ef;
+
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+
+}
+
+/* Modern monospace stack — avoids the ugly Courier New fallback on Windows. */
+
+:root {
+
+  --mono: "Cascadia Code", "JetBrains Mono", "Fira Code", "Source Code Pro",
+
+          Consolas, "SF Mono", Menlo, "DejaVu Sans Mono", monospace;
+
+}
+
+code {
+
+  font-family: var(--mono);
+
+  background: #eee8d8; color: #8a4b1e;
+
+  padding: 1px 5px; border-radius: 4px; font-size: 0.9em;
+
+}
+
+pre {
+
+  font-family: var(--mono);
+
+  background: #2d2a26; color: #ece6da;
+
+  padding: 14px 16px; border-radius: var(--radius);
+
+  overflow-x: auto; line-height: 1.6; font-size: 0.9em;
+
+  border: 1px solid #3d3934; tab-size: 2;
+
+}
+
+pre code {
+
+  background: none; color: inherit; padding: 0; font-size: 1em; border-radius: 0;
+
+}
+
+/* kp/exp spans inside <pre> must inherit the light code color, not their own dark color */
+
+pre .kp, pre .exp { color: inherit; }
+
+
+
+/* ── Long display formulas: scroll inside their column, never overflow ── */
+
+mjx-container[display="true"] {
+
+  max-width: 100%;
+
+  overflow-x: auto;
+
+  overflow-y: hidden;
+
+}
+
+
+
+/* ── TOC ── */
+
+div.toc {
+
+  background: var(--card-bg); padding: 14px 18px;
+
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+
+}
+
+div.toc ul { padding-left: 18px; }
+
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+
+
+/* ── Priority tags ── */
+
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+
+/* ── Checkpoint self-test ── */
+
+.checkpoint {
+
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius);
+
+  padding: 10px 16px; margin: 18px 0;
+
+  font-size: 0.95em;
+
+}
+
+.checkpoint::before {
+
+  content: '🧠 自测：';
+
+  font-weight: 700; color: #1e40af;
+
+}
+
+.checkpoint .cp-answer { margin-top: 10px; border-top: 1px dashed #bfdbfe; padding-top: 8px; }
+
+.checkpoint .cp-answer summary {
+
+  cursor: pointer; color: #1e40af; font-weight: 600; user-select: none;
+
+  list-style: none;
+
+}
+
+.checkpoint .cp-answer summary::before { content: '💡 '; }
+
+.checkpoint .cp-answer summary::-webkit-details-marker { display: none; }
+
+.checkpoint .cp-answer[open] summary { margin-bottom: 6px; }
+
+.checkpoint .cp-answer ol, .checkpoint .cp-answer p { font-weight: 400; color: var(--ink); }
+
+
+
+/* ── TL;DR summary ── */
+
+.tldr {
+
+  background: #fefce8; border-left: 3px solid #eab308;
+
+  padding: 8px 14px; margin: 10px 0;
+
+  font-weight: 600; font-size: 0.95em;
+
+}
+
+
+
+/* ── Responsive ── */
+
+@media (max-width: 640px) {
+
+  body { max-width: 100%; padding: 12px 10px 40px; font-size: 11pt; }
+
+  h1 { font-size: 1.3em; }
+
+  h2 { font-size: 1.12em; }
+
+  table { font-size: 0.85em; }
+
+  td, th { padding: 4px 6px; }
+
+  pre { font-size: 0.85em; padding: 6px; }
+
+}
+
+@media (max-width: 400px) {
+
+  body { padding: 8px 6px 32px; font-size: 10.5pt; }
+
+}
+
+
+
+
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<header id="exampass-header">
+
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+
+</header>
+
+<hr class="header-divider">
+
+
+
+<h1>Day5 数据的表示</h1>
+
+<div class="toc">
+
+<h2>目录</h2>
+
+<ul>
+
+<li><a href="#s73112832">1. 进制基础：数码、基、位权</a></li>
+
+  <li><a href="#s45516866">1.1 三要素定义 </a></li>
+
+  <li><a href="#s46597290">1.2 四种常用进制对照 </a></li>
+
+<li><a href="#s89837827">2. 进制间转换</a></li>
+
+  <li><a href="#s14252883">2.1 十进制转其他（除基取余）</a></li>
+
+  <li><a href="#s34329526">2.2 二进制 ↔ 八/十六进制 </a></li>
+
+<li><a href="#s76882089">3. 计算机中数据的单位</a></li>
+
+  <li><a href="#s81974665">3.1 单位换算 </a></li>
+
+<li><a href="#s81073976">4. 原码、反码、补码</a></li>
+
+  <li><a href="#s66075341">4.1 三种编码规则 </a></li>
+
+  <li><a href="#s88858070">4.2 为什么用补码 </a></li>
+
+  <li><a href="#s42689549">4.3 -128 的特殊处理 </a></li>
+
+  <li><a href="#s38612520">4.4 负数补码转十进制 </a></li>
+
+</ul>
+
+</div>
+
+<div class="tldr"><strong>TL;DR：</strong>数据以二进制存于计算机；数码、基、位权三要素决定进制；计算机<strong>以补码存储</strong>负数；1B=8bit，1K=1024B。</div>
+
+
+
+<h2 id="s73112832">1. 进制基础：数码、基、位权</h2>
+
+<h3 id="s45516866">1.1 三要素定义 <span class="pg-chip" data-page="4-7">页4</span></h3>
+
+<p><span class="kp">数码 = 表示数的符号；基 = 数码个数；位权 = 数码所在位置对应的常数(以基为底、位置序号为指数的幂)</span>。<span class="exp">例 123：数码 1/2/3，基 10，位权 $10^2,10^1,10^0$，即 $1\times100+2\times10+3\times1$。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s46597290">1.2 四种常用进制对照 <span class="pg-chip" data-page="9-10">页9</span></h3>
+
+<p><span class="kp">十进制(基10, 0-9)、二进制(基2, 0-1)、八进制(基8, 0-7)、十六进制(基16, 0-9 A-F)</span>。<span class="exp">十六进制用 0x 前缀，八进制用 0 前缀。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h2 id="s89837827">2. 进制间转换</h2>
+
+<h3 id="s14252883">2.1 十进制转其他（除基取余）<span class="pg-chip" data-page="5-8">页5</span></h3>
+
+<p><span class="kp">方法：连续除以基，从低到高记录余数，直至商为 0</span>。<span class="exp">余数逆序排列即为结果。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s34329526">2.2 二进制 ↔ 八/十六进制 <span class="pg-chip" data-page="9-12">页9</span></h3>
+
+<p><span class="kp">二进制转八进制：每 3 位一组(不足左补 0)；二进制转十六进制：每 4 位一组</span>。<span class="exp">反向操作：每位八进制用 3 位二进制代替，每位十六进制用 4 位二进制代替。</span></p>
+
+<blockquote>易错：分组是「从右向左」每 3/4 位一组，不足在最<strong>左</strong>侧补 0，不是右侧。</blockquote>
+
+<span class="tag-must">必考</span>
+
+ (151)₈。</details></div>
+
+
+
+<h2 id="s76882089">3. 计算机中数据的单位</h2>
+
+<h3 id="s81974665">3.1 单位换算 <span class="pg-chip" data-page="2-3">页2</span></h3>
+
+<p><span class="kp">bit(位)是最小单位；1 Byte(字节) = 8 bit；1 K = 1024 B；1 M = 1024 K；1 G = 1024 M；1 T = 1024 G</span>。<span class="exp">内存以字节为单位编址，每个字节有地址，CPU 通过地址访问。</span></p>
+
+<blockquote>易错：1K = <strong>1024</strong>B = $2^{10}$B，不是 1000B；1M = $2^{20}$B；1G = $2^{30}$B。</blockquote>
+
+<span class="tag-must">必考</span>
+
+
+
+<h2 id="s81073976">4. 原码、反码、补码</h2>
+
+<h3 id="s66075341">4.1 三种编码规则 <span class="pg-chip" data-page="2-4">页2</span></h3>
+
+<p><span class="kp">原码：最高位符号位，其余为绝对值；反码：正数同原码，负数符号位不变其余取反；补码：正数同原码，负数反码+1</span>。<span class="exp">例 +2：原码 00000010，反码 00000010，补码 00000010；-2：原码 10000010，反码 11111101，补码 11111110。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s88858070">4.2 为什么用补码 <span class="pg-chip" data-page="5">页5</span></h3>
+
+<p><span class="kp">采用补码存储：两个绝对值相同的有符号整数相加，舍弃最高位进位后值为 0</span>。<span class="exp">补码把减法转化为加法，简化 CPU 运算电路；0 的表示唯一(没有 +0/-0 歧义)。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s42689549">4.3 -128 的特殊处理 <span class="pg-chip" data-page="8">页8</span></h3>
+
+<p><span class="kp">8 位下原码/反码只能表示 -127~127，-128 无法表示；人为定义 -128 的补码为 10000000</span>。<span class="exp">因此 8 位补码范围是 -128~127。</span></p>
+
+<span class="tag-freq">高频</span>
+
+
+
+<h3 id="s38612520">4.4 负数补码转十进制 <span class="pg-chip" data-page="6">页6</span></h3>
+
+ 取反 10000110 → 加1 10000111 = -7。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+
+
+</body>
+
+</html>
+
