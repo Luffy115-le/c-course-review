@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="utf-8"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Day6 数据类型</title>
+
+<script>
+
+MathJax = {
+
+  tex: {
+
+    inlineMath: [['$', '$'], ['\(', '\)']],
+
+    displayMath: [['$$', '$$'], ['\[', '\]']]
+
+  }
+
+};
+
+</script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+
+<style>
+
+/* === ExamPass Shared Styles === */
+
+/* Paper-like warm background, clean typography, responsive */
+
+
+
+:root {
+
+  --paper: #fdf6e3;
+
+  --paper-dark: #f5ecd7;
+
+  --ink: #2c2c2c;
+
+  --ink-light: #555;
+
+  --accent: #2563eb;
+
+  --accent-hover: #1d4ed8;
+
+  --divider: #d6c8a8;
+
+  --card-bg: #fef9ef;
+
+  --card-border: #e8dcc8;
+
+  --correct: #22c55e;
+
+  --correct-bg: #f0fdf4;
+
+  --wrong: #ef4444;
+
+  --wrong-bg: #fef2f2;
+
+  --tag-bg: #fef3c7;
+
+  --tag-text: #92400e;
+
+  --radius: 6px;
+
+}
+
+
+
+* { box-sizing: border-box; }
+
+
+
+body {
+
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+
+  background: var(--paper);
+
+}
+
+
+
+@media print {
+
+  body { font-size: 10.5pt; background: #fff; }
+
+  .no-print { display: none !important; }
+
+  h1, h2, h3 { page-break-after: avoid; }
+
+}
+
+
+
+/* ── Header ── */
+
+#exampass-header {
+
+  display: flex; justify-content: space-between; align-items: baseline;
+
+  padding: 6px 0; margin-bottom: 0;
+
+}
+
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+
+.header-url  { font-size: 0.78em; color: #999; }
+
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+
+
+/* ── Typography ── */
+
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+
+a { color: var(--accent); text-decoration: none; }
+
+a:hover { text-decoration: underline; }
+
+
+
+/* ── Tables ── */
+
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+
+th { background: var(--paper-dark); font-weight: 700; }
+
+
+
+/* ── Knowledge point vs explanation ── */
+
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+
+
+/* ── Block elements ── */
+
+blockquote {
+
+  border-left: 3px solid #c0392b; background: #fef9ef;
+
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+
+}
+
+/* Modern monospace stack — avoids the ugly Courier New fallback on Windows. */
+
+:root {
+
+  --mono: "Cascadia Code", "JetBrains Mono", "Fira Code", "Source Code Pro",
+
+          Consolas, "SF Mono", Menlo, "DejaVu Sans Mono", monospace;
+
+}
+
+code {
+
+  font-family: var(--mono);
+
+  background: #eee8d8; color: #8a4b1e;
+
+  padding: 1px 5px; border-radius: 4px; font-size: 0.9em;
+
+}
+
+pre {
+
+  font-family: var(--mono);
+
+  background: #2d2a26; color: #ece6da;
+
+  padding: 14px 16px; border-radius: var(--radius);
+
+  overflow-x: auto; line-height: 1.6; font-size: 0.9em;
+
+  border: 1px solid #3d3934; tab-size: 2;
+
+}
+
+pre code {
+
+  background: none; color: inherit; padding: 0; font-size: 1em; border-radius: 0;
+
+}
+
+/* kp/exp spans inside <pre> must inherit the light code color, not their own dark color */
+
+pre .kp, pre .exp { color: inherit; }
+
+
+
+/* ── Long display formulas: scroll inside their column, never overflow ── */
+
+mjx-container[display="true"] {
+
+  max-width: 100%;
+
+  overflow-x: auto;
+
+  overflow-y: hidden;
+
+}
+
+
+
+/* ── TOC ── */
+
+div.toc {
+
+  background: var(--card-bg); padding: 14px 18px;
+
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+
+}
+
+div.toc ul { padding-left: 18px; }
+
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+
+
+/* ── Priority tags ── */
+
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+
+/* ── Checkpoint self-test ── */
+
+.checkpoint {
+
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius);
+
+  padding: 10px 16px; margin: 18px 0;
+
+  font-size: 0.95em;
+
+}
+
+.checkpoint::before {
+
+  content: '🧠 自测：';
+
+  font-weight: 700; color: #1e40af;
+
+}
+
+.checkpoint .cp-answer { margin-top: 10px; border-top: 1px dashed #bfdbfe; padding-top: 8px; }
+
+.checkpoint .cp-answer summary {
+
+  cursor: pointer; color: #1e40af; font-weight: 600; user-select: none;
+
+  list-style: none;
+
+}
+
+.checkpoint .cp-answer summary::before { content: '💡 '; }
+
+.checkpoint .cp-answer summary::-webkit-details-marker { display: none; }
+
+.checkpoint .cp-answer[open] summary { margin-bottom: 6px; }
+
+.checkpoint .cp-answer ol, .checkpoint .cp-answer p { font-weight: 400; color: var(--ink); }
+
+
+
+/* ── TL;DR summary ── */
+
+.tldr {
+
+  background: #fefce8; border-left: 3px solid #eab308;
+
+  padding: 8px 14px; margin: 10px 0;
+
+  font-weight: 600; font-size: 0.95em;
+
+}
+
+
+
+/* ── Responsive ── */
+
+@media (max-width: 640px) {
+
+  body { max-width: 100%; padding: 12px 10px 40px; font-size: 11pt; }
+
+  h1 { font-size: 1.3em; }
+
+  h2 { font-size: 1.12em; }
+
+  table { font-size: 0.85em; }
+
+  td, th { padding: 4px 6px; }
+
+  pre { font-size: 0.85em; padding: 6px; }
+
+}
+
+@media (max-width: 400px) {
+
+  body { padding: 8px 6px 32px; font-size: 10.5pt; }
+
+}
+
+
+
+
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<header id="exampass-header">
+
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+
+</header>
+
+<hr class="header-divider">
+
+
+
+<h1>Day6 数据类型</h1>
+
+<div class="toc">
+
+<h2>目录</h2>
+
+<ul>
+
+<li><a href="#s68899338">1. 为什么引入数据类型</a></li>
+
+  <li><a href="#s35100279">1.1 数据类型的意义 </a></li>
+
+  <li><a href="#s44803607">1.2 数据类型分类 </a></li>
+
+<li><a href="#s25253356">2. 整型</a></li>
+
+  <li><a href="#s62138614">2.1 整型取值范围 </a></li>
+
+  <li><a href="#s11909367">2.2 sizeof 运算符 </a></li>
+
+<li><a href="#s13602242">3. 变量</a></li>
+
+  <li><a href="#s12065268">3.1 变量定义与命名规则 </a></li>
+
+<li><a href="#s22316357">4. 字符型 char</a></li>
+
+  <li><a href="#s32964534">4.1 ASCII 与字符存储 </a></li>
+
+  <li><a href="#s12736362">4.2 大小写与数字字符转换 </a></li>
+
+<li><a href="#s83006752">5. 浮点型</a></li>
+
+  <li><a href="#s27327023">5.1 float 与 double </a></li>
+
+  <li><a href="#s78069262">5.2 IEEE 754 存储格式 </a></li>
+
+  <li><a href="#s57425943">5.3 浮点数比较——绝对值法 </a></li>
+
+<li><a href="#s68091852">6. _Bool / bool / void</a></li>
+
+  <li><a href="#s13224057">6.1 布尔类型 </a></li>
+
+  <li><a href="#s52024680">6.2 void 类型 </a></li>
+
+<li><a href="#s55211033">7. 类型转换</a></li>
+
+  <li><a href="#s54591036">7.1 自动类型转换 </a></li>
+
+  <li><a href="#s10409161">7.2 强制类型转换 </a></li>
+
+</ul>
+
+</div>
+
+<div class="tldr"><strong>TL;DR：</strong>数据类型规定了数据的存储方式和取值范围；基本类型含整型/字符型/浮点型；浮点数<strong>不能精确表示</strong>，比较需用绝对值法；C99 新增 _Bool 与 bool。</div>
+
+
+
+<h2 id="s68899338">1. 为什么引入数据类型</h2>
+
+<h3 id="s35100279">1.1 数据类型的意义 <span class="pg-chip" data-page="2-4">页2</span></h3>
+
+<p><span class="kp">同样 0/1 二进制施加不同类型(int/unsigned int)会得到不同数值</span>。<span class="exp">例 0xEEAABAAA：int 解释为 -290800982，unsigned int 解释为 4004166314。类型让二进制数据有了现实意义。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s44803607">1.2 数据类型分类 <span class="pg-chip" data-page="6">页6</span></h3>
+
+<p><span class="kp">基本类型(整型/字符型/实型)、构造类型(数组/结构体/共用体/枚举)、指针类型、空类型 void</span>。</p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h2 id="s25253356">2. 整型</h2>
+
+<h3 id="s62138614">2.1 整型取值范围 <span class="pg-chip" data-page="3-5">页3</span></h3>
+
+<p><span class="kp">char(1B, -128~127) / short(2B) / int(4B, ±21亿) / long(4或8B) / long long(8B)</span>。<span class="exp">每种有 unsigned 版本(只表示非负数，范围翻倍)。范围定义在 limits.h：INT_MAX=2147483647，UINT_MAX=4294967295。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s11909367">2.2 sizeof 运算符 <span class="pg-chip" data-page="8-9">页8</span></h3>
+
+<p><span class="kp">sizeof 获取数据类型占用字节数：sizeof(变量) / sizeof 变量 / sizeof(类型)</span>。<span class="exp">注意 sizeof int 是错的(类型必须加括号)；sizeof 是关键字也是单目运算符。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h2 id="s13602242">3. 变量</h2>
+
+<h3 id="s12065268">3.1 变量定义与命名规则 <span class="pg-chip" data-page="6-9">页6</span></h3>
+
+<p><span class="kp">变量必须先定义后使用；命名只能含字母/数字/下划线，不能数字开头，不能是关键字，不能含空格</span>。<span class="exp">定义格式：类型 变量名 = 数值；例 int a = 20;。</span></p>
+
+<blockquote>易错：① int 1_num 错(数字开头)；② int while 错(关键字)；③ int name age 错(含空格)；④ 变量未初始化就参与运算有运行风险。</blockquote>
+
+<span class="tag-must">必考</span>
+
+
+
+<h2 id="s22316357">4. 字符型 char</h2>
+
+<h3 id="s32964534">4.1 ASCII 与字符存储 <span class="pg-chip" data-page="2-5">页2</span></h3>
+
+<p><span class="kp">字符以 ASCII 码二进制形式存储；'0'=48, 'A'=65, 'a'=97</span>。<span class="exp">char 占 1 字节，取值 -128~127；unsigned char 0~255。字符常量用单引号 'A'，也可用 ASCII 值赋值 char c = 66。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s12736362">4.2 大小写与数字字符转换 <span class="pg-chip" data-page="10-12">页10</span></h3>
+
+<p><span class="kp">大写转小写 +32；小写转大写 -32；数字字符与数字差 48</span>。<span class="exp">'A'+32='a'；'5' - 48 = 5；数字 5 + 48 = '5'。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h2 id="s83006752">5. 浮点型</h2>
+
+<h3 id="s27327023">5.1 float 与 double <span class="pg-chip" data-page="2-3">页2</span></h3>
+
+<p><span class="kp">float(4B, 6 位精度) / double(8B, 15-16 位精度) / long double(C99)</span>。<span class="exp">浮点数可指数形式表示如 8E-3 = 0.008。绝大多数浮点数不能精确表示。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s78069262">5.2 IEEE 754 存储格式 <span class="pg-chip" data-page="2-4">页2</span></h3>
+
+<p><span class="kp">$f = (-1)^S \times M \times 2^E$，float: 1位符号+8位阶码(偏移127)+23位尾数；double: 1+11(偏移1023)+52</span>。<span class="exp">尾数规格化为 1.xxx 并去掉整数 1。例 9.625 = $(-1)^0 \times 1.001101 \times 2^3$，存储为 0x411A0000。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s57425943">5.3 浮点数比较——绝对值法 <span class="pg-chip" data-page="2-7">页2</span></h3>
+
+<p><span class="kp">浮点数不可用 == 直接比较，应判断两数差的绝对值是否小于精度</span>。<span class="exp">例 $|a-b| &lt; 10^{-14}$ 则认为相等。用 fabs() 函数(需 #include &lt;math.h&gt;，链接 -lm)。</span></p>
+
+<blockquote>易错：1.0 - 0.9 ≠ 0.1！因存储精度损失，a-b = 0.0999...9778 而 0.1 = 0.10000...0555，两者不相等。float 2.2 ≠ double 2.2 但 float 2.25 == double 2.25(可精确表示)。</blockquote>
+
+<span class="tag-must">必考</span>
+
+<div class="checkpoint">为何 float f1 = 2.2; f1 == 2.2 为假，而 f3 = 2.25; f3 == 2.25 为真？<details class="cp-answer"><summary>参考答案</summary>2.2 不能精确表示，float 与 double 的近似值不同；2.25 可精确表示，两者相同。浮点常数默认 double，故 f1(double 化)与 2.2(double)不同。</details></div>
+
+
+
+<h2 id="s68091852">6. _Bool / bool / void</h2>
+
+<h3 id="s13224057">6.1 布尔类型 <span class="pg-chip" data-page="3-7">页3</span></h3>
+
+<p><span class="kp">C99 新增 _Bool(1B)，非零为真(1)、零为假(0)；stdbool.h 中 #define bool _Bool / true 1 / false 0</span>。<span class="exp">任何非零数值转 bool 都为 1。</span></p>
+
+<span class="tag-freq">高频</span>
+
+
+
+<h3 id="s52024680">6.2 void 类型 <span class="pg-chip" data-page="8-9">页8</span></h3>
+
+<p><span class="kp">void = 缺省类型/无类型，用于无返回值函数和通用指针 void*</span>。</p>
+
+<span class="tag-info">了解</span>
+
+
+
+<h2 id="s55211033">7. 类型转换</h2>
+
+<h3 id="s54591036">7.1 自动类型转换 <span class="pg-chip" data-page="2-6">页2</span></h3>
+
+<p><span class="kp">赋值时右值转为左值类型；二元运算按数据长度增加方向转换；所有浮点运算以 double 进行</span>。<span class="exp">int b = 3.14; 会丢弃小数变 3；char + int 时 char 提升为 int。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s10409161">7.2 强制类型转换 <span class="pg-chip" data-page="7-11">页7</span></h3>
+
+<p><span class="kp">语法：(type_name) expression</span>。<span class="exp">例 (int)(x+y) 把结果转 int 丢弃小数；(double)a / b 让除法按浮点进行——这是求精确商的关键。</span></p>
+
+<blockquote>易错：int a=100,b=3; double c = a/b; 得 33.00(整数除法)；必须 c = (double)a / b 才得 33.33。</blockquote>
+
+<span class="tag-must">必考</span>
+
+
+
+
+
+</body>
+
+</html>
+
