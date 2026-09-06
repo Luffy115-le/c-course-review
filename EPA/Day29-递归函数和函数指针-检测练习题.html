@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day29 递归函数和函数指针 - 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#4CAF50}
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+.difficulty-mid{background:#fff3e0;color:#e65100}
+.difficulty-hard{background:#ffebee;color:#c62828}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+.code-editor:focus{outline:none;border-color:#4CAF50}
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+.hint-box.show{display:block}
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+.test-result.show{display:block}
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+.answer-display.show{display:block}
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#4CAF50;color:white}
+.btn-primary:hover{background:#45a049}
+.btn-secondary{background:#2196F3;color:white}
+.btn-secondary:hover{background:#1976D2}
+.btn-warn{background:#ff9800;color:white}
+.btn-warn:hover{background:#f57c00}
+.btn-vscode{background:#007ACC;color:white}
+.btn-vscode:hover{background:#005A9E}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#4CAF50}
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.vscode-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#1565c0}
+.vscode-info code{background:#bbdefb;padding:2px 6px;border-radius:3px;font-family:Consolas,monospace}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day29 递归函数和函数指针 - 检测练习题</h1>
+<p>递归三要素(出口+递推+自调用) · fac递归过程(入栈出栈) · fib递归O(2^n)效率低 · 函数指针定义void(*p)(int) · 两种调用p()/(*p)() · 回调函数模式 · 函数指针类型必须匹配 · 函数指针数组int(*p[4])() · qsort四参数 · compar比较函数const void*+返回int</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 14 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list')">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge')">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day29';
+const DAY_NUM = 29;
+
+const allQuestions = [
+  {"id":1,"type":"single","kp":"递归三要素","text":"递归函数必须包含以下哪个要素？","options":["A. 全局变量","B. 循环结构","C. 递归出口（终止条件）","D. 静态变量"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：递归函数必须包含<strong>递归出口</strong>（即终止条件），否则会无限递归直到栈溢出<br>• 递归三要素：① 递归出口（终止条件）② 递推公式（向出口靠近）③ 自调用（函数调用自己）<br>• 例：<code>int fac(int n){ if(n==1) return 1; return n*fac(n-1); }</code>，<code>n==1</code> 是出口<br>• A、D：全局/静态变量与递归无必然关系；B：循环是迭代的写法，与递归是两种不同思路<br>📌 没有出口的递归 = 死循环 + 栈溢出崩溃！"},
+ 5 * fac(4)<br>　fac(4) → 4 * fac(3)<br>　fac(3) → 3 * fac(2)<br>　fac(2) → 2 * fac(1)<br>　fac(1) → 1（命中出口，开始回归）<br>　→ 2*1=2 → 3*2=6 → 4*6=24 → 5*24=120<br>📌 递归是\"<strong>延迟计算</strong>\"：一路把状态压栈，等遇到出口再逐层返回相乘！"},
+  {"id":3,"type":"single","kp":"fib递归O(2^n)","text":"斐波那契数列 int fib(int n) 的递推公式是？","options":["A. fib(n-1)+1","B. fib(n-1)+fib(n-2)","C. fib(n)+fib(n-1)","D. n+fib(n-1)"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>• <strong>B正确</strong>：斐波那契数列定义 F(n) = F(n-1) + F(n-2)<br>• 数列：1 1 2 3 5 8 13 21 34 ...<br>• 递归实现：<code>int fib(int n){ if(n==1||n==2) return 1; return fib(n-1)+fib(n-2); }</code><br>• 出口：n==1 或 n==2 时返回 1（前两项）<br>• A：那是累加不是斐波那契；C：自己调用自己没有递进，死循环；D：那是求和公式<br>📌 公式必须<strong>向出口靠近</strong>，n-1 和 n-2 都在变小，最终会到 1 或 2！"},
+  {"id":4,"type":"single","kp":"函数指针定义","text":"void (*p)(int) 定义的是什么？","options":["A. 函数指针，指向返回void参数int的函数","B. 返回void*的函数，参数是int","C. 返回void的函数，参数是指针","D. 普通void变量p"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>• <strong>A正确</strong>：<code>void (*p)(int)</code> 中括号让 <code>*</code> 跟 p 走，p 是<strong>函数指针</strong>，指向一个返回void、参数为int的函数<br>• 区分口诀：看 <code>*</code> 是修饰返回类型还是函数名！<br>　<code>类型 (*名)(参数)</code> = 函数指针（指向函数）<br>　<code>类型 *名(参数)</code> = 指针函数（返回指针）<br>• B：<code>void *p(int)</code> 才是返回 void* 的函数声明<br>• C：参数是 int 不是指针；D：明显错误<br>📌 函数指针让函数可以当\"变量\"传递，是回调/qsort 的基础！"},
+  {"id":5,"type":"single","kp":"函数指针两种调用","text":"对于函数指针 void (*p)(int) = print_hello; 以下哪种调用方式是正确的？","options":["A. 只能用 p(100)","B. 只能用 (*p)(100)","C. 必须用 **p(100)","D. p(100) 和 (*p)(100) 都可以"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>• <strong>D正确</strong>：函数指针有两种等价调用方式：<br>① <code>p(100)</code>：直接通过指针名调用（C语言把函数名/函数指针都当作函数地址）<br>② <code>(*p)(100)</code>：先解引用得到函数，再调用（更\"显式\"，强调 p 是指针）<br>• 两种写法效果完全相同，编译器都接受<br>• C：双解引用是错误的，函数名本身就是地址，*p 已经是函数，无需再 **<br>• A、B：两种写法都合法，不是二选一<br>📌 一般代码用 <code>p(100)</code> 简洁，教科书用 <code>(*p)(100)</code> 强调指针概念！"},
+ 调 add(10,20)=30；<code>fun_arith(10, 20, sub)</code> → 调 sub(10,20)=-10<br>• A：int* 写法是 <code>int *p</code>；B：二维数组参数完全不同；D：返回int*的函数是 <code>int *p(int,int)</code><br>📌 qsort 的第四个参数就是这种回调函数！"},
+  {"id":7,"type":"single","kp":"函数指针数组","text":"int (*p[4])(int,int) 定义的是什么？","options":["A. 一个返回int数组的函数","B. 函数指针数组，包含4个函数指针元素","C. 指向包含4个int的数组的指针","D. 4个int变量组成的数组"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>• <strong>B正确</strong>：<code>int (*p[4])(int,int)</code> 是<strong>函数指针数组</strong>，p 是一个数组，有4个元素，每个元素都是函数指针（指向返回int、参数两个int的函数）<br>• 优先级：<code>[]</code> 优先级高于 <code>*</code>，所以 p 先与 [4] 结合是\"数组\"，再与 <code>(*p[4])</code> 中的 * 结合是\"指针\"，最后加上 (int,int) 和返回类型 int 是\"函数指针\"<br>• 用途：把多个同类函数（add/sub/mul/div）存入数组，用下标调用：<code>p[0](3,4)</code>, <code>p[1](3,4)</code>...<br>• A：返回数组的函数不存在（C不允许返回数组）；C：那是 <code>int (*p)[4]</code>；D：那是 <code>int p[4]</code><br>📌 函数指针数组 = 函数指针版本\"跳转表\"，常用于命令分派/计算器！"},
+  {"id":8,"type":"single","kp":"qsort四参数","text":"C 标准库 qsort 的第四个参数是什么？","options":["A. 数组元素个数","B. 每个元素的字节数","C. 待排序的数组首地址","D. 比较函数指针"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>• <strong>D正确</strong>：qsort 函数原型：<code>void qsort(void *base, size_t n, size_t size, int (*compar)(const void*, const void*))</code><br>• 四个参数：<br>　① base：数组首地址（void* 通用指针）<br>　② n：元素个数<br>　③ size：每个元素的字节数（用 sizeof 得到）<br>　④ compar：比较函数指针（回调，决定排序规则）<br>• A、B、C 是前三个参数，D 才是第四个<br>• 例：<code>qsort(a, 6, sizeof(int), compar);</code><br>📌 qsort 是泛型排序，靠 compar 实现\"任意类型\"比较，所以参数是 void*！"},
+  {"id":9,"type":"single","kp":"compar比较函数","text":"qsort 的比较函数 compar 的两个参数类型必须是？","options":["A. int","B. char*","C. const void *","D. double*"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：compar 函数原型 <code>int compar(const void *p1, const void *p2)</code>，两个参数必须是 <code>const void *</code><br>• 为什么是 void*？因为 qsort 是<strong>泛型</strong>排序，不知道元素类型，用 void* 接收任意类型地址<br>• const：qsort 内部不会修改元素，加 const 保护数据，比较函数也不应修改元素<br>• 在函数内部转换回真实类型：<code>return *(int*)p1 - *(int*)p2;</code>（先转int*再解引用）<br>• A、B、D：类型不匹配，qsort 不会编译通过<br>📌 模板：<code>int compar(const void *p1, const void *p2){ ... }</code>，返回值必须是 int！"},
+ 0）导致排序错误。用 <code>*(double*)p1 - *(double*)p2 > 0 ? 1 : -1</code> 转成 1/-1<br>• 完整写法（更严谨）：<code>double d = *(double*)p1 - *(double*)p2; if(d>0) return 1; else if(d<0) return -1; else return 0;</code><br>• B：直接 (int) 转换会丢精度，1.5-1.2=0.3 → 0，判断失误<br>• C：把 double 当 int 取值，类型完全错<br>• D：两个 void* 不能相减，编译报错；且指针差不反映元素大小关系<br>📌 浮点比较<strong>必须显式 &gt;0/&lt;0</strong>，不能依赖隐式转 int！"},
+  {"id":11,"type":"judge","kp":"fib递归O(2^n)","text":"递归求斐波那契数列 fib(n) 的时间复杂度是 O(n)。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误！递归求斐波那契的时间复杂度是 <strong>O(2^n)</strong>，不是 O(n)。<br>• 因为每次调用 fib(n) 会产生 fib(n-1) 和 fib(n-2) 两次递归调用，呈<strong>二叉树式</strong>展开<br>• 树的节点总数约为 2^n，大量重复计算：fib(5) 会算 fib(3) 两次，fib(2) 重复 5 次<br>• 例：fib(40) 递归耗时明显（上亿次调用），而迭代只需 40 次循环<br>✅ 优化方案：① 改用<strong>迭代</strong>（O(n)）② <strong>记忆化</strong>（用数组缓存已算结果，避免重复）<br>📌 教科书用 fib 教递归思路，但工程上效率低，要会改成迭代！"},
+  {"id":12,"type":"judge","kp":"函数指针定义","text":"void (*p)(int) 和 void *p(int) 是同一个意思。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误！两者<strong>完全不同</strong>：<br>• <code>void (*p)(int)</code>：括号让 * 跟 p，p 是<strong>函数指针</strong>，指向返回void、参数int的函数<br>• <code>void *p(int)</code>：() 优先级高于 *，p 是<strong>函数</strong>，参数int，返回 void*（指针函数）<br>🔴 区分口诀：看 * 是修饰函数名还是修饰返回类型！<br>• <code>类型 (*名)(参数)</code> = 函数指针（指向函数的变量）<br>• <code>类型 *名(参数)</code> = 指针函数（返回指针的函数）<br>📌 一个括号位置改变，整个含义完全不同，必须熟记！"},
+  {"id":13,"type":"judge","kp":"compar比较函数","text":"qsort 排序整型数组时，比较函数可以直接写成 return *(int*)p1-*(int*)p2;","options":["A. 正确","B. 错误"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>正确！<br>• int 类型相减结果仍是 int，正好符合 qsort 的返回值要求（&gt;0 升序，&lt;0 降序，0 相等）<br>• <code>*(int*)p1 - *(int*)p2</code> 完整含义：把 void* 强转 int*，再解引用得到 int 值，两者相减<br>• 返回值规则：返回 &gt;0 时 qsort 认为 p1 &gt; p2，会把 p1 排到后面（升序）；返回 &lt;0 时 p1 排到前面<br>• 想要<strong>降序</strong>反过来写：<code>return *(int*)p2 - *(int*)p1;</code><br>📌 但注意：int 相减有溢出风险（如 INT_MAX - (-1)），生产代码常用 <code>(a&gt;b)-(a&lt;b)</code> 写法；教学场景用减法足够！"},
+  {"id":14,"type":"judge","kp":"函数指针类型必须匹配","text":"int (*p)(int,int) 可以指向 double f(double,double) 类型的函数。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误！<br>• 函数指针类型必须与所指函数<strong>完全匹配</strong>（返回类型 + 参数个数 + 参数类型）<br>• <code>int (*p)(int,int)</code> 只能指向返回 int、参数为 (int,int) 的函数<br>• 要指向 <code>double f(double,double)</code>，必须声明 <code>double (*p)(double,double) = f;</code><br>• 强行赋值不同类型：<code>p = (int(*)(int,int))f;</code> 强转能编译，但调用时栈布局、返回值传递方式不同，会得到垃圾数据甚至崩溃 🔴<br>📌 函数指针类型严格匹配，不能\"万能指针\"（不像 void* 可以接任意数据指针）！"}
+];
+
+const codingQuestions = [
+  {"id":101,"type":"coding","kp":"递归三要素","difficulty":"入门","title":"递归求阶乘","desc":"实现 int fac(int n) 递归计算 n 的阶乘。\n在 main 中调用 fac(5) 并打印结果，输出格式：5!=120\n\n提示：递归出口 if(n==1) return 1; 递推 return n*fac(n-1);","hint":"递归三要素：\n① 递归出口：if(n==1) return 1; （终止条件）\n② 递推公式：n * fac(n-1)（向出口靠近）\n③ 自调用：函数内调用自己 fac(n-1)\n\nmain: printf(\"%d!=%d\\n\", 5, fac(5));","answer":"#include <stdio.h>\n\nint fac(int n) {\n    if (n == 1) return 1;\n    return n * fac(n - 1);\n}\n\nint main() {\n    printf(\"%d!=%d\\n\", 5, fac(5));\n    return 0;\n}","test_input":"","expected_output":"5!=120"},
+  {"id":102,"type":"coding","kp":"函数指针两种调用","difficulty":"入门","title":"函数指针基础","desc":"定义函数 void print_hello(int a)，打印 \"hello world [a的值]\"。\n在 main 中声明函数指针 void (*p)(int); 让 p 指向 print_hello，分别用 p(100) 和 (*p)(100) 两种方式调用。\n输出两行：hello world 100","hint":"关键三步：\n① void print_hello(int a) { printf(\"hello world %d\\n\", a); }\n② void (*p)(int); 声明函数指针\n③ p = print_hello; 让指针指向函数（函数名就是地址）\n④ p(100); 和 (*p)(100); 两种等价调用方式\n\n两种调用效果完全相同：C语言中函数名和函数指针都当作函数地址处理！","answer":"#include <stdio.h>\n\nvoid print_hello(int a) {\n    printf(\"hello world %d\\n\", a);\n}\n\nint main() {\n    void (*p)(int);\n    p = print_hello;\n    p(100);\n    (*p)(100);\n    return 0;\n}","test_input":"","expected_output":"hello world 100\nhello world 100"},
+  {"id":103,"type":"coding","kp":"qsort四参数","difficulty":"中等","title":"qsort排序整数数组","desc":"用 C 标准库 qsort 对 int 数组 {56, 23, 1, 6, 9, 25} 升序排序并打印结果。\n要求：自己实现 compar 比较函数，参数类型为 const void*。\n输出：1 6 9 23 25 56（用空格分隔）\n\n提示：qsort(a, n, sizeof(int), compar); compar 中 return *(int*)p1 - *(int*)p2;","hint":"实现四步：\n① #include <stdlib.h> 引入 qsort\n② int compar(const void *p1, const void *p2) { return *(int*)p1 - *(int*)p2; }\n　（void*强转int*再解引用，相减结果&gt;0时p1排后面即升序）\n③ qsort(a, 6, sizeof(int), compar); 调用排序\n④ for循环打印排序后的数组\n\n注意：qsort 四参数 = base, n, size, compar","answer":"#include <stdio.h>\n#include <stdlib.h>\n\nint compar(const void *p1, const void *p2) {\n    return *(int*)p1 - *(int*)p2;\n}\n\nint main() {\n    int a[] = {56, 23, 1, 6, 9, 25};\n    int n = 6;\n    qsort(a, n, sizeof(int), compar);\n    for (int i = 0; i < n; i++) {\n        printf(\"%d \", a[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}","test_input":"","expected_output":"1 6 9 23 25 56 "}
+];
+
+const kpMap = {
+  "递归三要素":{"title":"递归三要素（出口+递推+自调用）","content":"<strong>递归</strong> = 函数直接或间接调用自己。一个正确的递归必须包含三要素：<br>① <strong>递归出口</strong>（终止条件）：明确的停止条件，否则会无限递归导致<strong>栈溢出</strong>崩溃<br>② <strong>递推公式</strong>：每次调用必须向出口靠近（参数越来越接近终止值）<br>③ <strong>自调用</strong>：函数体内调用自己（直接或间接）<br>例：<code>int fac(int n) { if(n==1) return 1; return n*fac(n-1); }</code><br>• <code>n==1</code> 是出口；<code>n*fac(n-1)</code> 是递推；<code>fac(n-1)</code> 是自调用<br>🔴 没有出口 = 死循环 + 栈溢出！递归必须有让问题变小的方向！"},
+ 计算 5*fac(4) 但 fac(4) 未知 → 压栈<br>　fac(4) → 4*fac(3) → 压栈<br>　fac(3) → 3*fac(2) → 压栈<br>　fac(2) → 2*fac(1) → 压栈<br>　fac(1) → 命中出口返回 1<br><strong>出栈阶段（归）</strong>：从出口逐层返回计算<br>　fac(2) = 2*1 = 2<br>　fac(3) = 3*2 = 6<br>　fac(4) = 4*6 = 24<br>　fac(5) = 5*24 = 120<br>📌 递归是\"<strong>延迟计算</strong>\"：先一路压栈，遇到出口才逐层返回真正计算！每层占一个栈帧，深度大时消耗栈内存。"},
+  "fib递归O(2^n)":{"title":"fib 递归 O(2^n) 效率低","content":"斐波那契数列：F(n) = F(n-1) + F(n-2)，前两项为 1<br>递归实现：<code>int fib(int n){ if(n==1||n==2) return 1; return fib(n-1)+fib(n-2); }</code><br>🔴 时间复杂度 <strong>O(2^n)</strong>，指数级爆炸！<br>原因：每次调用分裂为两次子调用，呈<strong>二叉树式</strong>展开，节点数约 2^n；大量重复计算（如 fib(3) 在算 fib(5) 时被计算多次）<br>• fib(40) 递归需要上亿次调用，明显卡顿；而迭代仅需 40 次循环<br>✅ 优化方案：<br>① <strong>迭代</strong>：用三个变量滚动，O(n) 时间 O(1) 空间<br>② <strong>记忆化递归</strong>：用数组缓存已算结果，避免重复<br>③ <strong>矩阵快速幂</strong>：O(log n) 最优解<br>📌 教学用递归 fib 体会思路，工程上务必改迭代！"},
+  "函数指针定义":{"title":"函数指针定义 void(*p)(int)","content":"<strong>函数指针</strong> = 指向函数的指针变量，让函数能像数据一样被传递和调用。<br>声明格式：<code>返回类型 (*指针名)(参数列表)</code><br>例：<code>void (*p)(int);</code> 声明 p，指向返回void、参数int的函数<br>• 括号必须有：<code>(*p)</code> 让 * 跟 p 走（否则 p 会变成返回指针的函数）<br>• 赋值：<code>p = print_hello;</code>（函数名就是函数地址，可加 & 也可省略）<br>• 调用：<code>p(100);</code> 或 <code>(*p)(100);</code> 都可<br>🔴 与<strong>指针函数</strong>区分：<br>• <code>void (*p)(int)</code> = 函数指针（指向函数的变量）<br>• <code>void *p(int)</code> = 指针函数（返回指针的函数声明）<br>📌 一个括号位置不同，含义天差地别！"},
+  "函数指针两种调用":{"title":"函数指针两种调用 p()/(*p)()","content":"函数指针有两种<strong>等价</strong>调用方式：<br>① <code>p(100)</code>：直接通过指针名调用<br>② <code>(*p)(100)</code>：先解引用得到函数，再调用<br>• 两者效果完全相同，C 标准都接受<br>• 原理：函数名和函数指针在编译器看来都是函数地址，调用时直接跳到地址执行<br>• 一般工程代码用 <code>p(100)</code> 简洁；教科书用 <code>(*p)(100)</code> 显式强调 p 是指针<br>🔴 注意：不能写 <code>**p(100)</code> 或 <code>p[0](100)</code>（后者只对函数指针数组有效）<br>📌 函数指针让\"函数当变量用\"：可以存数组、传参、回调，是 qsort/回调机制的基础！"},
+ 30；<code>fun_arith(10, 20, sub)</code> → -10<br>• 让一个通用框架能执行不同行为，类似\"策略模式\"<br>• qsort 第四个参数就是回调：<code>int (*compar)(const void*, const void*)</code>，传入不同比较函数实现升降序<br>✅ 优点：解耦算法与具体操作，提高复用性<br>📌 回调是 C 语言实现\"多态\"的核心机制，Linux 内核、GUI 框架大量使用！"},
+  "函数指针类型必须匹配":{"title":"函数指针类型必须匹配","content":"函数指针所指函数的<strong>返回类型</strong>、<strong>参数个数</strong>、<strong>参数类型</strong>必须<strong>完全一致</strong>。<br>• <code>int (*p)(int,int)</code> 只能指向 <code>int f(int,int)</code> 类型函数<br>• 不能指向 <code>double f(double,double)</code>，类型不匹配<br>• 强转赋值 <code>p = (int(*)(int,int))f;</code> 能编译，但调用时参数传递/返回值布局错位，结果不可预测 🔴<br>• 不同函数指针之间也不能互相赋值（除非共用 void(*)() 通用形式，但旧式不推荐）<br>📌 与 void* 数据指针不同，函数指针没有真正的\"万能指针\"，类型必须严格匹配！<br>• 生产代码用 typedef 简化：<code>typedef int (*FuncPtr)(int,int); FuncPtr p = add;</code>"},
+  "函数指针数组":{"title":"函数指针数组 int(*p[4])()","content":"<strong>函数指针数组</strong> = 数组，每个元素都是函数指针。<br>声明：<code>int (*p[4])(int,int);</code><br>• p 是数组，4 个元素，每个都是 <code>int (*)(int,int)</code> 类型的函数指针<br>• 优先级解析：<code>[]</code> &gt; <code>*</code>，所以 p 先和 [4] 结合是\"数组\"，再整体看是\"函数指针的数组\"<br>用途：把多个同类函数存入数组，用<strong>下标</strong>调用（实现跳转表）<br><code>p[0] = add; p[1] = sub; p[2] = mul; p[3] = div;</code><br><code>p[i](a, b);</code> 根据下标执行不同运算<br>• 经典应用：简易计算器（输入运算符编号直接调用对应函数）、命令分派表<br>📌 比一堆 if/else 或 switch 更简洁高效，是 C 实现\"多态分派\"的常用手段！"},
+  "qsort四参数":{"title":"qsort 四参数","content":"C 标准库快速排序函数原型：<br><code>void qsort(void *base, size_t n, size_t size, int (*compar)(const void*, const void*));</code><br>四参数：<br>① <strong>base</strong>：数组首地址（void* 通用指针）<br>② <strong>n</strong>：元素个数<br>③ <strong>size</strong>：每个元素字节数（用 sizeof 得到）<br>④ <strong>compar</strong>：比较函数指针（回调，决定排序规则）<br>调用例：<code>qsort(a, 6, sizeof(int), compar);</code><br>• qsort 是<strong>泛型排序</strong>：靠 void* 和 size 适配任意类型，靠 compar 实现任意比较规则<br>• 排序结果在原数组上<strong>原地修改</strong>，无返回值<br>📌 头文件 <code>&lt;stdlib.h&gt;</code>，时间复杂度 O(n log n)，是工程上最常用的排序！"},
+  "compar比较函数":{"title":"compar 比较函数 const void* + 返回 int","content":"qsort 的比较函数原型：<code>int compar(const void *p1, const void *p2)</code><br>• 参数必须是 <code>const void *</code>：void* 接收任意类型地址，const 防止修改元素<br>• 返回值必须是 int，符号决定排序：<br>　返回 &gt;0：表示 p1 指向元素 \"大于\" p2，p1 排后面（升序）<br>　返回 &lt;0：p1 排前面（升序）<br>　返回 0：相等，相对位置不变<br><strong>int 数组</strong>：<code>return *(int*)p1 - *(int*)p2;</code>（升序）<br><strong>double 数组</strong>：<code>double d = *(double*)p1 - *(double*)p2; return d&gt;0?1:(d&lt;0?-1:0);</code>（不能用减法转 int，会丢精度）<br><strong>降序</strong>：交换 p1/p2 位置即可<br>📌 compar 是 qsort 泛型的核心，写好 compar 就能排任意类型！"}
+};
+
+const extraQuestions = [];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(function(x){return x.id===q.id})){
+    bank.push({
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+      options:q.options,correct:q.correct,correctText:q.correctText,
+      expl:q.expl,userAns:userAns,time:Date.now()
+    });
+    saveWrongBank(bank);
+  }
+}
+function saveProgress(){
+  if(currentMode==='review') return;
+  const prog = {
+    mode:currentMode, index:currentQIndex, answers:answers,
+    ids:currentQuestions.map(function(q){return q.id}), time:Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+}
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+}
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+function shuffle(arr){
+  const a=[];
+  for(let i=0;i<arr.length;i++) a.push(arr[i]);
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+function openInVSCode(q) {
+  const code = q.answer || q.hint || '// 请在此编写代码';
+  const blob = new Blob([code], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Day'+DAY_NUM+'_'+q.id+'.c';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  const info = document.createElement('div');
+  info.className = 'vscode-info';
+ Open File → 选择下载的 '+a.download+'</code><br>或按快捷键 <code>Ctrl+O</code>';
+  const container = document.getElementById('quizContainer');
+  const oldInfo = container.querySelector('.vscode-info');
+  if (oldInfo) oldInfo.remove();
+  container.querySelector('.question-card').appendChild(info);
+}
+
+function startQuiz(mode){
+  clearProgress();
+  currentMode = mode;
+  currentQIndex = 0;
+  answers = {};
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('reviewArea').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+  if(mode==='coding'){
+    currentQuestions = [];
+    for(let i=0;i<codingQuestions.length;i++) currentQuestions.push(codingQuestions[i]);
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      switchMode('normal');
+      return;
+    }
+    currentQuestions = bank.map(function(w){return Object.assign({},w,{isWrongRedo:true})});
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，先去做题吧！');
+      switchMode('normal');
+      return;
+    }
+    const weakKps = [];
+    const seen={};
+    for(let i=0;i<bank.length;i++){if(!seen[bank[i].kp]){weakKps.push(bank[i].kp);seen[bank[i].kp]=true;}}
+    let pool = allQuestions.filter(function(q){return weakKps.indexOf(q.kp)>=0 && !bank.find(function(w){return w.id===q.id})});
+    if(pool.length<5) pool = allQuestions.filter(function(q){return !bank.find(function(w){return w.id===q.id})});
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  } else {
+    currentQuestions = [];
+    for(let i=0;i<allQuestions.length;i++) currentQuestions.push(allQuestions[i]);
+  }
+
+  if(currentQuestions.length===0){
+    alert('没有题目！');
+    return;
+  }
+  renderQuestion();
+}
+
+function switchMode(mode){
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+    currentMode='review';
+    renderReview();
+    return;
+  }
+  startQuiz(mode);
+}
+
+function renderQuestion(){
+  saveProgress();
+  const q = currentQuestions[currentQIndex];
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = '第 '+(currentQIndex+1)+' / '+total+' 题';
+
+  let html = '<div class="question-card">';
+  html += '<span class="question-num">第 '+(currentQIndex+1)+' 题</span>';
+  html += '<span class="question-tag">'+q.kp+'</span>';
+  if(q.type==='coding'){
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+    html += '<span class="difficulty-tag '+(diffMap[q.difficulty]||'')+'">'+q.difficulty+'</span>';
+  }
+  if(q.type==='coding'){
+    html += '<div class="question-text"><strong>'+q.title+'</strong></div>';
+    html += '<div class="question-desc">'+q.desc.replace(/\n/g,'<br>')+'</div>';
+    html += '<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>';
+    html += '<div class="btn-group">';
+    html += '<button class="btn btn-vscode" onclick="openInVSCode(currentQuestions[currentQIndex])">📂 在VSCode中打开</button>';
+    html += '<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>';
+    html += '<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>';
+    html += '</div>';
+    html += '<div class="hint-box" id="hintBox">💡 '+q.hint+'</div>';
+    html += '<div class="test-result" id="testResult"></div>';
+    html += '<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>'+q.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre></div>';
+  } else {
+    html += '<div class="question-text">'+q.text+'</div>';
+    if(q.type==='single' || q.type==='judge'){
+      html += '<div class="options">';
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      q.options.forEach(function(opt,i){
+        const sel = answers[q.id]===labels[i]?'selected':'';
+        html += '<div class="option '+sel+'" onclick="selectOption(\''+labels[i]+'\', event)"><span class="option-label">'+labels[i]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    } else if(q.type==='fill'){
+      html += '<div class="question-text">'+q.text+'</div>';
+    }
+  }
+  html += '<div class="explanation" id="expl"><div class="explanation-title">📖 解析</div>'+(q.expl||'')+'</div>';
+  html += '<div class="btn-group">';
+  if(currentQIndex>0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if(q.type==='coding'){
+</button>';
+  } else {
+    html += '<button class="btn btn-primary" onclick="submitQ(event)">提交答案</button>';
+</button>';
+    else html += '<button class="btn btn-secondary" onclick="finishQuiz()" id="finishBtn" style="display:none">🏁 完成答题</button>';
+  }
+  html += '</div></div>';
+  document.getElementById('quizContainer').innerHTML = html;
+}
+
+function selectOption(label, e){
+  const q = currentQuestions[currentQIndex];
+  answers[q.id] = label;
+  document.querySelectorAll('.option').forEach(function(o){o.classList.remove('selected')});
+  e.currentTarget.classList.add('selected');
+}
+
+function showHint(){
+  document.getElementById('hintBox').classList.toggle('show');
+}
+function showAnswerCoding(){
+  document.getElementById('answerDisplay').classList.toggle('show');
+}
+
+function submitQ(e){
+  const q = currentQuestions[currentQIndex];
+  let userAns = answers[q.id];
+  let isCorrect = false;
+
+  if(q.type==='fill'){
+    const inputs = document.querySelectorAll('.fill-blank');
+    userAns = Array.from(inputs).map(function(i){return i.value.trim()});
+    isCorrect = q.correct.every(function(c,i){return userAns[i] && userAns[i].toLowerCase()===c.toLowerCase()});
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+  } else {
+    if(!userAns){
+      alert('请先选择一个答案！');
+      return;
+    }
+    isCorrect = userAns===q.correct;
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+  }
+
+  if(q.type==='single' || q.type==='judge'){
+    document.querySelectorAll('.option').forEach(function(o,i){
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      if(labels[i]===q.correct) o.classList.add('correct');
+      else if(labels[i]===userAns) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+    });
+  } else if(q.type==='fill'){
+    document.querySelectorAll('.fill-blank').forEach(function(inp,i){
+      inp.disabled = true;
+      if(inp.value.trim().toLowerCase()===q.correct[i].toLowerCase()){
+        inp.style.background='#d4edda';inp.style.borderColor='#27ae60';
+      } else {
+        inp.style.background='#f8d7da';inp.style.borderColor='#e74c3c';
+        inp.title = '正确答案: '+q.correct[i];
+      }
+    });
+  }
+
+  document.getElementById('expl').classList.add('show');
+  const nb = document.getElementById('nextBtn');
+  const fb = document.getElementById('finishBtn');
+  if(nb) nb.removeAttribute('style');
+  if(fb) fb.removeAttribute('style');
+  e.currentTarget.style.display='none';
+  saveProgress();
+}
+
+function prevQ(){
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+}
+function nextQ(){
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+  else finishQuiz();
+}
+
+function finishQuiz(){
+  saveProgress();
+  let correct=0, wrongList=[];
+  currentQuestions.forEach(function(q){
+    if(q.type==='coding') return;
+    const ua = answers[q.id];
+    let ok=false;
+    if(q.type==='fill'){
+      const ual = (ua||[]);
+      ok = Array.isArray(ual) && q.correct.every(function(c,i){return ual[i] && ual[i].toLowerCase()===c.toLowerCase()});
+    } else { ok = ua===q.correct; }
+    if(ok) correct++; else wrongList.push({q:q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+  });
+
+  const total = currentQuestions.filter(function(q){return q.type!=='coding'}).length;
+  const wrong = total - correct;
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+  document.getElementById('quizArea').style.display='none';
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('score').textContent = score;
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(wrongList.length>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    let html='';
+    wrongList.forEach(function(w){
+      html += '<div class="wrong-item"><div class="wq">'+w.q.kp+': '+w.q.text.substring(0,50)+'...</div><div class="wa">你的答案: '+w.userAns+'</div><div class="wc">正确答案: '+(w.q.correctText||w.q.correct)+'</div></div>';
+    });
+    document.getElementById('wrongPreviewList').innerHTML = html;
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+  clearProgress();
+}
+
+function renderReview(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  switchReviewTab('list');
+}
+
+function switchReviewTab(tab){
+  document.querySelectorAll('.review-tab').forEach(function(t){t.classList.remove('active')});
+  if(event&&event.target) event.target.classList.add('active');
+  else document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+  if(tab==='list') renderWrongList();
+  else renderKnowledgeReview();
+}
+
+function renderWrongList(){
+  const bank = getWrongBank();
+  const el = document.getElementById('wrongBankList');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+  let html='';
+  bank.sort(function(a,b){return b.time-a.time}).forEach(function(w,i){
+    html += '<div class="kp-section" style="border-left-color:#e74c3c">';
+    html += '<div class="kp-header"><div class="kp-title">'+(i+1)+'. '+w.kp+'</div>';
+    html += '<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong('+w.id+')">删除</button></div>';
+    html += '<div class="kp-content">'+w.text+'</div>';
+    if(w.options){
+      html += '<div class="options" style="margin-top:8px">';
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+      w.options.forEach(function(opt,j){
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+        html += '<div class="option '+cls+'" style="cursor:default;pointer-events:none"><span class="option-label">'+labels[j]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div class="explanation show"><div class="explanation-title">📖 解析</div>'+(w.expl||'')+'</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function removeWrong(id){
+  if(!confirm('确定删除这道错题吗？')) return;
+  const bank = getWrongBank().filter(function(w){return w.id!==id});
+  saveWrongBank(bank);
+  renderReview();
+}
+
+function clearWrongBank(){
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+  saveWrongBank([]);
+  renderReview();
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const el = document.getElementById('knowledgeReview');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  const kpCount = {};
+  bank.forEach(function(w){kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+  const sorted = Object.keys(kpCount).map(function(k){return [k,kpCount[k]]}).sort(function(a,b){return b[1]-a[1]});
+
+  let html = '<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 '+sorted.length+' 个薄弱知识点</p>';
+  sorted.forEach(function(entry){
+    const kp=entry[0],count=entry[1];
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+    const related = bank.filter(function(w){return w.kp===kp});
+    html += '<div class="kp-section">';
+    html += '<div class="kp-header"><div class="kp-title">'+info.title+'</div><span class="kp-badge">错 '+count+' 次</span></div>';
+    html += '<div class="kp-content">'+info.content+'</div>';
+    html += '<div class="kp-wrong-list">相关错题：<br>';
+    related.forEach(function(r){
+      html += '• '+r.text.substring(0,60)+(r.text.length>60?'...':'')+'<br>';
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+window.addEventListener('beforeunload', saveProgress);
+
+(function(){
+  const p = loadProgress();
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+      currentMode = p.mode;
+      currentQIndex = p.index;
+      answers = p.answers || {};
+      let pool;
+      if(p.mode==='coding') pool = codingQuestions;
+      else pool = allQuestions;
+      currentQuestions = p.ids.map(function(id){return pool.find(function(q){return q.id===id})}).filter(Boolean);
+      if(currentQuestions.length>0){
+        document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+        const tm = {normal:0,coding:1,wrongredo:2};
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+        renderQuestion();
+        return;
+      }
+    }
+    clearProgress();
+  }
+  startQuiz('normal');
+})();
+</script>
+</body>
+</html>
