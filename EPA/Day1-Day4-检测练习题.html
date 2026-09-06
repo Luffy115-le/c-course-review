@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day1-Day4 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#e74c3c}
+.mode-tab.active{background:#e74c3c;color:white;border-color:#e74c3c}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#e74c3c,#f39c12);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#e74c3c;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#3498db;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#e74c3c;background:#fff5f5}
+.option.selected{border-color:#e74c3c;background:#fde8e8}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#e74c3c;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#e74c3c}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#e74c3c;color:white}
+.btn-primary:hover{background:#c0392b}
+.btn-secondary{background:#3498db;color:white}
+.btn-secondary:hover{background:#2980b9}
+.btn-warn{background:#f39c12;color:white}
+.btn-warn:hover{background:#e67e22}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #e74c3c;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#e74c3c}
+.review-tab.active{background:#e74c3c;color:white;border-color:#e74c3c}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day1-Day4 检测练习题（增强版）</h1>
+<p>支持错题重做、巩固练习、错题库持久化</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal', event)">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo', event)">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review', event)">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 20 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list', event)">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge', event)">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day1_4';
+
+const allQuestions = [
+  {id:1,type:'single',kp:'字节与存储单位',text:'计算机中，1 个字节（byte）等于多少位（bit）？',options:['2 位','4 位','8 位','16 位'],correct:'C',expl:'<strong>1 字节 = 8 位</strong>。bit 是最小存储单位，byte 是基本存储单位。1B = 8bit，1KB = 1024B。'},
+  {id:2,type:'single',kp:'冯诺依曼结构',text:'冯·诺依曼结构的计算机由哪五大部件组成？',options:['CPU、内存、硬盘、键盘、显示器','运算器、控制器、存储器、输入设备、输出设备','主板、CPU、内存、显卡、电源','处理器、总线、寄存器、缓存、外设'],correct:'B',expl:'冯·诺依曼结构五大部件：<strong>运算器、控制器、存储器、输入设备、输出设备</strong>。注意区分理论部件和实际硬件。'},
+  {id:3,type:'single',kp:'补码',text:'在计算机中，负数是以什么形式存储的？',options:['原码','反码','补码','ASCII 码'],correct:'C',expl:'计算机中负数以<strong>补码</strong>形式存储。补码 = 反码 + 1。正数的原码、反码、补码相同。'},
+  {id:4,type:'single',kp:'ASCII码',text:'ASCII 码中，字符 \'A\' 的十进制值是多少？',options:['48','65','97','90'],correct:'B',expl:'<strong>\'A\' = 65</strong>，\'a\' = 97，\'0\' = 48。大小写字母相差 32。'},
+  {id:5,type:'judge',kp:'内存特性',text:'内存（RAM）断电后数据不会丢失。',correct:'B',options:['正确','错误'],expl:'<strong>内存（RAM）是易失性存储器，断电后数据会丢失</strong>。硬盘（ROM/SSD）断电后数据才不会丢失。'},
+  {id:6,type:'single',kp:'main函数',text:'C 语言程序执行的入口是？',options:['#include','printf 函数','main 函数','return 语句'],correct:'C',expl:'<strong>main 函数</strong>是 C 程序的入口，每个 C 程序必须有且仅有一个 main 函数。'},
+  {id:7,type:'single',kp:'stdio.h头文件',text:'使用 printf 和 scanf 函数需要包含哪个头文件？',options:['&lt;math.h&gt;','&lt;stdio.h&gt;','&lt;stdlib.h&gt;','&lt;string.h&gt;'],correct:'B',expl:'<strong>&lt;stdio.h&gt;</strong> = Standard Input Output，包含 printf、scanf 等输入输出函数。'},
+  {id:8,type:'single',kp:'scanf取地址',text:'以下哪个是正确的 scanf 调用？',options:['scanf("%d", num);','scanf("%d", &amp;num);','scanf("%d", %num);','scanf("%d", *num);'],correct:'B',expl:'scanf 需要使用<strong>&amp; 取地址符</strong>，因为 scanf 要修改变量的值，必须传入变量地址。'},
+  {id:9,type:'judge',kp:'分号',text:'C 语言中，每条语句必须以分号（;）结尾。',correct:'A',options:['正确','错误'],expl:'C 语言中<strong>每条语句必须以分号结尾</strong>，这是语法要求。预处理指令（#include、#define）除外。'},
+  {id:10,type:'single',kp:'变量名规则',text:'以下哪个不是合法的 C 语言变量名？',options:['_count','myVar','2ndValue','student_name'],correct:'C',expl:'变量名<strong>不能以数字开头</strong>。2ndValue 以数字 2 开头，不合法。可以包含字母、数字、下划线，但必须以字母或下划线开头。'},
+  {id:11,type:'single',kp:'pwd命令',text:'在 Linux 中，查看当前所在目录路径的命令是？',options:['ls','cd','pwd','cat'],correct:'C',expl:'<strong>pwd</strong> = Print Working Directory，显示当前目录的绝对路径。ls 列出文件，cd 切换目录，cat 查看文件内容。'},
+  {id:12,type:'single',kp:'rm命令',text:'在 Linux 中，递归删除目录及其内容的命令是？',options:['rm 目录','rm -r 目录','rmdir 目录','del 目录'],correct:'B',expl:'<strong>rm -r</strong> 递归删除目录及内容。rmdir 只能删除空目录。rm -rf 是强制递归删除，非常危险！'},
+  {id:13,type:'single',kp:'cp命令',text:'将文件 file1.c 复制为 file2.c 的命令是？',options:['mv file1.c file2.c','cp file1.c file2.c','copy file1.c file2.c','ln file1.c file2.c'],correct:'B',expl:'<strong>cp</strong> = copy，复制文件。mv 是移动/重命名，copy 不是 Linux 命令，ln 是创建链接。'},
+  {id:14,type:'single',kp:'mkdir命令',text:'以下哪个命令可以创建多级目录（如 a/b/c）？',options:['mkdir a/b/c','mkdir -p a/b/c','mkdir -r a/b/c','mkdirs a/b/c'],correct:'B',expl:'<strong>mkdir -p</strong> 递归创建多级目录。不加 -p 时父目录不存在会报错。'},
+  {id:15,type:'single',kp:'ls命令',text:'在 Linux 中，查看目录下所有文件（包括隐藏文件）的命令是？',options:['ls','ls -l','ls -a','ls -h'],correct:'C',expl:'<strong>ls -a</strong> 显示所有文件，包括以 . 开头的隐藏文件。-l 显示详细信息，-h 人性化显示大小。'},
+  {id:16,type:'single',kp:'gcc -o选项',text:'使用 gcc 将 test.c 编译为名为 myprog 的可执行文件，正确的命令是？',options:['gcc test.c myprog','gcc -o myprog test.c','gcc test.c -myprog','gcc -out myprog test.c'],correct:'B',expl:'<strong>gcc -o 输出文件名 源文件</strong>。-o 指定输出文件名，不指定则默认 a.out。'},
+  {id:17,type:'single',kp:'gcc -Wall选项',text:'gcc 编译时加哪个选项可以显示所有警告信息？',options:['-g','-o','-Wall','-W'],correct:'C',expl:'<strong>-Wall</strong> = Warnings all，显示所有常见警告信息。-g 是生成调试信息，-o 是指定输出文件名。'},
+  {id:18,type:'single',kp:'gcc -g选项',text:'gcc 编译时加 -g 选项的作用是？',options:['优化代码','生成调试信息','只编译不链接','生成汇编代码'],correct:'B',expl:'<strong>-g</strong> 生成调试信息，配合 gdb 调试器使用。-S 生成汇编代码，-c 只编译不链接，-O 是优化。'},
+  {id:19,type:'fill',kp:'编译警告',text:'编译时出现的 <input class="fill-blank" data-idx="0" placeholder="?">（警告/错误）不会阻止程序生成，但也应该认真处理。',correct:['警告'],correctText:'警告',expl:'<strong>警告（warning）</strong>不会阻止编译，但往往是潜在错误的信号，好的编程习惯是消除所有警告。错误（error）会直接阻止编译。'},
+  {id:20,type:'fill',kp:'头文件',text:'在 C 语言中，包含头文件使用的预处理指令是 <input class="fill-blank" data-idx="0" placeholder="?">。',correct:['#include'],correctText:'#include',expl:'<strong>#include</strong> 用于包含头文件，是预处理指令的一种。例如 #include &lt;stdio.h&gt; 包含标准输入输出头文件。'},
+];
+
+const extraQuestions = [
+  {id:101,type:'single',kp:'字节与存储单位',text:'1 KB 等于多少字节？',options:['100 字节','512 字节','1024 字节','2048 字节'],correct:'C',expl:'<strong>1 KB = 1024 B</strong>。计算机采用二进制，所以是 2^10 = 1024，而不是 1000。'},
+  {id:102,type:'single',kp:'字节与存储单位',text:'以下哪个是计算机最小的存储单位？',options:['字节（Byte）','位（bit）','千字节（KB）','兆字节（MB）'],correct:'B',expl:'<strong>位（bit）</strong>是计算机最小的存储单位，只能存储 0 或 1。8 位 = 1 字节。'},
+  {id:103,type:'single',kp:'冯诺依曼结构',text:'冯·诺依曼结构的核心思想是？',options:['二进制运算','存储程序','并行计算','分时系统'],correct:'B',expl:'冯·诺依曼结构的核心思想是<strong>存储程序</strong>：程序和数据都存放在存储器中，计算机自动依次执行指令。'},
+  {id:104,type:'single',kp:'冯诺依曼结构',text:'CPU 中负责进行算术和逻辑运算的部件是？',options:['控制器','运算器','存储器','寄存器'],correct:'B',expl:'<strong>运算器</strong>（ALU）负责算术和逻辑运算。控制器负责指挥协调，存储器负责存储数据。'},
+  {id:105,type:'single',kp:'补码',text:'8 位二进制中，-1 的补码是？',options:['00000001','10000001','11111110','11111111'],correct:'D',expl:'-1 的原码是 10000001，反码是 11111110，<strong>补码 = 反码+1 = 11111111</strong>。'},
+  {id:106,type:'single',kp:'补码',text:'正数的原码、反码、补码之间的关系是？',options:['都不相同','原码和反码相同','三者都相同','反码和补码相同'],correct:'C',expl:'<strong>正数的原码、反码、补码三者都相同</strong>。只有负数需要转换。'},
+  {id:107,type:'single',kp:'ASCII码',text:'ASCII 码中，字符 \'a\' 的十进制值是多少？',options:['48','65','97','100'],correct:'C',expl:'<strong>\'a\' = 97</strong>，\'A\' = 65，大小写相差 32。\'0\' = 48。'},
+  {id:108,type:'single',kp:'ASCII码',text:'ASCII 码中，字符 \'0\' 的十进制值是多少？',options:['0','32','48','65'],correct:'C',expl:'<strong>\'0\' = 48</strong>。数字字符 \'0\'~\'9\' 对应 ASCII 码 48~57，是连续的。'},
+  {id:109,type:'single',kp:'内存特性',text:'以下哪种存储器断电后数据不会丢失？',options:['RAM','缓存','寄存器','ROM'],correct:'D',expl:'<strong>ROM（只读存储器）</strong>断电后数据不会丢失。RAM、缓存、寄存器都是易失性存储器。'},
+  {id:110,type:'judge',kp:'内存特性',text:'内存的读写速度比硬盘快。',correct:'A',options:['正确','错误'],expl:'<strong>内存的读写速度远远快于硬盘</strong>。CPU 直接和内存交换数据，硬盘的数据需要先加载到内存才能被 CPU 访问。'},
+  {id:111,type:'single',kp:'main函数',text:'关于 main 函数，以下说法正确的是？',options:['一个 C 程序可以有多个 main 函数','main 函数是程序的入口，可以没有','一个 C 程序必须有且仅有一个 main 函数','main 函数必须写在程序最前面'],correct:'C',expl:'<strong>一个 C 程序必须有且仅有一个 main 函数</strong>，它是程序执行的入口。位置不固定，但习惯写在前面或后面。'},
+  {id:112,type:'single',kp:'stdio.h头文件',text:'以下哪个函数不在 stdio.h 中？',options:['printf','scanf','malloc','getchar'],correct:'C',expl:'<strong>malloc</strong> 在 &lt;stdlib.h&gt; 中，用于动态内存分配。printf、scanf、getchar 都在 stdio.h 中。'},
+  {id:113,type:'single',kp:'scanf取地址',text:'scanf 需要 & 符号的原因是？',options:['语法规定，无特殊原因','需要传入变量地址才能修改变量值','为了提高运行速度','为了节省内存'],correct:'B',expl:'C 语言函数参数默认是值传递，<strong>要修改变量必须传地址</strong>。scanf 要把输入的值存入变量，所以需要 & 取地址。'},
+  {id:114,type:'single',kp:'分号',text:'以下哪一行不需要以分号结尾？',options:['int a = 10;','printf("hello");','#include &lt;stdio.h&gt;','a++;'],correct:'C',expl:'<strong>#include 是预处理指令，不以分号结尾</strong>。C 语言中语句需要分号，预处理指令不需要。'},
+  {id:115,type:'single',kp:'变量名规则',text:'以下哪个是合法的 C 语言变量名？',options:['int','123abc','my-var','_temp'],correct:'D',expl:'<strong>_temp</strong> 是合法的。变量名可以字母或下划线开头，包含字母、数字、下划线。int 是关键字不能用，不能数字开头，不能有减号。'},
+  {id:116,type:'single',kp:'pwd命令',text:'pwd 命令输出的路径类型是？',options:['相对路径','绝对路径','网络路径','虚拟路径'],correct:'B',expl:'<strong>pwd 输出绝对路径</strong>，即从根目录 / 开始的完整路径。'},
+  {id:117,type:'single',kp:'rm命令',text:'rm -rf / 的作用是？',options:['删除根目录下所有文件，非常危险','删除当前目录所有文件','强制删除只读文件','递归删除空目录'],correct:'A',expl:'<strong>rm -rf / 会删除根目录下所有文件，是极度危险的命令</strong>，绝对不要在生产环境尝试！'},
+  {id:118,type:'single',kp:'cp命令',text:'复制整个目录及其内容，应该用哪个命令？',options:['cp dir1 dir2','cp -r dir1 dir2','cp -a dir1 dir2','cp -f dir1 dir2'],correct:'B',expl:'<strong>cp -r</strong> 递归复制目录及内容。-r 或 -R 都可以表示递归。cp 不加参数只能复制文件。'},
+  {id:119,type:'single',kp:'mkdir命令',text:'mkdir 命令的 -p 参数的作用是？',options:['显示详细信息','递归创建父目录','设置权限','强制创建'],correct:'B',expl:'<strong>-p = parents</strong>，递归创建不存在的父目录。例如 mkdir -p a/b/c 会同时创建 a、a/b、a/b/c。'},
+  {id:120,type:'single',kp:'ls命令',text:'ls -l 命令输出中，第一列的第一个字符 \'d\' 表示？',options:['普通文件','目录文件','链接文件','设备文件'],correct:'B',expl:'<strong>d 表示目录（directory）</strong>。- 表示普通文件，l 表示链接文件，b/c 表示设备文件。'},
+  {id:121,type:'single',kp:'gcc -o选项',text:'gcc 编译时如果不指定 -o，默认输出文件名是？',options:['a.out','output.exe','program','gcc.out'],correct:'A',expl:'<strong>a.out</strong> 是 gcc 默认输出文件名。assembler output 的缩写，是历史遗留的命名习惯。'},
+  {id:122,type:'single',kp:'gcc -Wall选项',text:'关于编译警告，以下哪种说法是正确的？',options:['警告就是错误，必须修复','警告不影响运行，可以完全忽略','警告可能是潜在问题，建议处理','只有出现错误才需要看警告'],correct:'C',expl:'<strong>警告往往提示潜在问题，建议认真处理</strong>。虽然不阻止编译，但可能导致运行时错误。好的代码应该零警告。'},
+  {id:123,type:'single',kp:'gcc -g选项',text:'gcc -g 选项生成的调试信息主要配合哪个工具使用？',options:['gcc','gdb','make','vim'],correct:'B',expl:'<strong>gdb</strong> 是 GNU Debugger，调试器。-g 选项生成 gdb 可用的调试符号信息。'},
+  {id:124,type:'judge',kp:'头文件',text:'头文件（.h）中通常存放函数声明和宏定义。',correct:'A',options:['正确','错误'],expl:'<strong>头文件（.h）</strong>通常放函数声明、宏定义、类型定义等。函数实现放在 .c 文件中。'},
+  {id:125,type:'single',kp:'头文件',text:'包含自定义头文件应该用哪种方式？',options:['#include &lt;file.h&gt;','#include "file.h"','#include \'file.h\'','#include file.h'],correct:'B',expl:'<strong>双引号 "file.h"</strong> 用于包含自定义头文件，先在当前目录查找。尖括号 &lt;file.h&gt; 用于系统头文件，在系统目录查找。'},
+];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let userAnswer = '';  // 当前题目的用户答案
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(x=>x.id===q.id)){
+    bank.push({
+      id:q.id, type:q.type, kp:q.kp, text:q.text,
+      options:q.options, correct:q.correct,
+      correctText:q.correctText || (q.options? q.options[q.correct.charCodeAt(0)-65] : q.correct.join('/')),
+      userAns:userAns,
+      wrongTime:new Date().toLocaleString()
+    });
+    saveWrongBank(bank);
+  }
+}
+
+function saveProgress(){
+  const progress = {
+    mode: currentMode,
+    qIndex: currentQIndex,
+    answers: answers,
+    questionIds: currentQuestions.map(q=>q.id),
+    timestamp: Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+function loadProgress(){
+  try{
+    const p = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+    if(p && p.timestamp && (Date.now() - p.timestamp < 7*24*60*60*1000)){
+      return p;
+    }
+  }catch(e){}
+  return null;
+}
+
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+
+function switchMode(mode, e){
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  (e||event).target.classList.add('active');
+  currentMode = mode;
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    renderWrongBank();
+  } else {
+    document.getElementById('reviewArea').style.display='none';
+    document.getElementById('quizArea').style.display='block';
+    startQuiz(mode);
+  }
+}
+
+function startQuiz(mode, resume=false){
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('quizArea').style.display='block';
+  document.getElementById('reviewArea').style.display='none';
+  answers = {};
+  userAnswer = '';
+  currentQIndex = 0;
+  currentMode = mode;
+
+  if(mode==='normal'){
+    currentQuestions = allQuestions.slice();
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      startQuiz('normal');
+      return;
+    }
+    currentQuestions = allQuestions.filter(q=>bank.find(b=>b.id===q.id)) || bank.map(b=>({
+      id:b.id,type:b.type,kp:b.kp,text:b.text,options:b.options,correct:b.correct,correctText:b.correctText,expl:''
+    }));
+    if(currentQuestions.length===0) currentQuestions = bank.map(b=>({
+      id:b.id,type:b.type,kp:b.kp,text:b.text,options:b.options,correct:b.correct,correctText:b.correctText,expl:'来自错题库的题目'
+    }));
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，不需要巩固！');
+      startQuiz('normal');
+      return;
+    }
+    const kps = [...new Set(bank.map(b=>b.kp))];
+    let pool = extraQuestions.filter(q=>kps.includes(q.kp));
+    if(pool.length===0) pool = extraQuestions.slice();
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  }
+
+  if(resume){
+    const p = loadProgress();
+    if(p && p.mode === mode){
+      answers = p.answers || {};
+      currentQIndex = p.qIndex || 0;
+    }
+  }
+
+  renderQuestion();
+  updateProgress();
+  saveProgress();
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function renderQuestion(){
+  const q = currentQuestions[currentQIndex];
+  const container = document.getElementById('quizContainer');
+  let typeLabel = q.type==='single'?'单选':q.type==='fill'?'填空':'判断';
+  let html = `<div class="question-card" data-idx="${currentQIndex}">
+    <div class="question-num">${typeLabel}题 · 第${currentQIndex+1}题<span class="question-tag">${q.kp}</span></div>
+    <div class="question-text">${q.text}</div>`;
+
+  const isAnswered = answers[currentQIndex] !== undefined;
+
+  if(q.type==='single' || q.type==='judge'){
+    const letters = ['A','B','C','D'];
+    html += '<div class="options">';
+    q.options.forEach((opt,i)=>{
+      const letter = letters[i];
+      let cls = 'option';
+      if(isAnswered){
+        if(letter === q.correct) cls += ' correct';
+        else if(letter === userAnswer) cls += ' wrong';
+        cls += '" style="pointer-events:none';
+      }
+      html += `<div class="${cls}" data-value="${letter}" onclick="selectOption(this,${currentQIndex})">
+        <span class="option-label">${letter}</span>${opt}</div>`;
+    });
+    html += '</div>';
+  }
+
+  // 已答则显示结果和解析，未答则显示提交按钮
+  if(isAnswered){
+    html += `<div class="explanation show" id="expl-${currentQIndex}">
+      <div class="explanation-title">${answers[currentQIndex] ? '✅ 正确！' : '❌ 错误！'}</div>${q.expl}</div>`;
+    html += `<div class="btn-group">
+' : '🏁 查看成绩'}</button>
+      </div>`;
+  } else {
+    html += `<div class="explanation" id="expl-${currentQIndex}">
+      <div class="explanation-title">✅ 解析</div>${q.expl}</div>`;
+    html += `<div class="btn-group">
+      <button class="btn btn-primary" onclick="submitAnswer(${currentQIndex})" id="submit-${currentQIndex}">提交答案</button>
+      </div>`;
+  }
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function selectOption(el, idx){
+  const card = document.querySelector(`[data-idx="${idx}"]`);
+  card.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  userAnswer = el.dataset.value;
+}
+
+function submitAnswer(idx){
+  const q = currentQuestions[idx];
+  if(!userAnswer && (q.type==='single' || q.type==='judge')){
+    alert('请先选择一个答案！');
+    return;
+  }
+  
+  let isCorrect = false;
+  if(q.type==='single' || q.type==='judge'){
+    isCorrect = userAnswer === q.correct;
+  } else if(q.type==='fill'){
+    const card = document.querySelector(`[data-idx="${idx}"]`);
+    const inputs = card.querySelectorAll('.fill-blank');
+    const vals = [];
+    inputs.forEach(i=>vals.push(i.value.trim().toLowerCase()));
+    userAnswer = vals.join(' / ');
+    isCorrect = q.correct.every((c,i)=>vals[i]===c.toLowerCase());
+  }
+  
+  answers[idx] = isCorrect;
+  if(!isCorrect) addToWrongBank(q, userAnswer || '未作答');
+  saveProgress();
+  
+  // 重新渲染以显示结果
+  renderQuestion();
+}
+
+function goNext(){
+  if(currentQIndex < currentQuestions.length - 1){
+    currentQIndex++;
+    userAnswer = '';
+    renderQuestion();
+    updateProgress();
+    saveProgress();
+  } else {
+    showResult();
+    clearProgress();
+  }
+  window.scrollTo(0,0);
+}
+
+function updateProgress(){
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = `第 ${currentQIndex+1} / ${total} 题`;
+}
+
+function showResult(){
+  let correct = 0;
+  for(let k in answers) if(answers[k]) correct++;
+  const total = currentQuestions.length;
+  const wrong = total - correct;
+  const pct = Math.round(correct/total*100);
+
+  document.getElementById('quizArea').style.display='none';
+  const r = document.getElementById('resultCard');
+  r.classList.add('show');
+  document.getElementById('score').textContent = pct+'分';
+  document.getElementById('score').style.color = pct>=80?'#27ae60':pct>=60?'#f39c12':'#e74c3c';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(pct===100) document.getElementById('message').textContent='🎉 满分！基础扎实！';
+  else if(pct>=80) document.getElementById('message').textContent='👍 不错！错题已加入错题库。';
+  else if(pct>=60) document.getElementById('message').textContent='📚 继续加油！建议重做错题。';
+  else document.getElementById('message').textContent='💪 需要加强，建议巩固练习。';
+
+  if(wrong>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    const list = document.getElementById('wrongPreviewList');
+    list.innerHTML = '';
+    let count = 0;
+    for(let k in answers){
+      if(!answers[k] && count<5){
+        const q = currentQuestions[k];
+        list.innerHTML += `<div class="wrong-item"><div class="wq">第${parseInt(k)+1}题：${q.text.replace(/<[^>]+>/g,'').substring(0,40)}...</div></div>`;
+        count++;
+      }
+    }
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+}
+
+function renderWrongBank(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  const list = document.getElementById('wrongBankList');
+  if(bank.length===0){
+    list.innerHTML = '<div class="empty-state">✨ 错题库为空，继续保持！</div>';
+    return;
+  }
+  list.innerHTML = bank.map(q=>`
+    <div class="wrong-item">
+      <div class="wq">【${q.kp}】${q.text.replace(/<[^>]+>/g,'').substring(0,80)}...</div>
+      <div class="wa">你的答案：${q.userAns}</div>
+      <div class="wc">正确答案：${q.correctText || (q.options? q.options[q.correct.charCodeAt(0)-65] : q.correct)}</div>
+      <div style="font-size:11px;color:#999;margin-top:3px">${q.wrongTime}</div>
+    </div>`).join('');
+}
+
+function clearWrongBank(){
+  if(confirm('确定要清空错题库吗？此操作不可撤销。')){
+    localStorage.removeItem(QUIZ_KEY);
+    renderWrongBank();
+    renderKnowledgeReview();
+  }
+}
+
+const knowledgeMap = {
+  '字节与存储单位': {
+    title: '字节与存储单位换算',
+    content: `<p><strong>存储单位换算</strong>：</p>
+    <p>• <strong>1 字节（Byte）= 8 位（bit）</strong></p>
+    <p>• <code>1 KB = 1024 B</code></p>
+    <p>• <code>1 MB = 1024 KB</code></p>
+    <p>• <code>1 GB = 1024 MB</code></p>
+    <p>• <code>1 TB = 1024 GB</code></p>
+    <p><strong>⚠️ 易错</strong>：是 1024（2^10），不是 1000！</p>
+    <p><strong>📌 区分</strong>：<code>bit</code> 是最小单位（0/1），<code>Byte</code> 是基本单位</p>`
+  },
+  '冯诺依曼结构': {
+    title: '冯·诺依曼体系结构',
+    content: `<p><strong>冯·诺依曼结构核心思想</strong>：<strong>存储程序</strong>（程序和数据都存放在存储器中，自动执行）</p>
+    <p><strong>五大部件</strong>：</p>
+    <p>1. <strong>运算器</strong>（ALU）— 算术和逻辑运算</p>
+    <p>2. <strong>控制器</strong>（CU）— 指挥协调各部件</p>
+    <p>3. <strong>存储器</strong> — 存放程序和数据</p>
+    <p>4. <strong>输入设备</strong> — 键盘、鼠标等</p>
+    <p>5. <strong>输出设备</strong> — 显示器、打印机等</p>
+    <p><strong>📌 记忆</strong>：CPU = 运算器 + 控制器</p>`
+  },
+  '补码': {
+    title: '原码、反码、补码',
+    content: `<p><strong>三种编码</strong>（以 8 位为例）：</p>
+    <p>• <strong>原码</strong>：最高位为符号位（0正1负）</p>
+    <p>• <strong>反码</strong>：正数同原码；负数符号位不变，其余取反</p>
+    <p>• <strong>补码</strong>：正数同原码；负数 = 反码 + 1</p>
+    <p><strong>⚠️ 重要</strong>：计算机用<strong>补码</strong>存储负数</p>
+ 反码 11111110 → 补码 <code>11111111</code></p>
+    <p><strong>💡 正数</strong>：原码、反码、补码三者相同</p>`
+  },
+  'ASCII码': {
+    title: 'ASCII 码常用值',
+    content: `<p><strong>必须记住的 ASCII 值</strong>：</p>
+    <p>• <code>'A' = 65</code>，<code>'Z' = 90</code></p>
+    <p>• <code>'a' = 97</code>，<code>'z' = 122</code></p>
+    <p>• <code>'0' = 48</code>，<code>'9' = 57</code></p>
+    <p><strong>⚠️ 易错</strong>：大小写字母相差 <strong>32</strong>（'a' - 'A' = 32）</p>
+    <p><strong>📌 记忆</strong>：数字字符在前（48），大写字母（65），小写字母（97）</p>`
+  },
+  '内存特性': {
+    title: '内存与硬盘的特性',
+    content: `<p><strong>存储器分类</strong>：</p>
+    <p>• <strong>RAM（内存）</strong>：易失性，<strong>断电数据丢失</strong>，速度快</p>
+    <p>• <strong>ROM/硬盘</strong>：非易失性，<strong>断电数据不丢失</strong>，速度慢</p>
+    <p>• <strong>缓存/寄存器</strong>：也是易失性，速度更快但容量小</p>
+    <p><strong>📌 访问关系</strong>：CPU ↔ 寄存器 ↔ 缓存 ↔ 内存 ↔ 硬盘</p>
+    <p><strong>⚠️ 易错</strong>：硬盘数据需先加载到内存，CPU 才能访问</p>`
+  },
+  'main函数': {
+    title: 'main 函数',
+    content: `<p><strong>main 函数</strong>是 C 程序的<strong>入口</strong>：</p>
+    <p>• 每个C程序<strong>有且仅有一个</strong> main 函数</p>
+    <p>• 程序从 main 的第一行开始执行</p>
+    <p>• 位置不固定（前/后均可），但习惯写在前面</p>
+    <p><strong>📌 标准写法</strong>：<code>int main(){ ... return 0; }</code></p>
+    <p><strong>⚠️ 易错</strong>：不能有多个 main，也不能没有 main</p>`
+  },
+  'stdio.h头文件': {
+    title: 'stdio.h 标准输入输出头文件',
+    content: `<p><strong>stdio.h</strong> = Standard Input Output Header</p>
+    <p><strong>包含的函数</strong>：</p>
+    <p>• <code>printf</code> — 格式化输出</p>
+    <p>• <code>scanf</code> — 格式化输入</p>
+    <p>• <code>getchar</code> / <code>putchar</code> — 字符输入输出</p>
+    <p>• <code>gets</code> / <code>puts</code> — 字符串输入输出</p>
+    <p><strong>📌 用法</strong>：<code>#include &lt;stdio.h&gt;</code></p>
+    <p><strong>⚠️ 注意</strong>：<code>malloc</code> 在 &lt;stdlib.h&gt; 中，不在 stdio.h</p>`
+  },
+  'scanf取地址': {
+    title: 'scanf 的 & 取地址符',
+    content: `<p><strong>scanf 必须用 & 取地址</strong>：</p>
+    <p>• 正确：<code>scanf("%d", &amp;num);</code></p>
+    <p>• 错误：<code>scanf("%d", num);</code></p>
+    <p><strong>原因</strong>：C 语言函数参数默认<strong>值传递</strong>，要修改变量必须传地址</p>
+    <p>• scanf 要把输入值写入变量，所以需要变量地址</p>
+    <p><strong>⚠️ 例外</strong>：数组名本身就是地址，<code>scanf("%s", arr);</code> 不加 &amp;</p>`
+  },
+  '分号': {
+    title: '语句必须以分号结尾',
+    content: `<p><strong>C 语言语法</strong>：每条语句必须以 <code>;</code> 结尾</p>
+    <p>• <code>int a = 10;</code></p>
+    <p>• <code>printf("hello");</code></p>
+    <p>• <code>return 0;</code></p>
+    <p><strong>⚠️ 例外</strong>：<strong>预处理指令</strong>不以分号结尾</p>
+    <p>• <code>#include &lt;stdio.h&gt;</code></p>
+    <p>• <code>#define PI 3.14</code></p>
+    <p><strong>📌 记忆</strong>：# 开头的不加分号，其余都要</p>`
+  },
+  '变量名规则': {
+    title: '变量命名规则',
+    content: `<p><strong>合法变量名规则</strong>：</p>
+    <p>• 只能由<strong>字母、数字、下划线</strong>组成</p>
+    <p>• <strong>不能以数字开头</strong></p>
+    <p>• 不能是关键字（如 int、return、if）</p>
+    <p>• 区分大小写</p>
+    <p><strong>✅ 合法</strong>：<code>_count</code>、<code>myVar</code>、<code>student_name</code></p>
+    <p><strong>❌ 非法</strong>：<code>2ndValue</code>（数字开头）、<code>my-var</code>（有减号）、<code>int</code>（关键字）</p>`
+  },
+  'pwd命令': {
+    title: 'pwd 命令',
+    content: `<p><strong>pwd</strong> = Print Working Directory</p>
+    <p>• 作用：<strong>显示当前所在目录的绝对路径</strong></p>
+    <p>• 输出从根目录 <code>/</code> 开始的完整路径</p>
+    <p><strong>📌 相关命令</strong>：</p>
+    <p>• <code>cd</code> — 切换目录</p>
+    <p>• <code>ls</code> — 列出文件</p>
+    <p><strong>⚠️ 注意</strong>：pwd 输出的是绝对路径，不是相对路径</p>`
+  },
+  'rm命令': {
+    title: 'rm 删除命令',
+    content: `<p><strong>rm</strong> = remove，删除文件/目录</p>
+    <p>• <code>rm 文件</code> — 删除文件</p>
+    <p>• <code>rm -r 目录</code> — <strong>递归删除</strong>目录及内容</p>
+    <p>• <code>rm -f 文件</code> — 强制删除（不提示）</p>
+    <p>• <code>rm -rf 目录</code> — 强制递归删除（极危险）</p>
+    <p><strong>⚠️ 警告</strong>：<code>rm -rf /</code> 会删除整个系统，绝对不能执行！</p>
+    <p><strong>📌 区分</strong>：<code>rmdir</code> 只能删除空目录</p>`
+  },
+  'cp命令': {
+    title: 'cp 复制命令',
+    content: `<p><strong>cp</strong> = copy，复制文件或目录</p>
+    <p>• <code>cp file1.c file2.c</code> — 复制文件</p>
+    <p>• <code>cp -r dir1 dir2</code> — <strong>递归复制</strong>目录及内容</p>
+    <p><strong>📌 区分</strong>：</p>
+    <p>• <code>mv</code> — 移动/重命名（剪切）</p>
+    <p>• <code>ln</code> — 创建链接</p>
+    <p><strong>⚠️ 注意</strong>：cp 不加 -r 只能复制文件，复制目录必须加 -r 或 -R</p>`
+  },
+  'mkdir命令': {
+    title: 'mkdir 创建目录命令',
+    content: `<p><strong>mkdir</strong> = make directory，创建目录</p>
+    <p>• <code>mkdir dir</code> — 创建单个目录</p>
+    <p>• <code>mkdir -p a/b/c</code> — <strong>递归创建多级目录</strong></p>
+    <p><strong>📌 -p = parents</strong>：父目录不存在时自动创建</p>
+    <p><strong>⚠️ 注意</strong>：不加 -p 时，父目录不存在会报错</p>`
+  },
+  'ls命令': {
+    title: 'ls 列出文件命令',
+    content: `<p><strong>ls</strong> = list，列出目录内容</p>
+    <p>• <code>ls</code> — 列出文件</p>
+    <p>• <code>ls -l</code> — 详细信息（权限、大小、时间）</p>
+    <p>• <code>ls -a</code> — 显示<strong>所有文件</strong>（包括隐藏文件）</p>
+    <p>• <code>ls -h</code> — 人性化显示大小</p>
+    <p><strong>📌 -l 输出首字符含义</strong>：</p>
+    <p>• <code>d</code> = 目录，<code>-</code> = 普通文件，<code>l</code> = 链接</p>
+    <p><strong>⚠️ 隐藏文件</strong>：以 <code>.</code> 开头的文件</p>`
+  },
+  'gcc -o选项': {
+    title: 'gcc -o 指定输出文件名',
+    content: `<p><strong>gcc -o</strong> 指定输出文件名</p>
+    <p>• <code>gcc -o myprog test.c</code> — 输出名为 myprog</p>
+    <p>• 不指定则默认输出 <code>a.out</code></p>
+    <p><strong>📌 格式</strong>：<code>gcc -o 输出文件名 源文件</code></p>
+    <p><strong>⚠️ 注意</strong>：-o 后面紧跟输出文件名，顺序不能乱</p>
+    <p><strong>💡 a.out</strong> = assembler output 的历史缩写</p>`
+  },
+  'gcc -Wall选项': {
+    title: 'gcc -Wall 显示所有警告',
+    content: `<p><strong>gcc -Wall</strong> = Warnings all，显示所有常见警告</p>
+    <p><strong>警告 vs 错误</strong>：</p>
+    <p>• <strong>错误（error）</strong>：阻止编译，无法生成可执行文件</p>
+    <p>• <strong>警告（warning）</strong>：不阻止编译，但提示潜在问题</p>
+    <p><strong>📌 好习惯</strong>：消除所有警告，零警告是高质量代码的标志</p>
+    <p><strong>⚠️ 注意</strong>：警告可能是运行时错误的信号，不能完全忽略</p>`
+  },
+  'gcc -g选项': {
+    title: 'gcc -g 生成调试信息',
+    content: `<p><strong>gcc -g</strong> 生成调试信息，配合 <strong>gdb</strong> 调试器使用</p>
+    <p>• <code>gcc -g test.c -o test</code> — 编译并加入调试符号</p>
+    <p>• <code>gdb ./test</code> — 启动调试</p>
+    <p><strong>📌 其他常用选项</strong>：</p>
+    <p>• <code>-S</code> — 生成汇编代码</p>
+    <p>• <code>-c</code> — 只编译不链接（生成 .o）</p>
+    <p>• <code>-O</code> — 优化代码</p>
+    <p><strong>⚠️ 区分</strong>：-g 是调试，-O 是优化，不要混淆</p>`
+  },
+  '编译警告': {
+    title: '编译警告与错误',
+    content: `<p><strong>编译时的两种提示</strong>：</p>
+    <p>• <strong>错误（error）</strong>：阻止程序生成，必须修复</p>
+    <p>• <strong>警告（warning）</strong>：不阻止生成，但应认真处理</p>
+    <p><strong>⚠️ 重要</strong>：警告不会阻止程序生成，但往往是潜在错误的信号</p>
+    <p><strong>📌 好习惯</strong>：好的编程习惯是消除所有警告</p>
+    <p><strong>💡 用 -Wall</strong> 显示所有常见警告</p>`
+  },
+  '头文件': {
+    title: '头文件与源文件',
+    content: `<p><strong>文件类型</strong>：</p>
+    <p>• <strong>.c</strong> — 源文件（函数实现）</p>
+    <p>• <strong>.h</strong> — 头文件（函数声明、宏定义、类型定义）</p>
+    <p><strong>包含方式</strong>：</p>
+    <p>• <code>#include &lt;stdio.h&gt;</code> — 系统头文件（尖括号，查系统目录）</p>
+    <p>• <code>#include "file.h"</code> — 自定义头文件（双引号，先查当前目录）</p>
+    <p><strong>📌 规则</strong>：函数声明放 .h，实现放 .c</p>`
+  }
+};
+
+function switchReviewTab(tab, e){
+  document.querySelectorAll('.review-tab').forEach(t=>t.classList.remove('active'));
+  (e||event).target.classList.add('active');
+  if(tab==='list'){
+    document.getElementById('wrongBankList').style.display='block';
+    document.getElementById('knowledgeReview').style.display='none';
+  } else {
+    document.getElementById('wrongBankList').style.display='none';
+    document.getElementById('knowledgeReview').style.display='block';
+    renderKnowledgeReview();
+  }
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const container = document.getElementById('knowledgeReview');
+  if(bank.length===0){
+    container.innerHTML = '<div class="empty-state">✨ 错题库为空，没有需要复习的知识点！</div>';
+    return;
+  }
+
+  const kpCount = {};
+  bank.forEach(q=>{
+    const kp = q.kp || '其他';
+    if(!kpCount[kp]) kpCount[kp] = {count:0, questions:[]};
+    kpCount[kp].count++;
+    kpCount[kp].questions.push(q);
+  });
+
+  const sortedKps = Object.entries(kpCount).sort((a,b)=>b[1].count-a[1].count);
+
+  let html = '<div style="margin-bottom:10px;font-size:13px;color:#666">根据错题自动生成的知识点复习，按错误频率排序：</div>';
+  html += '<div style="margin-bottom:12px;padding:10px;background:#e3f2fd;border-radius:8px;font-size:13px;color:#1565c0"><strong>📊 错误分析</strong>：共 ' + bank.length + ' 道错题，涉及 ' + sortedKps.length + ' 个知识点，建议优先复习错误最多的知识点</div>';
+
+  sortedKps.forEach(([kp, data], idx)=>{
+    const info = knowledgeMap[kp];
+    if(info){
+      html += `<div class="kp-section">
+        <div class="kp-header">
+          <span class="kp-title">${idx+1}. ${info.title}</span>
+          <span class="kp-badge">错 ${data.count} 次</span>
+        </div>
+        <div class="kp-content">${info.content}</div>
+        <div class="kp-wrong-list">📝 相关错题：${data.questions.map(q=>q.text.replace(/<[^>]+>/g,'').substring(0,40)).join(' | ')}</div>
+      </div>`;
+    } else {
+      html += `<div class="kp-section">
+        <div class="kp-header">
+          <span class="kp-title">${idx+1}. ${kp}</span>
+          <span class="kp-badge">错 ${data.count} 次</span>
+        </div>
+        <div class="kp-content">该知识点的详细复习内容尚未收录，建议查阅教材相关章节。</div>
+        <div class="kp-wrong-list">📝 相关错题：${data.questions.map(q=>q.text.replace(/<[^>]+>/g,'').substring(0,40)).join(' | ')}</div>
+      </div>`;
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+function init(){
+  const progress = loadProgress();
+  if(progress){
+    if(confirm(`检测到未完成的答题进度（第${progress.qIndex+1}题），是否继续？`)){
+      startQuiz(progress.mode, true);
+      return;
+    }
+  }
+  startQuiz('normal');
+}
+
+init();
+</script>
+</body>
+</html>
