@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day10-Day11 检测练习题（增强版）</title>
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+
+.container{max-width:800px;margin:0 auto}
+
+.header{text-align:center;margin-bottom:20px}
+
+.header h1{color:#2c3e50;font-size:24px}
+
+.header p{color:#7f8c8d;margin-top:6px}
+
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+
+.mode-tab:hover{border-color:#4CAF50}
+
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+
+.difficulty-mid{background:#fff3e0;color:#e65100}
+
+.difficulty-hard{background:#ffebee;color:#c62828}
+
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+
+.options{margin-bottom:10px}
+
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+
+.option.correct{border-color:#27ae60;background:#d4edda}
+
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+
+.code-editor:focus{outline:none;border-color:#4CAF50}
+
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+
+.hint-box.show{display:block}
+
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+
+.test-result.show{display:block}
+
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+
+.explanation.show{display:block}
+
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+
+.answer-display.show{display:block}
+
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+
+.btn-primary{background:#4CAF50;color:white}
+
+.btn-primary:hover{background:#45a049}
+
+.btn-secondary{background:#2196F3;color:white}
+
+.btn-secondary:hover{background:#1976D2}
+
+.btn-warn{background:#ff9800;color:white}
+
+.btn-warn:hover{background:#f57c00}
+
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+
+.result-card.show{display:block}
+
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+
+.result-item{text-align:center}
+
+.result-item .num{font-size:22px;font-weight:bold}
+
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+
+.correct-num{color:#27ae60}
+
+.wrong-num{color:#e74c3c}
+
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+
+.wrong-item:last-child{border:none}
+
+.wrong-item .wq{color:#333;margin-bottom:3px}
+
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+
+.wrong-item .wc{color:#27ae60;font-size:12px}
+
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+
+.kp-content strong{color:#1565c0}
+
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+
+.review-tab:hover{border-color:#4CAF50}
+
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+
+@media(max-width:600px){
+
+  .result-detail{gap:15px}
+
+  .btn{padding:8px 14px;font-size:12px}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>📝 Day10-Day11 检测练习题</h1>
+
+<p>输入输出专题 · 控制语句if · 含编程入门题</p>
+
+</div>
+
+
+
+<div class="mode-tabs">
+
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+
+</div>
+
+
+
+<div id="quizArea">
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="progress-text" id="progressText">第 1 / 32 题</div>
+
+<div id="quizContainer"></div>
+
+</div>
+
+
+
+<div class="result-card" id="resultCard">
+
+<div class="result-score" id="score">0</div>
+
+<div class="result-message" id="message"></div>
+
+<div class="result-detail">
+
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+
+</div>
+
+<div class="action-buttons">
+
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+
+</div>
+
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+
+<h3>📋 本次错题</h3>
+
+<div id="wrongPreviewList"></div>
+
+</div>
+
+</div>
+
+
+
+<div id="reviewArea" style="display:none">
+
+<div class="question-card">
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+
+</div>
+
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+
+<div class="review-tabs">
+
+<button class="review-tab active" onclick="switchReviewTab('list', event)">📋 错题列表</button>
+
+<button class="review-tab" onclick="switchReviewTab('knowledge', event)">🧠 知识点复习</button>
+
+</div>
+
+<div id="wrongBankList"></div>
+
+<div id="knowledgeReview" style="display:none"></div>
+
+</div>
+
+</div>
+
+
+
+</div>
+
+
+
+<script>
+
+const QUIZ_KEY = 'wrongbank_day10_11';
+
+
+
+ ____1234。"}, {"id": 10, "type": "single", "kp": "精度修饰", "text": "printf(\"%.2f\", 3.14159) 的输出是？", "options": ["3.14", "3.15", "3.14159", "3.00"], "correct": "A", "expl": "<strong>%.2f</strong> 保留2位小数，四舍五入。3.14159 → 3.14。"}, {"id": 11, "type": "single", "kp": "标志修饰", "text": "printf(\"%02d\", 5) 的输出是？", "options": [" 5", "05", "5 ", "50"], "correct": "B", "expl": "<strong>%02d</strong> 中 0 标志表示补0而不是空格。宽度2，5占1位 → 05。常用于日期时间。"}, {"id": 12, "type": "single", "kp": "scanf宽度", "text": "scanf(\"%4d%2d%2d\", &y, &m, &d) 输入 20500505 后，y、m、d 的值是？", "options": ["y=2050,m=5,d=5", "y=2050,m=50,d=5", "y=205005,m=05,d=5", "y=205,m=50,d=05"], "correct": "A", "expl": "<strong>%4d</strong> 取前4位 2050，<strong>%2d</strong> 取后2位 05→5。所以 y=2050, m=5, d=5。"}, {"id": 13, "type": "single", "kp": "跳过数据", "text": "scanf(\"%2d%*3d%2d\", &a, &b) 输入 1234567 后，a、b 的值是？", "options": ["a=12,b=67", "a=12,b=34", "a=34,b=67", "a=12,b=56"], "correct": "A", "expl": "%2d 读 12，<strong>%*3d</strong> 跳过 345，%2d 读 67。所以 a=12, b=67。*号=跳过。"}, {"id": 14, "type": "single", "kp": "if语法", "text": "以下 if 语句写法正确的是？", "options": ["if a>b:", "if (a>b)", "if (a>b);", "if a>b"], "correct": "B", "expl": "if 条件必须用 () 括起来！正确写法：<strong>if (a>b)</strong> 或 if(a>b)。"}, {"id": 15, "type": "single", "kp": "经典陷阱", "text": "if (a = 5) printf(\"yes\"); 的执行结果是？", "options": ["a等于5时输出yes", "永远输出yes", "永远不输出", "语法错误"], "correct": "B", "expl": "<strong>= 是赋值</strong>！a=5 把5赋给a，表达式值为5（非0为真），所以<strong>永远为真</strong>，永远输出yes。应该用 == 比较！"}, {"id": 16, "type": "single", "kp": "经典陷阱", "text": "if (a>b); printf(\"ok\"); 以下说法正确的是？", "options": ["a>b时输出ok", "a<=b时输出ok", "无论如何都输出ok", "语法错误"], "correct": "C", "expl": "<strong>if 后多写了分号！</strong>分号让 if 的语句体变成空语句。printf 与 if 无关，<strong>无论如何都会执行</strong>！"}, {"id": 17, "type": "single", "kp": "if-else", "text": "关于 if-else 语句，以下说法正确的是？", "options": ["if和else都会执行", "要么执行if块，要么执行else块", "先执行if再执行else", "else必须有对应的if"], "correct": "B", "expl": "<strong>if-else 是二选一</strong>，互斥执行。要么走if块，要么走else块，不会都走。"}, {"id": 18, "type": "single", "kp": "闰年判断", "text": "以下哪个表达式能正确判断闰年？", "options": ["year%4==0", "year%400==0", "(year%4==0&&year%100!=0)||(year%400==0)", "year%100==0"], "correct": "C", "expl": "<strong>闰年条件</strong>：能被4整除但不能被100整除，<strong>或者</strong>能被400整除。即四年一闰，百年不闰，四百年再闰。"}, {"id": 19, "type": "single", "kp": "多分支", "text": "关于 else if 多分支语句，正确的是？", "options": ["所有条件都会判断", "只执行第一个满足的分支", "所有满足的都执行", "必须有else"], "correct": "B", "expl": "<strong>多分支是互斥的</strong>，从第一个条件开始判断，<strong>只执行第一个满足</strong>的分支，执行完整个结构就结束了。"}, {"id": 20, "type": "single", "kp": "多分支顺序", "text": "用 if-else if 判断成绩等级（90+为A，80+为B...），正确的判断顺序是？", "options": ["从低到高（60→70→80→90）", "从高到低（90→80→70→60）", "任意顺序都可以", "只写一个条件就行"], "correct": "B", "expl": "<strong>必须从高到低判断</strong>！如果从低到高，85分会先匹配到 >=60 就输出 D，逻辑完全错误！"}, {"id": 21, "type": "single", "kp": "悬空else", "text": "else 与 if 的配对原则是？", "options": ["与最远的if配对", "与最近的未配对的if配对", "与第一个if配对", "随机配对"], "correct": "B", "expl": "<strong>else 与最近的未配对的 if 配对</strong>。没有 {} 时容易出错，建议始终用 {} 明确层次。"}, {"id": 22, "type": "single", "kp": "变量交换", "text": "交换变量 a 和 b 的值，正确的写法是？", "options": ["a=b; b=a;", "t=a; a=b; b=t;", "a=t; t=b; b=a;", "swap(a,b)"], "correct": "B", "expl": "<strong>需要第三个临时变量 t</strong>：t=a 保存a，a=b 把b给a，b=t 把原a给b。像两杯水互换需要第三个杯子。"}, {"id": 23, "type": "single", "kp": "三数排序", "text": "三个数 a、b、c 从小到大排序，第一步应该？", "options": ["比较b和c", "比较a和b，可能交换", "比较a和c，可能交换", "直接输出"], "correct": "B", "expl": "三数排序：先 if(a>b)交换ab → if(a>c)交换ac（a变成最小）→ if(b>c)交换bc（b中间c最大）。"}, {"id": 24, "type": "judge", "kp": "scanf地址", "text": "scanf(\"%d\", age); 是正确的写法。", "correct": "B", "options": ["正确", "错误"], "expl": "<strong>错误！</strong>scanf 必须带 & 取地址！正确写法：scanf(\"%d\", &age); 这是C语言最经典的错误！"}, {"id": 25, "type": "judge", "kp": "真假判断", "text": "C语言中，非0即为真，0为假。", "correct": "A", "options": ["正确", "错误"], "expl": "<strong>正确！</strong>C语言没有真正的布尔类型，用数值表示真假：0为假，任何非0值（包括负数）都为真。"}, {"id": 26, "type": "judge", "kp": "分号陷阱", "text": "if (a>b); 后面的分号不会影响程序逻辑。", "correct": "B", "options": ["正确", "错误"], "expl": "<strong>严重错误！</strong>分号让 if 的语句体变成空语句。后面的代码无论条件真假都会执行！"}, {"id": 27, "type": "judge", "kp": "double输入", "text": "输入 double 类型数据时，scanf 必须使用 %lf 格式。", "correct": "A", "options": ["正确", "错误"], "expl": "<strong>正确！</strong>输入时：double 用 %lf，float 用 %f。输出时：两者都可以用 %f。"}, {"id": 28, "type": "judge", "kp": "输入缓冲", "text": "使用 %d 格式输入后，紧接着用 %c 输入字符可能会读到回车符。", "correct": "A", "options": ["正确", "错误"], "expl": "<strong>正确！</strong>%d 只读取数字，把回车留在缓冲区。下一个 %c 会直接读走回车。需要用 getchar() 处理。"}, {"id": 29, "type": "fill", "kp": "printf格式", "text": "输出一个整数用 <input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\">，输出一个字符用 <input class=\"fill-blank\" data-idx=\"1\" placeholder=\"?\">，输出浮点数用 <input class=\"fill-blank\" data-idx=\"2\" placeholder=\"?\">。", "correct": ["%d", "%c", "%f"], "correctText": "%d | %c | %f", "expl": "<strong>%d</strong>=decimal整数，<strong>%c</strong>=char字符，<strong>%f</strong>=float浮点数。"}, {"id": 30, "type": "fill", "kp": "if语法", "text": "if 条件必须用 <input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\"> 括起来，比较两个值是否相等应该用 <input class=\"fill-blank\" data-idx=\"1\" placeholder=\"?\">。", "correct": ["()", "=="], "correctText": "() | ==", "expl": "条件必须用 <strong>()</strong> 括起来。比较相等用 <strong>==</strong>，不要写成 =（赋值）！"}, {"id": 31, "type": "fill", "kp": "变量交换", "text": "交换 a 和 b 需要第三个变量 t，完整语句是：t=a; a=b; <input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\">;", "correct": ["b=t"], "correctText": "b=t", "expl": "三步：<strong>t=a</strong>(保存a), <strong>a=b</strong>(b给a), <strong>b=t</strong>(原a给b)。"}, {"id": 32, "type": "fill", "kp": "闰年", "text": "闰年判断条件的核心口诀：四年一闰，<input class=\"fill-blank\" data-idx=\"0\" placeholder=\"?\">不闰，<input class=\"fill-blank\" data-idx=\"1\" placeholder=\"?\">再闰。", "correct": ["百年", "四百年"], "correctText": "百年 | 四百年", "expl": "<strong>四年一闰，百年不闰，四百年再闰</strong>。即能被4整除但不能被100整除，或者能被400整除。"}];
+
+
+
+ 输出 8", "hint": "if (a > b) 输出 a，否则输出 b。或者用条件运算符", "answer": "#include <stdio.h>\nint main()\n{\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    if (a > b) {\n        printf(\"%d\\n\", a);\n    } else {\n        printf(\"%d\\n\", b);\n    }\n    return 0;\n}", "test_input": "5 8", "expected_output": "8"}, {"id": 108, "type": "coding", "kp": "多分支", "difficulty": "中等", "title": "成绩等级", "desc": "输入一个0-100的整数成绩，输出对应的等级：\n90-100: A\n80-89: B\n70-79: C\n60-69: D\n0-59: F", "hint": "使用 else if 从高到低判断：if(score>=90)→A，else if(score>=80)→B...", "answer": "#include <stdio.h>\nint main()\n{\n    int score;\n    scanf(\"%d\", &score);\n    if (score >= 90) {\n        printf(\"A\\n\");\n    } else if (score >= 80) {\n        printf(\"B\\n\");\n    } else if (score >= 70) {\n        printf(\"C\\n\");\n    } else if (score >= 60) {\n        printf(\"D\\n\");\n    } else {\n        printf(\"F\\n\");\n    }\n    return 0;\n}", "test_input": "85", "expected_output": "B"}, {"id": 109, "type": "coding", "kp": "if嵌套", "difficulty": "中等", "title": "判断三角形类型", "desc": "输入三个整数 a、b、c 表示三角形的三条边。\n先判断是否能构成三角形（任意两边之和大于第三边）。\n如果不能构成，输出 \"Not a triangle\"\n如果能构成，判断类型：\n- 等边三角形（三边相等）输出 \"Equilateral\"\n- 等腰三角形（两边相等）输出 \"Isosceles\"\n- 其他输出 \"Scalene\"", "hint": "外层if判断是否是三角形，内层if嵌套判断类型。等边优先于等腰判断。", "answer": "#include <stdio.h>\nint main()\n{\n    int a, b, c;\n    scanf(\"%d %d %d\", &a, &b, &c);\n    if (a+b>c && a+c>b && b+c>a) {\n        if (a==b && b==c) {\n            printf(\"Equilateral\\n\");\n        } else if (a==b || b==c || a==c) {\n            printf(\"Isosceles\\n\");\n        } else {\n            printf(\"Scalene\\n\");\n        }\n    } else {\n        printf(\"Not a triangle\\n\");\n    }\n    return 0;\n}", "test_input": "3 3 3", "expected_output": "Equilateral"}, {"id": 110, "type": "coding", "kp": "三数排序", "difficulty": "中等", "title": "三个数从小到大排序", "desc": "输入三个整数 a、b、c，按从小到大的顺序输出它们，用空格分隔。\n例：输入 5 2 8 → 输出 2 5 8", "hint": "用变量交换：先if(a>b)交换ab，再if(a>c)交换ac（a变成最小），最后if(b>c)交换bc", "answer": "#include <stdio.h>\nint main()\n{\n    int a, b, c, t;\n    scanf(\"%d %d %d\", &a, &b, &c);\n    if (a > b) { t=a; a=b; b=t; }\n    if (a > c) { t=a; a=c; c=t; }\n    if (b > c) { t=b; b=c; c=t; }\n    printf(\"%d %d %d\\n\", a, b, c);\n    return 0;\n}", "test_input": "5 2 8", "expected_output": "2 5 8"}];
+
+
+
+const extraQuestions = [];
+
+
+
+const kpMap = {
+
+    '字符输出': { title: 'putchar 字符输出', content: '<strong>putchar(c)</strong>：向屏幕输出<strong>一个</strong>字符。参数可以是 char 变量、int(ASCII码) 或字符常量。每次只能输出一个字符。' },
+
+    '字符输入': { title: 'getchar 字符输入', content: '<strong>getchar()</strong>：从键盘读取<strong>一个</strong>字符。返回值类型是 <code>int</code>（不是 char！），因为需要返回 EOF(-1) 表示文件结束。' },
+
+    '格式字符': { title: 'printf 格式字符', content: '<code>%d</code>=十进制整数 | <code>%c</code>=字符 | <code>%f</code>=浮点数 | <code>%s</code>=字符串 | <code>%ld</code>=长整型 | <code>%lf</code>=double(仅输入) | <code>%x</code>=十六进制 | <code>%o</code>=八进制' },
+
+    'scanf': { title: 'scanf 输入函数', content: '<strong>scanf 必须使用地址符 &</strong>！scanf("%d", &age) 正确，scanf("%d", age) 错误（会崩溃）。格式字符串必须用双引号。' },
+
+    '输入缓冲': { title: '输入缓冲区问题', content: '%d/%f 只读取数字，把回车符 <code>\\n</code> 留在缓冲区。下一个 <code>%c</code> 会直接读走这个回车！<strong>处理方法</strong>：1) getchar() 吃掉回车 2) scanf("%*c") 跳过 3) scanf(" %c", &ch) 加空格' },
+
+ "    1234"（左补4空格）' },
+
+    '精度修饰': { title: 'printf 精度修饰', content: '<code>%.nf</code>：保留 n 位小数（四舍五入）。<code>%m.nf</code>：总宽度 m，保留 n 位小数。<code>%.ns</code>：字符串只取前 n 个字符。⚠️ 是四舍五入，不是截断！' },
+
+ 05）。<code>-</code>：左对齐。<code>+</code>：正数也显示+号。<code>#</code>：八/十六进制加前缀。' },
+
+ year=2050, month=5, day=5。常用于日期、身份证号等固定格式解析。' },
+
+ a=12，跳过345，b=67。*号 = 跳过/忽略' },
+
+    'if语法': { title: 'if 语句基本语法', content: '条件必须用 <code>()</code> 括起来！正确：<code>if (a > b)</code>。错误：<code>if a > b</code> 或 <code>if a > b:</code>。{} 可省略（仅一条语句时）但不推荐。' },
+
+    '经典陷阱': { title: 'if 经典陷阱', content: '<strong>陷阱1</strong>：<code>if (a = 5)</code> 是赋值，永远为真！应该用 <code>==</code> 比较。<strong>陷阱2</strong>：<code>if (a>b);</code> 多写分号，if语句体为空，后面代码总是执行！' },
+
+    'if-else': { title: 'if-else 双分支', content: '<strong>二选一，互斥执行</strong>。条件为真执行 if 块，为假执行 else 块。不会两个都执行，也不会两个都不执行。' },
+
+    '闰年判断': { title: '闰年判断条件', content: '<code>(year%4==0 && year%100!=0) || (year%400==0)</code>。口诀：<strong>四年一闰，百年不闰，四百年再闰</strong>。' },
+
+    '多分支': { title: 'else if 多分支', content: '从第一个条件开始判断，<strong>只执行第一个满足的分支</strong>，执行完整个结构就结束。多分支是互斥的，不是所有满足的都执行。' },
+
+80→70→60）。如果从低到高，85分会先匹配到 >=60 就输出 D，逻辑完全错误！' },
+
+    '悬空else': { title: 'else 配对原则', content: 'else 与<strong>最近的未配对的 if</strong> 配对。没有 {} 时容易出错。<strong>建议始终用 {} 明确层次关系</strong>，避免歧义。' },
+
+    '变量交换': { title: '两变量交换算法', content: '交换 a 和 b 需要第三个临时变量 t：<code>t=a; a=b; b=t;</code>。类似两杯水互换需要第三个杯子。不能直接 <code>a=b; b=a;</code>（会丢失a的值）。' },
+
+    '三数排序': { title: '三个数排序算法', content: '从小到大排序三步：① if(a>b)交换ab ② if(a>c)交换ac（a变成最小） ③ if(b>c)交换bc（b中间c最大）。三次比较交换完成排序。' },
+
+    '真假判断': { title: 'C语言真假判断', content: '<strong>非0即为真，0为假</strong>。C语言没有真正的布尔类型（C99有_Bool但不常用），用数值表示真假。任何非0值包括负数都为真。' },
+
+    'double输入': { title: 'double 输入输出格式', content: '<strong>输入看类型：</strong>double 用 %lf，float 用 %f。<strong>输出更灵活：</strong>两者都可以用 %f 或 %lf。不要搞反了！' },
+
+ <code>int main()</code> 主函数 → <code>{...}</code> 函数体 → <code>return 0;</code> 返回值。' },
+
+    '变量输出': { title: '变量定义与输出', content: '定义变量：类型 变量名 = 初值;。输出字符串用 %s，整数用 %d，浮点数用 %f/%.2f。变量名要见名知意。' },
+
+    'scanf输入': { title: 'scanf 输入基础', content: 'scanf 必须带 & 取地址符！格式：scanf("格式控制串", &变量1, &变量2)。多个输入可用空格或回车分隔。' },
+
+    '四则运算': { title: '整数与浮点运算', content: '整数除法 <code>/</code> 会截断小数部分（10/3=3）。要得到浮点数结果需强制类型转换：<code>(float)a/b</code> 或 <code>a*1.0/b</code>。' },
+
+    'if单分支': { title: 'if 单分支应用', content: 'if (条件) { 语句块 }。条件为真时执行语句块，为假时跳过。注意条件表达式的边界：>0 是正数，>=0 包括0。' },
+
+    'if嵌套': { title: 'if 嵌套应用', content: 'if 或 else 块内又包含 if。先判断外层条件，满足后再判断内层条件。嵌套层次建议不超过3层，否则可读性差。判断顺序很重要！' },
+
+};
+
+
+
+let currentQuestions = [];
+
+let currentQIndex = 0;
+
+let answers = {};
+let submitted = {};
+
+let currentMode = 'normal';
+
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+
+
+function getWrongBank(){
+
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+
+}
+
+function saveWrongBank(list){
+
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+
+}
+
+function addToWrongBank(q, userAns){
+
+  const bank = getWrongBank();
+
+  if(!bank.find(x=>x.id===q.id)){
+
+    bank.push({
+
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+
+      options:q.options,correct:q.correct,correctText:q.correctText,
+
+      expl:q.expl,userAns:userAns,time:Date.now()
+
+    });
+
+    saveWrongBank(bank);
+
+  }
+
+}
+
+function saveProgress(){
+
+  if(currentMode==='review') return;
+
+  const prog = {
+
+    mode:currentMode, index:currentQIndex, answers:answers,
+
+    ids:currentQuestions.map(q=>q.id), time:Date.now()
+
+  };
+
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+
+}
+
+function loadProgress(){
+
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+
+}
+
+function clearProgress(){
+
+  localStorage.removeItem(PROGRESS_KEY);
+
+}
+
+
+
+function shuffle(arr){
+
+  const a=[...arr];
+
+  for(let i=a.length-1;i>0;i--){
+
+    const j=Math.floor(Math.random()*(i+1));
+
+    [a[i],a[j]]=[a[j],a[i]];
+
+  }
+
+  return a;
+
+}
+
+
+
+function startQuiz(mode){
+
+  clearProgress();
+
+  currentMode = mode;
+
+  currentQIndex = 0;
+
+  answers = {};
+
+  submitted = {};
+
+  document.getElementById('resultCard').classList.remove('show');
+
+  document.getElementById('reviewArea').style.display = 'none';
+
+  document.getElementById('quizArea').style.display = 'block';
+
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+
+
+  if(mode==='coding'){
+
+    currentQuestions = [...codingQuestions];
+
+  } else if(mode==='wrongredo'){
+
+    const bank = getWrongBank();
+
+    if(bank.length===0){
+
+      alert('错题库为空，没有错题可以重做！');
+
+      switchMode('normal');
+
+      return;
+
+    }
+
+    currentQuestions = bank.map(w=>({...w, isWrongRedo:true}));
+
+  } else if(mode==='consolidate'){
+
+    const bank = getWrongBank();
+
+    if(bank.length===0){
+
+      alert('错题库为空，先去做题吧！');
+
+      switchMode('normal');
+
+      return;
+
+    }
+
+    const weakKps = [...new Set(bank.map(w=>w.kp))];
+
+    let pool = allQuestions.filter(q=>weakKps.includes(q.kp) && !bank.find(w=>w.id===q.id));
+
+    if(pool.length<5) pool = allQuestions.filter(q=>!bank.find(w=>w.id===q.id));
+
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+
+  } else {
+
+    currentQuestions = [...allQuestions];
+
+  }
+
+
+
+  if(currentQuestions.length===0){
+
+    alert('没有题目！');
+
+    return;
+
+  }
+
+  renderQuestion();
+
+}
+
+
+
+function switchMode(mode){
+
+  if(mode==='review'){
+
+    document.getElementById('quizArea').style.display='none';
+
+    document.getElementById('resultCard').classList.remove('show');
+
+    document.getElementById('reviewArea').style.display='block';
+
+    document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+
+    currentMode='review';
+
+    renderReview();
+
+    return;
+
+  }
+
+  startQuiz(mode);
+
+}
+
+
+
+function renderQuestion(){
+
+  saveProgress();
+
+  const q = currentQuestions[currentQIndex];
+
+  const isSubmitted = submitted[q.id] !== undefined;
+
+  const total = currentQuestions.length;
+
+  const pct = ((currentQIndex+1)/total)*100;
+
+  document.getElementById('progress').style.width = pct+'%';
+
+  document.getElementById('progressText').textContent = `第 ${currentQIndex+1} / ${total} 题`;
+
+
+
+  let html = `<div class="question-card">`;
+
+  html += `<span class="question-num">第 ${currentQIndex+1} 题</span>`;
+
+  html += `<span class="question-tag">${q.kp}</span>`;
+
+  if(q.type==='coding'){
+
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+
+    html += `<span class="difficulty-tag ${diffMap[q.difficulty]||''}">${q.difficulty}</span>`;
+
+  }
+
+  if(q.type==='coding'){
+
+    html += `<div class="question-text"><strong>${q.title}</strong></div>`;
+
+    html += `<div class="question-desc">${q.desc.replace(/\n/g,'<br>')}</div>`;
+
+    html += `<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>`;
+
+    html += `<div class="btn-group">`;
+
+    html += `<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>`;
+
+    html += `<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>`;
+
+    html += `</div>`;
+
+    html += `<div class="hint-box" id="hintBox">💡 ${q.hint}</div>`;
+
+    html += `<div class="test-result" id="testResult"></div>`;
+
+    html += `<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>${q.answer.replace(/</g,'&lt;')}</pre></div>`;
+
+  } else {
+
+    html += `<div class="question-text">${q.text}</div>`;
+
+    if(q.type==='single' || q.type==='judge'){
+
+      html += `<div class="options">`;
+
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+
+      q.options.forEach((opt,i)=>{
+
+        if(isSubmitted){
+
+          const cls = labels[i]===q.correct?'correct':(labels[i]===answers[q.id]?'wrong':'');
+
+          html += `<div class="option ${cls}" style="pointer-events:none" onclick=""><span class="option-label">${labels[i]}.</span>${opt}</div>`;
+
+        } else {
+
+          const sel = answers[q.id]===labels[i]?'selected':'';
+
+          html += `<div class="option ${sel}" onclick="selectOption('${labels[i]}', event)"><span class="option-label">${labels[i]}.</span>${opt}</div>`;
+
+        }
+
+      });
+
+      html += `</div>`;
+
+    } else if(q.type==='fill'){
+
+      html += `<div class="question-text">${q.text}</div>`;
+
+    }
+
+  }
+
+  html += `<div class="explanation${isSubmitted?' show':''}" id="expl"><div class="explanation-title">${isSubmitted?(submitted[q.id]?'✅ 正确':'❌ 错误'):'📖 解析'}</div>${q.expl||''}</div>`;
+
+  html += `<div class="btn-group">`;
+
+  if(currentQIndex>0) html += `<button class="btn" onclick="prevQ()">上一题</button>`;
+
+  if(q.type==='coding'){
+
+</button>`;
+
+  } else {
+
+    if(isSubmitted){
+
+</button>`;
+
+      else html += `<button class="btn btn-primary" onclick="goNext()">🏁 查看成绩</button>`;
+
+    } else {
+
+      html += `<button class="btn btn-primary" onclick="submitQ()">提交答案</button>`;
+
+    }
+
+  }
+
+  html += `</div></div>`;
+
+  document.getElementById('quizContainer').innerHTML = html;
+
+
+
+  if(q.type==='fill' && isSubmitted){
+
+    const userAns = answers[q.id]||[];
+
+    document.querySelectorAll('.fill-blank').forEach((inp,i)=>{
+
+      inp.disabled = true;
+
+      if(userAns[i] && userAns[i].toLowerCase()===q.correct[i].toLowerCase()){
+
+        inp.style.background='#d4edda';inp.style.borderColor='#27ae60';
+
+      } else {
+
+        inp.style.background='#f8d7da';inp.style.borderColor='#e74c3c';
+
+        inp.title = '正确答案: '+q.correct[i];
+
+      }
+
+    });
+
+  }
+
+}
+
+
+
+function selectOption(label, e){
+
+  const q = currentQuestions[currentQIndex];
+
+  answers[q.id] = label;
+
+  document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+
+  e.currentTarget.classList.add('selected');
+
+}
+
+
+
+function showHint(){
+
+  document.getElementById('hintBox').classList.toggle('show');
+
+}
+
+function showAnswerCoding(){
+
+  document.getElementById('answerDisplay').classList.toggle('show');
+
+}
+
+
+
+function submitQ(){
+
+  const q = currentQuestions[currentQIndex];
+
+  let userAns = answers[q.id];
+
+  let isCorrect = false;
+
+
+
+  if(q.type==='fill'){
+
+    const inputs = document.querySelectorAll('.fill-blank');
+
+    userAns = Array.from(inputs).map(i=>i.value.trim());
+
+    isCorrect = q.correct.every((c,i)=>userAns[i] && userAns[i].toLowerCase()===c.toLowerCase());
+
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+
+  } else {
+
+    if(!userAns){
+
+      alert('请先选择一个答案！');
+
+      return;
+
+    }
+
+    isCorrect = userAns===q.correct;
+
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+
+  }
+
+
+
+  submitted[q.id] = isCorrect;
+
+  saveProgress();
+
+  renderQuestion();
+
+}
+
+
+
+function prevQ(){
+
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+
+}
+
+function goNext(){
+  if(currentQIndex < currentQuestions.length - 1){
+    currentQIndex++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+  window.scrollTo(0,0);
+}
+
+function nextQ(){
+
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+
+  else finishQuiz();
+
+}
+
+
+
+function finishQuiz(){
+
+  saveProgress();
+
+  let correct=0, wrongList=[];
+
+  currentQuestions.forEach(q=>{
+
+    if(q.type==='coding') return;
+
+    const ua = answers[q.id];
+
+    let ok=false;
+
+    if(q.type==='fill'){
+
+      const ual = (ua||[]);
+
+      ok = Array.isArray(ual) && q.correct.every((c,i)=>ual[i] && ual[i].toLowerCase()===c.toLowerCase());
+
+    } else { ok = ua===q.correct; }
+
+    if(ok) correct++; else wrongList.push({q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+
+  });
+
+
+
+  const total = currentQuestions.filter(q=>q.type!=='coding').length;
+
+  const wrong = total - correct;
+
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+
+
+  document.getElementById('quizArea').style.display='none';
+
+  document.getElementById('resultCard').classList.add('show');
+
+  document.getElementById('score').textContent = score;
+
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+
+  document.getElementById('correctCount').textContent = correct;
+
+  document.getElementById('wrongCount').textContent = wrong;
+
+  document.getElementById('totalCount').textContent = total;
+
+
+
+  if(wrongList.length>0){
+
+    document.getElementById('wrongBankPreview').style.display='block';
+
+    let html='';
+
+    wrongList.forEach(w=>{
+
+      html += `<div class="wrong-item"><div class="wq">${w.q.kp}: ${w.q.text.substring(0,50)}...</div><div class="wa">你的答案: ${w.userAns}</div><div class="wc">正确答案: ${w.q.correctText||w.q.correct}</div></div>`;
+
+    });
+
+    document.getElementById('wrongPreviewList').innerHTML = html;
+
+  } else {
+
+    document.getElementById('wrongBankPreview').style.display='none';
+
+  }
+
+  clearProgress();
+
+}
+
+
+
+function renderReview(){
+
+  const bank = getWrongBank();
+
+  document.getElementById('wrongBankCount').textContent = bank.length;
+
+  switchReviewTab('list');
+
+}
+
+
+
+function switchReviewTab(tab, e){
+
+  document.querySelectorAll('.review-tab').forEach(t=>t.classList.remove('active'));
+
+  e?.target?.classList.add('active');
+
+  if(!e) document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+
+  if(tab==='list') renderWrongList();
+
+  else renderKnowledgeReview();
+
+}
+
+
+
+function renderWrongList(){
+
+  const bank = getWrongBank();
+
+  const el = document.getElementById('wrongBankList');
+
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  let html='';
+
+  bank.sort((a,b)=>b.time-a.time).forEach((w,i)=>{
+
+    html += `<div class="kp-section" style="border-left-color:#e74c3c">`;
+
+    html += `<div class="kp-header"><div class="kp-title">${i+1}. ${w.kp}</div>`;
+
+    html += `<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong(${w.id})">删除</button></div>`;
+
+    html += `<div class="kp-content">${w.text}</div>`;
+
+    if(w.options){
+
+      html += `<div class="options" style="margin-top:8px">`;
+
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+
+      w.options.forEach((opt,j)=>{
+
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+
+        html += `<div class="option ${cls}" style="cursor:default;pointer-events:none"><span class="option-label">${labels[j]}.</span>${opt}</div>`;
+
+      });
+
+      html += `</div>`;
+
+    }
+
+    html += `<div class="explanation show"><div class="explanation-title">📖 解析</div>${w.expl||''}</div>`;
+
+    html += `</div>`;
+
+  });
+
+  el.innerHTML = html;
+
+}
+
+
+
+function removeWrong(id){
+
+  if(!confirm('确定删除这道错题吗？')) return;
+
+  const bank = getWrongBank().filter(w=>w.id!==id);
+
+  saveWrongBank(bank);
+
+  renderReview();
+
+}
+
+
+
+function clearWrongBank(){
+
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+
+  saveWrongBank([]);
+
+  renderReview();
+
+}
+
+
+
+function renderKnowledgeReview(){
+
+  const bank = getWrongBank();
+
+  const el = document.getElementById('knowledgeReview');
+
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+
+
+  const kpCount = {};
+
+  bank.forEach(w=>{kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+
+  const sorted = Object.entries(kpCount).sort((a,b)=>b[1]-a[1]);
+
+
+
+  let html = `<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 ${sorted.length} 个薄弱知识点</p>`;
+
+  sorted.forEach(([kp,count])=>{
+
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+
+    const related = bank.filter(w=>w.kp===kp);
+
+    html += `<div class="kp-section">`;
+
+    html += `<div class="kp-header"><div class="kp-title">${info.title}</div><span class="kp-badge">错 ${count} 次</span></div>`;
+
+    html += `<div class="kp-content">${info.content}</div>`;
+
+    html += `<div class="kp-wrong-list">相关错题：<br>`;
+
+    related.forEach(r=>{
+
+      html += `• ${r.text.substring(0,60)}${r.text.length>60?'...':''}<br>`;
+
+    });
+
+    html += `</div></div>`;
+
+  });
+
+  el.innerHTML = html;
+
+}
+
+
+
+window.addEventListener('beforeunload', saveProgress);
+
+
+
+// 尝试恢复进度
+
+(function(){
+
+  const p = loadProgress();
+
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+
+      currentMode = p.mode;
+
+      currentQIndex = p.index;
+
+      answers = p.answers || {};
+
+      let pool;
+
+      if(p.mode==='coding') pool = codingQuestions;
+
+      else pool = allQuestions;
+
+      currentQuestions = p.ids.map(id=>pool.find(q=>q.id===id)).filter(Boolean);
+
+      if(currentQuestions.length>0){
+
+        document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+
+        const tm = {normal:0,coding:1,wrongredo:2};
+
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+
+        renderQuestion();
+
+        return;
+
+      }
+
+    }
+
+    clearProgress();
+
+  }
+
+  startQuiz('normal');
+
+})();
+
+</script>
+
+</body>
+
+</html>
+
