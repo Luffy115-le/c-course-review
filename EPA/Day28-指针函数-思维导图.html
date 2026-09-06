@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day28 指针函数 - 思维导图</title>
+<style>
+  * {margin:0;padding:0;box-sizing:border-box}
+  html,body {width:100%;height:100%;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#f5f6fa}
+  #container {width:100%;height:100%}
+  .toolbar {
+    position:fixed;top:15px;left:15px;z-index:100;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
+    border-radius:14px;padding:12px 18px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .toolbar h2 {font-size:15px;color:#2c3e50;font-weight:600;margin-right:8px}
+  .toolbar button {
+    padding:7px 14px;border:none;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;cursor:pointer;font-size:12px;transition:.3s;font-weight:500;
+  }
+  .toolbar button:hover {transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+  .toolbar .info {font-size:11px;color:#95a5a6;background:#ecf0f1;padding:4px 10px;border-radius:12px}
+  .toolbar .legend {font-size:11px;color:#7f8c8d;margin-left:6px}
+  .loading {
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:16px;color:#667eea;font-weight:600;
+    background:white;padding:20px 40px;border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.1);z-index:99;
+  }
+  .markmap-foreign {font-family:'Microsoft YaHei','PingFang SC',sans-serif !important}
+  .markmap-foreign a {display:none!important}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2>🧠 Day28 指针函数 - 思维导图</h2>
+  <button onclick="zoomIn()">放大 +</button>
+  <button onclick="zoomOut()">缩小 -</button>
+  <button onclick="fit()">适应屏幕</button>
+  <span class="info">主干 6 条</span>
+  <span class="legend">滚轮缩放 · 拖拽移动</span>
+</div>
+<div class="loading" id="loading">正在生成思维导图...</div>
+<div id="container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.18.12/dist/browser/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.min.js"></script>
+<script>
+  let mm = null;
+
+  function init() {
+    try {
+      const { Transformer, Markmap } = window.markmap;
+      if (!Transformer || !Markmap) throw new Error('markmap 库加载失败');
+
+      const transformer = new Transformer();
+      const md = `# Day28 指针函数
+
+## 指针函数基础
+### 定义
+#### 返回值为指针的函数
+#### 格式 返回类型* 函数名(参数){return 指针}
+#### 本质是普通函数只是返回指针
+### 指针函数vs函数指针
+#### char*f()指针函数(返回指针)
+#### char(*f)()函数指针(指向函数)
+指针函数 *在()内→函数指针
+### 调用方式
+#### 用指针变量接收返回值
+#### 也可直接在表达式中使用
+
+## 返回值安全原则
+### 三种安全返回
+#### 返回全局变量(生命周期=整个程序)
+#### 返回字符串常量(只读数据段)
+#### 返回参数指针(调用方管理)
+### static局部变量
+#### static从栈区移到全局数据区
+#### 生命周期延长=整个程序
+#### 作用域不变仅函数内可见
+### 禁止返回
+#### 局部非static数组(野指针)
+#### 栈帧销毁后地址无效
+#### 内部malloc但调用方不知free(内存泄漏)
+
+## 字符串拷贝my_strcpy
+### strcpy链式调用
+#### strcpy返回char*(dest首地址)
+#### strcpy(s1,strcpy(s2,s3))链式
+#### 指针函数经典应用
+### 三种实现版本
+#### V1逐字符*dest=*src;dest++;src++
+#### V2紧凑*dest++=*src++
+#### V3 K&R经典while(*dest++=*src++)
+### V3详解
+赋值表达式值=被赋值→非0继续'\\0'=0停→dest++src++后移
+#### '\\0'也拷贝
+### const和assert
+#### const char*src保护源串
+#### assert(dest&&src)检查非空
+#### 需#include<assert.h>
+
+## 字符串连接my_strcat
+### 两步走
+#### 第一步while(*dest++);dest--找末尾
+#### 第二步while(*dest++=*src++)追加拷贝
+### 链式调用
+#### my_strcat(s1,my_strcat(s2,s3))
+#### 返回dest首地址
+### 注意dest空间
+#### dest数组必须足够大容纳追加后字符串
+#### 否则越界写
+
+## 易错点
+### 7大坑
+#### 返回局部数组(野指针)
+#### 混淆指针函数/函数指针
+#### strcpy忘拷'\\0'(V1/V2)
+#### strcat dest空间不足
+#### 忘存首地址char*s=dest
+#### const不加src可能被改
+#### assert忘#include<assert.h>
+
+## 综合案例与口诀
+### my_itoa整数转字符串
+#### num%10取末位+48转字符
+#### num/10去末位循环
+#### 低位在前需反转
+#### 返回s首地址
+### 设计原则
+#### 字符串操作返回首地址支持链式
+#### 查找函数返回找到的位置指针
+#### malloc返回分配内存首地址
+### 安全口诀
+#### 三能(全局/常量/static/参数)
+#### 三不能(局部栈/内部malloc)
+#### 先存首地址再移动指针
+#### const保护只读参数`;
+      const { root } = transformer.transform(md);
+
+      const branchColors = [
+        '#FF9F43',
+        '#2E86DE',
+        '#10AC84',
+        '#6C5CE7',
+        '#EE5253',
+        '#FDCB6E'
+      ];
+      if (root.children) {
+        root.children.forEach(function(child, i) {
+          if (i < branchColors.length) {
+            child.payload = child.payload || {};
+            child.payload.color = branchColors[i];
+            child.payload.freeze = true;
+          }
+        });
+      }
+
+      mm = Markmap.create('#container', {
+        zoom: true,
+        pan: true,
+        colorFreezeLevel: 2,
+        spacingHorizontal: 15,
+        spacingVertical: 6,
+        duration: 500,
+        maxWidth: 300,
+        nodeMinHeight: 24,
+        paddingX: 12,
+        paddingY: 6,
+        style: {
+          fontFamily: 'Microsoft YaHei, PingFang SC, sans-serif'
+        }
+      }, root);
+
+      document.getElementById('loading').style.display = 'none';
+    } catch(e) {
+      console.error('markmap error:', e);
+      document.getElementById('loading').innerHTML = '加载失败: ' + e.message;
+    }
+  }
+
+  function zoomIn() { if(mm && mm.zoomIn) mm.zoomIn() }
+  function zoomOut() { if(mm && mm.zoomOut) mm.zoomOut() }
+  function fit() { if(mm && mm.fit) mm.fit() }
+
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
