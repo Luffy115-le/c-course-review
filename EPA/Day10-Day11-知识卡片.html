@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day10-Day11 知识卡片</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#f093fb,#f5576c);min-height:100vh;padding:20px}
+.container{max-width:1200px;margin:0 auto}
+.header{text-align:center;color:white;margin-bottom:30px}
+.header h1{font-size:28px;margin-bottom:8px}
+.header p{opacity:.9;font-size:14px}
+.filter-bar{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{padding:8px 16px;border:none;border-radius:20px;background:rgba(255,255,255,.2);color:white;cursor:pointer;transition:.3s;font-size:13px}
+.filter-btn:hover,.filter-btn.active{background:white;color:#f5576c}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px}
+.card{background:white;border-radius:12px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:.3s;cursor:pointer;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.15)}
+.card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+.card.iochar{border-left:4px solid #e74c3c}
+.card.printf{border-left:4px solid #3498db}
+.card.scanf{border-left:4px solid #27ae60}
+.card.buffer{border-left:4px solid #f39c12}
+.card.struct{border-left:4px solid #9b59b6}
+.card.ifsingle{border-left:4px solid #1abc9c}
+.card.ifelse{border-left:4px solid #e67e22}
+.card.ifmulti{border-left:4px solid #34495e}
+.card.ifnest{border-left:4px solid #c0392b}
+.card.ifapply{border-left:4px solid #16a085}
+.card-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;color:white;margin-bottom:10px}
+.card.iochar .card-tag{background:#e74c3c}
+.card.printf .card-tag{background:#3498db}
+.card.scanf .card-tag{background:#27ae60}
+.card.buffer .card-tag{background:#f39c12}
+.card.struct .card-tag{background:#9b59b6}
+.card.ifsingle .card-tag{background:#1abc9c}
+.card.ifelse .card-tag{background:#e67e22}
+.card.ifmulti .card-tag{background:#34495e}
+.card.ifnest .card-tag{background:#c0392b}
+.card.ifapply .card-tag{background:#16a085}
+.card-key{font-size:20px;font-weight:bold;color:#2c3e50;margin-bottom:8px;font-family:'Consolas',monospace;background:#f8f9fa;padding:8px 12px;border-radius:6px;display:inline-block}
+.card-name{font-size:14px;color:#7f8c8d;margin-bottom:10px}
+.card-desc{font-size:13px;color:#34495e;line-height:1.6}
+.card-memo{font-size:12px;color:#e74c3c;margin-top:10px;padding-top:10px;border-top:1px dashed #eee;font-style:italic}
+.stats{position:fixed;bottom:20px;right:20px;background:white;padding:15px 20px;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.2);font-size:13px}
+.stats .stat-item{display:flex;align-items:center;gap:8px;margin:5px 0}
+.stats .dot{width:10px;height:10px;border-radius:50%}
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🎴 Day10-Day11 知识卡片</h1>
+<p>Day10 输入输出专题 · Day11 控制语句 if</p>
+</div>
+
+<div class="filter-bar">
+<button class="filter-btn active" onclick="filter('all')">全部</button>
+<button class="filter-btn" onclick="filter('iochar')">字符IO</button>
+<button class="filter-btn" onclick="filter('printf')">printf</button>
+<button class="filter-btn" onclick="filter('scanf')">scanf</button>
+<button class="filter-btn" onclick="filter('buffer')">输入缓冲</button>
+<button class="filter-btn" onclick="filter('struct')">程序结构</button>
+<button class="filter-btn" onclick="filter('ifsingle')">if单分支</button>
+<button class="filter-btn" onclick="filter('ifelse')">if-else</button>
+<button class="filter-btn" onclick="filter('ifmulti')">多分支</button>
+<button class="filter-btn" onclick="filter('ifnest')">if嵌套</button>
+<button class="filter-btn" onclick="filter('ifapply')">综合应用</button>
+</div>
+
+<div class="cards-grid" id="cards">
+
+<!-- Day10 字符输入输出 -->
+<div class="card iochar" data-cat="iochar">
+<div class="card-tag">字符IO · 必考</div>
+<div class="card-key">putchar(c)</div>
+<div class="card-name">输出一个字符</div>
+<div class="card-desc">向屏幕输出一个字符。参数可以是 char、int（ASCII码）或字符常量。返回值是输出字符的ASCII码。</div>
+<div class="card-memo">💡 每次只能输出一个字符！不能输出字符串</div>
+</div>
+
+<div class="card iochar" data-cat="iochar">
+<div class="card-tag">字符IO · 必考</div>
+<div class="card-key">getchar()</div>
+<div class="card-name">读取一个字符</div>
+<div class="card-desc">从键盘读取一个字符。返回值是 int 类型（字符的ASCII码），读到文件尾返回 EOF(-1)。</div>
+<div class="card-memo">⚠️ 返回值类型是 int，不是 char！</div>
+</div>
+
+<div class="card buffer" data-cat="buffer">
+<div class="card-tag">输入缓冲 · 必考</div>
+<div class="card-key">垃圾字符</div>
+<div class="card-name">输入缓冲区问题</div>
+<div class="card-desc">scanf("%d") 只读取数字，把回车符 '\n' 留在缓冲区。接下来的 scanf("%c") 会直接读走这个回车符！</div>
+<div class="card-memo">💡 只有 %c 和 %s 受影响，%d %f 自动跳过空白</div>
+</div>
+
+<div class="card buffer" data-cat="buffer">
+<div class="card-tag">输入缓冲 · 重点</div>
+<div class="card-key">getchar() / %*c</div>
+<div class="card-name">处理垃圾字符方法</div>
+<div class="card-desc">方法1：getchar() 吃掉回车。方法2：scanf("%*c%c",&ch) 跳过一个。方法3：scanf(" %c",&ch) 格式符前加空格。</div>
+<div class="card-memo">📌 三种方法任选其一，推荐 getchar() 最直观</div>
+</div>
+
+<!-- Day10 printf -->
+<div class="card printf" data-cat="printf">
+<div class="card-tag">printf · 必考</div>
+<div class="card-key">%d %c %f %s</div>
+<div class="card-name">常用格式字符</div>
+<div class="card-desc">%d=十进制整数 | %c=单个字符 | %f=小数浮点数 | %s=字符串 | %ld=长整型 | %lf=double | %x=十六进制 | %o=八进制</div>
+<div class="card-memo">💡 d=decimal, o=octal, x=hex, f=float</div>
+</div>
+
+<div class="card printf" data-cat="printf">
+<div class="card-tag">printf · 重点</div>
+<div class="card-key">%8d %10f</div>
+<div class="card-name">宽度修饰</div>
+<div class="card-desc">指定输出最小宽度。不足则左补空格，超过则按实际长度输出（不会截断）。</div>
+ "    1234"（左补4空格）</div>
+</div>
+
+<div class="card printf" data-cat="printf">
+<div class="card-tag">printf · 必考</div>
+<div class="card-key">%.2f %10.1f</div>
+<div class="card-name">精度修饰</div>
+<div class="card-desc">%.nf：保留 n 位小数（四舍五入）。%m.nf：总宽度 m，保留 n 位小数。%.ns：字符串只取前 n 个字符。</div>
+<div class="card-memo">⚠️ 是四舍五入，不是直接截断！</div>
+</div>
+
+<div class="card printf" data-cat="printf">
+<div class="card-tag">printf · 必考</div>
+<div class="card-key">%02d</div>
+<div class="card-name">标志修饰-补零</div>
+<div class="card-desc">0 标志：左边补0而不是空格。- 标志：左对齐。+ 标志：正数也显示+号。# 标志：八进制/十六进制加前缀。</div>
+05</div>
+</div>
+
+<!-- Day10 scanf -->
+<div class="card scanf" data-cat="scanf">
+<div class="card-tag">scanf · 必考</div>
+<div class="card-key">&amp; 地址符</div>
+<div class="card-name">scanf 必须用地址</div>
+<div class="card-desc">scanf 的参数必须是变量的地址！scanf("%d", &age) 正确。scanf("%d", age) 错误（会崩溃）。</div>
+<div class="card-memo">⚠️ C语言最经典的错误！记住 & 号</div>
+</div>
+
+<div class="card scanf" data-cat="scanf">
+<div class="card-tag">scanf · 重点</div>
+<div class="card-key">%4d%2d%2d</div>
+<div class="card-name">指定输入宽度</div>
+ year=2050, month=5, day=5。</div>
+<div class="card-memo">💡 常用于固定格式的日期、身份证号等解析</div>
+</div>
+
+<div class="card scanf" data-cat="scanf">
+<div class="card-tag">scanf · 了解</div>
+<div class="card-key">%*d</div>
+<div class="card-name">跳过输入数据</div>
+ a=12，跳过345，b=67。</div>
+<div class="card-memo">📌 * 号 = 跳过（忽略）这个数据</div>
+</div>
+
+<div class="card scanf" data-cat="scanf">
+<div class="card-tag">scanf · 重点</div>
+<div class="card-key">%lf / %f</div>
+<div class="card-name">输入输出格式区别</div>
+<div class="card-desc">double 输入必须用 %lf，输出可用 %f 或 %lf。float 输入输出都用 %f。</div>
+<div class="card-memo">💡 输入看类型，输出更灵活</div>
+</div>
+
+<!-- Day11 程序结构 -->
+<div class="card struct" data-cat="struct">
+<div class="card-tag">程序结构 · 必考</div>
+<div class="card-key">顺序/选择/循环</div>
+<div class="card-name">三种基本结构</div>
+<div class="card-desc">顺序结构：从上到下逐条执行。选择结构：根据条件选择（if/switch）。循环结构：根据条件重复（for/while）。</div>
+<div class="card-memo">💡 任何复杂程序都由这三种结构组成</div>
+</div>
+
+<!-- Day11 if单分支 -->
+<div class="card ifsingle" data-cat="ifsingle">
+<div class="card-tag">if单分支 · 必考</div>
+<div class="card-key">if(条件){语句}</div>
+<div class="card-name">if 单分支语法</div>
+<div class="card-desc">条件为真（非0）执行语句块，为假（0）跳过。条件必须用 () 括起来。只有一条语句时 {} 可省略（不推荐）。</div>
+<div class="card-memo">💡 非0即为真，0为假</div>
+</div>
+
+<div class="card ifsingle" data-cat="ifsingle">
+<div class="card-tag">if单分支 · 必考</div>
+<div class="card-key">= vs ==</div>
+<div class="card-name">赋值 vs 比较</div>
+<div class="card-desc">if(a = 5) 是赋值，永远为真（5≠0）。if(a == 5) 才是比较是否相等。这是 C 语言最经典的坑！</div>
+<div class="card-memo">⚠️ 写成 if(5 == a) 可以避免手误（常量不能被赋值）</div>
+</div>
+
+<!-- Day11 if-else -->
+<div class="card ifelse" data-cat="ifelse">
+<div class="card-tag">if-else · 必考</div>
+<div class="card-key">if-else</div>
+<div class="card-name">双分支语句</div>
+<div class="card-desc">条件为真执行 if 块，为假执行 else 块。二选一，互斥执行。</div>
+<div class="card-memo">💡 要么走 if，要么走 else，不会都走</div>
+</div>
+
+<div class="card ifelse" data-cat="ifelse">
+<div class="card-tag">if-else · 必考</div>
+<div class="card-key">闰年判断</div>
+<div class="card-name">经典条件</div>
+<div class="card-desc">(year%4==0 && year%100!=0) || (year%400==0)。即：能被4整除但不能被100整除，或者能被400整除。</div>
+<div class="card-memo">📌 四年一闰，百年不闰，四百年再闰</div>
+</div>
+
+<!-- Day11 多分支 -->
+<div class="card ifmulti" data-cat="ifmulti">
+<div class="card-tag">多分支 · 必考</div>
+<div class="card-key">else if</div>
+<div class="card-name">多分支语句</div>
+<div class="card-desc">if(条件1){...} else if(条件2){...} else{...}。从第一个条件开始判断，哪个满足就执行哪个，执行完整个结构结束。</div>
+<div class="card-memo">💡 多分支是互斥的，只会执行第一个满足的</div>
+</div>
+
+<div class="card ifmulti" data-cat="ifmulti">
+<div class="card-tag">多分支 · 重点</div>
+<div class="card-key">条件顺序</div>
+<div class="card-name">条件顺序很重要</div>
+80→70→60）。如果从低到高判断，85分会先匹配到 >=60 就输出 D，逻辑错误！</div>
+<div class="card-memo">⚠️ 条件顺序写反会导致逻辑完全错误</div>
+</div>
+
+<!-- Day11 if嵌套 -->
+<div class="card ifnest" data-cat="ifnest">
+<div class="card-tag">if嵌套 · 重点</div>
+<div class="card-key">if{if{}}</div>
+<div class="card-name">if 的嵌套</div>
+<div class="card-desc">if 或 else 内又包含 if。先判断外层条件，满足后再判断内层条件。常用于多层逻辑判断，如三角形类型判断。</div>
+<div class="card-memo">💡 嵌套层次建议不超过3层，否则可读性差</div>
+</div>
+
+<div class="card ifnest" data-cat="ifnest">
+<div class="card-tag">if嵌套 · 必考</div>
+<div class="card-key">悬空else</div>
+<div class="card-name">else 配对原则</div>
+<div class="card-desc">else 与最近的未配对的 if 配对。没有 {} 时容易出错。建议始终用 {} 明确层次关系，避免歧义。</div>
+<div class="card-memo">⚠️ 经典坑！没有 {} 的嵌套容易出错，务必加 {}！</div>
+</div>
+
+<!-- Day11 综合应用 -->
+<div class="card ifapply" data-cat="ifapply">
+<div class="card-tag">综合应用 · 重点</div>
+<div class="card-key">变量交换</div>
+<div class="card-name">两变量交换</div>
+<div class="card-desc">交换 a 和 b 需要第三个临时变量 t：t=a; a=b; b=t;。类似两杯水互换需要第三个杯子。</div>
+<div class="card-memo">💡 三个数排序的基础操作</div>
+</div>
+
+<div class="card ifapply" data-cat="ifapply">
+<div class="card-tag">综合应用 · 重点</div>
+<div class="card-key">三数排序</div>
+<div class="card-name">三个数从小到大</div>
+<div class="card-desc">if(a>b)交换ab；if(a>c)交换ac（a最小）；if(b>c)交换bc（b中间，c最大）。三次比较交换完成排序。</div>
+<div class="card-memo">💡 a 先变成最小的，然后 b 和 c 再比较</div>
+</div>
+
+<div class="card ifapply" data-cat="ifapply">
+<div class="card-tag">综合应用 · 必考</div>
+<div class="card-key">分号陷阱</div>
+<div class="card-name">if 后多写分号</div>
+<div class="card-desc">if(a>b); printf("ok"); 分号让 if 的语句体变成空语句。printf 无论条件真假都会执行！这是常见的隐蔽错误。</div>
+<div class="card-memo">⚠️ if 后面不要多写分号！！！</div>
+</div>
+
+<div class="card ifapply" data-cat="ifapply">
+<div class="card-tag">综合应用 · 了解</div>
+<div class="card-key">门票系统</div>
+<div class="card-name">复杂条件综合</div>
+<div class="card-desc">先判断月份（旺季4-10/淡季），再判断年龄段（成人/儿童/老人），两层 if 嵌套完成复杂的业务逻辑判断。</div>
+<div class="card-memo">💡 真实的业务逻辑就是这样逐步判断的</div>
+</div>
+
+</div>
+
+<div class="stats">
+<div class="stat-item"><div class="dot" style="background:#e74c3c"></div>字符IO 2</div>
+<div class="stat-item"><div class="dot" style="background:#3498db"></div>printf 4</div>
+<div class="stat-item"><div class="dot" style="background:#27ae60"></div>scanf 4</div>
+<div class="stat-item"><div class="dot" style="background:#f39c12"></div>输入缓冲 2</div>
+<div class="stat-item"><div class="dot" style="background:#9b59b6"></div>程序结构 1</div>
+<div class="stat-item"><div class="dot" style="background:#1abc9c"></div>if单分支 2</div>
+<div class="stat-item"><div class="dot" style="background:#e67e22"></div>if-else 2</div>
+<div class="stat-item"><div class="dot" style="background:#34495e"></div>多分支 2</div>
+<div class="stat-item"><div class="dot" style="background:#c0392b"></div>if嵌套 2</div>
+<div class="stat-item"><div class="dot" style="background:#16a085"></div>综合应用 4</div>
+<div style="border-top:1px solid #eee;margin-top:8px;padding-top:8px;font-weight:bold">总计：25 张</div>
+</div>
+
+</div>
+
+<script>
+function filter(cat){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.card').forEach(c=>{
+        c.style.display = (cat==='all' || c.dataset.cat===cat) ? 'block' : 'none';
+    });
+}
+</script>
+</body>
+</html>
