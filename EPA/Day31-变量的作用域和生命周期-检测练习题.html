@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day31 变量的作用域和生命周期 - 检测练习题（增强版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:#f5f7fa;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;margin-bottom:20px}
+.header h1{color:#2c3e50;font-size:24px}
+.header p{color:#7f8c8d;margin-top:6px}
+.mode-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.mode-tab{padding:8px 16px;border:2px solid #ddd;border-radius:20px;background:white;cursor:pointer;font-size:13px;transition:.2s}
+.mode-tab:hover{border-color:#4CAF50}
+.mode-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.progress-bar{background:#e0e0e0;height:8px;border-radius:4px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:.3s;border-radius:4px}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:4px;margin-bottom:15px}
+.question-card{background:white;border-radius:12px;padding:22px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-num{display:inline-block;background:#4CAF50;color:white;padding:4px 10px;border-radius:12px;font-size:11px;margin-bottom:10px}
+.question-tag{display:inline-block;background:#ff9800;color:white;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:6px}
+.difficulty-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;margin-left:6px}
+.difficulty-easy{background:#e8f5e9;color:#2e7d32}
+.difficulty-mid{background:#fff3e0;color:#e65100}
+.difficulty-hard{background:#ffebee;color:#c62828}
+.question-text{font-size:15px;color:#2c3e50;margin-bottom:15px;line-height:1.6}
+.question-desc{font-size:13px;color:#555;background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:12px;line-height:1.6;white-space:pre-wrap}
+.options{margin-bottom:10px}
+.option{display:flex;align-items:center;padding:10px 14px;margin:6px 0;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;font-size:14px}
+.option:hover{border-color:#4CAF50;background:#f0fff0}
+.option.selected{border-color:#4CAF50;background:#e8f5e9}
+.option.correct{border-color:#27ae60;background:#d4edda}
+.option.wrong{border-color:#e74c3c;background:#f8d7da}
+.option-label{font-weight:bold;color:#4CAF50;margin-right:8px;min-width:22px}
+.fill-blank{padding:8px 12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;width:140px}
+.fill-blank:focus{outline:none;border-color:#4CAF50}
+.code-editor{width:100%;min-height:280px;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-family:Consolas,'Courier New',monospace;font-size:13px;line-height:1.6;resize:vertical;background:#1e1e1e;color:#d4d4d4}
+.code-editor:focus{outline:none;border-color:#4CAF50}
+.hint-box{background:#e3f2fd;border-left:4px solid #2196F3;padding:10px 14px;margin:10px 0;border-radius:0 6px 6px 0;font-size:13px;color:#1565c0;display:none}
+.hint-box.show{display:block}
+.test-result{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:none;white-space:pre-wrap}
+.test-result.show{display:block}
+.test-result.pass{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50}
+.test-result.fail{background:#ffebee;color:#c62828;border-left:4px solid #f44336}
+.explanation{display:none;background:#fff3cd;border-left:4px solid #ffc107;padding:12px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.5}
+.explanation.show{display:block}
+.explanation-title{font-weight:bold;color:#856404;margin-bottom:6px}
+.answer-display{margin-top:10px;padding:10px;background:#f0f4ff;border-radius:6px;font-size:13px;color:#1565c0;display:none}
+.answer-display.show{display:block}
+.answer-display pre{margin:8px 0;padding:10px;background:#1e1e1e;color:#d4d4d4;border-radius:4px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow-x:auto}
+.btn-group{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:.2s}
+.btn-primary{background:#4CAF50;color:white}
+.btn-primary:hover{background:#45a049}
+.btn-secondary{background:#2196F3;color:white}
+.btn-secondary:hover{background:#1976D2}
+.btn-warn{background:#ff9800;color:white}
+.btn-warn:hover{background:#f57c00}
+.btn-vscode{background:#007ACC;color:white}
+.btn-vscode:hover{background:#005A9E}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);display:none}
+.result-card.show{display:block}
+.result-score{font-size:44px;font-weight:bold;margin:10px 0}
+.result-message{font-size:15px;color:#666;margin-bottom:15px}
+.result-detail{display:flex;justify-content:center;gap:25px;margin:15px 0}
+.result-item{text-align:center}
+.result-item .num{font-size:22px;font-weight:bold}
+.result-item .label{font-size:11px;color:#999;margin-top:3px}
+.correct-num{color:#27ae60}
+.wrong-num{color:#e74c3c}
+.action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.wrong-bank{margin-top:20px;text-align:left;padding:15px;background:#f8f9fa;border-radius:8px}
+.wrong-bank h3{font-size:14px;margin-bottom:10px;color:#e74c3c}
+.wrong-item{padding:8px 0;border-bottom:1px dashed #ddd;font-size:13px}
+.wrong-item:last-child{border:none}
+.wrong-item .wq{color:#333;margin-bottom:3px}
+.wrong-item .wa{color:#e74c3c;font-size:12px}
+.wrong-item .wc{color:#27ae60;font-size:12px}
+.empty-state{text-align:center;padding:30px;color:#999;font-size:14px}
+.kp-section{margin:12px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #4CAF50;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.kp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.kp-title{font-size:15px;font-weight:bold;color:#2c3e50}
+.kp-badge{background:#ff9800;color:white;padding:2px 10px;border-radius:10px;font-size:11px}
+.kp-content{font-size:13px;color:#444;line-height:1.7}
+.kp-content strong{color:#1565c0}
+.kp-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px;color:#c62828}
+.kp-wrong-list{margin-top:8px;padding:8px 12px;background:#fff5f5;border-radius:6px;font-size:12px;color:#e74c3c}
+.review-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.review-tab{padding:6px 14px;border:2px solid #ddd;border-radius:15px;background:white;cursor:pointer;font-size:12px;transition:.2s}
+.review-tab:hover{border-color:#4CAF50}
+.review-tab.active{background:#4CAF50;color:white;border-color:#4CAF50}
+.vscode-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#1565c0}
+.vscode-info code{background:#bbdefb;padding:2px 6px;border-radius:3px;font-family:Consolas,monospace}
+@media(max-width:600px){
+  .result-detail{gap:15px}
+  .btn{padding:8px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📝 Day31 变量的作用域和生命周期 - 检测练习题</h1>
+<p>auto默认存储类型(栈区/{}作用域) · register不能取地址 · static局部变量(全局数据区/生命周期延长/只初始化一次) · static默认值为0 · extern声明不分配内存(声明vs定义) · volatile防止优化(硬件/中断/多线程) · static修饰全局变量(文件私有) · 作用域vs生命周期(空间vs时间) · auto出作用域不可访问 · register只是建议编译器决定</p>
+</div>
+
+<div class="mode-tabs">
+<button class="mode-tab active" onclick="switchMode('normal')">📖 标准练习</button>
+<button class="mode-tab" onclick="switchMode('coding')">💻 编程练习</button>
+<button class="mode-tab" onclick="switchMode('wrongredo')">🔄 错题重做</button>
+<button class="mode-tab" onclick="switchMode('review')">📚 错题库</button>
+</div>
+
+<div id="quizArea">
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="progress-text" id="progressText">第 1 / 14 题</div>
+<div id="quizContainer"></div>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="result-score" id="score">0</div>
+<div class="result-message" id="message"></div>
+<div class="result-detail">
+<div class="result-item"><div class="num correct-num" id="correctCount">0</div><div class="label">正确</div></div>
+<div class="result-item"><div class="num wrong-num" id="wrongCount">0</div><div class="label">错误</div></div>
+<div class="result-item"><div class="num" id="totalCount">0</div><div class="label">总计</div></div>
+</div>
+<div class="action-buttons">
+<button class="btn btn-primary" onclick="startQuiz('normal')">重新答题</button>
+<button class="btn btn-secondary" onclick="startQuiz('coding')">去做编程题</button>
+<button class="btn btn-warn" onclick="startQuiz('wrongredo')">重做错题</button>
+<button class="btn btn-secondary" onclick="startQuiz('consolidate')">巩固练习</button>
+<button class="btn" style="background:#9c27b0;color:white" onclick="switchMode('review')">查看错题库</button>
+</div>
+<div class="wrong-bank" id="wrongBankPreview" style="display:none">
+<h3>📋 本次错题</h3>
+<div id="wrongPreviewList"></div>
+</div>
+</div>
+
+<div id="reviewArea" style="display:none">
+<div class="question-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="font-size:16px;color:#e74c3c">📚 我的错题库</h3>
+<button class="btn" style="background:#e74c3c;color:white;padding:5px 12px;font-size:12px" onclick="clearWrongBank()">清空错题库</button>
+</div>
+<p style="font-size:13px;color:#666;margin-bottom:10px">共 <span id="wrongBankCount">0</span> 道错题，错题保存在本地，刷新不丢失</p>
+<div class="review-tabs">
+<button class="review-tab active" onclick="switchReviewTab('list')">📋 错题列表</button>
+<button class="review-tab" onclick="switchReviewTab('knowledge')">🧠 知识点复习</button>
+</div>
+<div id="wrongBankList"></div>
+<div id="knowledgeReview" style="display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const QUIZ_KEY = 'wrongbank_day31';
+const DAY_NUM = 31;
+
+const allQuestions = [
+  {"id":1,"type":"single","kp":"auto默认存储类型","text":"auto 变量存储在哪个内存区域？","options":["A. 堆区（动态分配）","B. 栈区","C. 全局数据区（静态区）","D. 寄存器"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>• <strong>B正确</strong>：<code>auto</code> 是局部变量的默认存储类型，存储在<strong>栈区</strong>。栈区用于存储局部变量、函数参数、返回地址等，函数调用时分配，函数返回/出 {} 时自动释放<br>• 源码 auto.c 中 <code>auto int a = 10;</code> 的 a 就存储在栈区<br>• A：堆区是 <code>malloc/calloc</code> 动态分配的区域<br>• C：全局数据区存储 static 变量和全局变量<br>• D：寄存器是 <code>register</code> 关键字请求的区域<br>📌 auto 变量 = 栈区局部变量，函数返回即销毁！"},
+  {"id":2,"type":"single","kp":"auto出作用域不可访问","text":"以下代码哪行会报错？<br><code>int main(){<br>  while(1){<br>    auto int a=0;  // 第1行<br>  }<br>  a++;  // 第2行<br>  return 0;<br>}</code>","options":["A. 第1行 auto int a=0;","B. 第1行和第2行都报错","C. 第2行 a++;","D. 都不报错"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：<code>a++;</code>（第2行）会报错。a 定义在 while 的 <code>{}</code> 内，作用域只在该 <code>{}</code> 内，出 <code>{}</code> 后 a 已销毁不存在<br>• 第1行 <code>auto int a=0;</code> 是合法定义，不报错<br>• 源码 auto.c 验证：auto 变量作用域只在所在 <code>{}</code> 内，外面访问会报 \"a 未声明\" 错误<br>• A：第1行合法不报错；B：只有第2行报错；D：第2行确实报错<br>📌 auto 变量\"用完即销\"，出 <code>{}</code> 就不能访问了！"},
+  {"id":3,"type":"single","kp":"register只是建议编译器决定","text":"register 变量的主要优势是什么？","options":["A. 节省内存空间","B. 可以跨函数访问","C. 生命周期延长到整个程序","D. 访问速度极快（寄存器>>内存）"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>• <strong>D正确</strong>：<code>register</code> 变量存储在 CPU 寄存器中，访问速度比内存<strong>快得多</strong>（寄存器 >> 内存）<br>• 源码 register.c：<code>register int i = 0;</code> 用作循环变量提速<br>• A：节省内存不是主要目的（寄存器数量有限）；B：register 仍是局部变量，不能跨函数访问；C：生命周期延长是 static 的作用<br>📌 register 的核心价值是\"快\"，适合高频访问的循环变量！"},
+  {"id":4,"type":"single","kp":"register不能取地址","text":"register int i; 以下哪个操作会报错？","options":["A. i = 10;","B. int *p = &i;","C. printf(\"%d\", i);","D. i++;"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>• <strong>B正确</strong>：<code>int *p = &i;</code> 报错！register 变量存储在 CPU 寄存器中，<strong>没有内存地址</strong>，不能取地址 <code>&i</code><br>• 源码 register.c 中 <code>// int *p = &i;</code> 注释掉了这行就是为避免编译错误<br>• A：赋值合法，对寄存器变量赋值没问题<br>• C：打印合法，读取寄存器变量的值<br>• D：自增合法，<code>i++</code> 可以<br>📌 想用指针操作就不要用 register，否则无法取地址！"},
+  {"id":5,"type":"single","kp":"static局部变量","text":"static 修饰局部变量后，什么发生了变化？","options":["A. 作用域扩大到整个文件","B. 变量存储到寄存器中","C. 生命周期延长到整个程序（作用域不变）","D. 变量可以被其他文件访问"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：static 修饰局部变量后<strong>生命周期延长到整个程序</strong>，但<strong>作用域不变</strong>（仍只在函数内）<br>• 普通局部变量：函数调用时分配，返回时销毁<br>• static 局部变量：存储在全局数据区，程序运行期间一直存在<br>• 作用域仍是函数内（不会变成全局/文件可见）<br>• 源码 static.c 验证：fun() 中 static int a 多次调用 a 累加不重置<br>• A：作用域不变（不会扩大）；B：寄存器是 register 的作用；D：static 反而限制可见性<br>📌 static 修饰局部变量只改\"生命周期\"不改\"作用域\"！"},
+  {"id":6,"type":"single","kp":"static默认值为0","text":"static 局部变量未初始化时默认值是？","options":["A. 0","B. 随机值（垃圾值）","C. 1","D. 编译报错"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>• <strong>A正确</strong>：static 局部变量未初始化时默认值为 <strong>0</strong>（不是随机值）<br>• 原因：static 变量存储在<strong>全局数据区</strong>，该区域自动清零<br>• 源码 static.c：<code>static int a;</code> 未初始化，<code>printf(\"%d\\n\", a);</code> 输出 0<br>• B：随机值是<strong>普通局部变量</strong>（auto）未初始化的默认值<br>• C：不是 1，是 0；D：不会报错，合法<br>📌 别混了：static 和全局变量默认 0，普通局部变量默认随机值！"},
+  {"id":7,"type":"single","kp":"static局部变量","text":"static 局部变量什么时候初始化？","options":["A. 每次函数调用都重新初始化","B. 只在第一次调用时初始化一次","C. 在程序结束时初始化","D. 永远不会初始化"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>• <strong>B正确</strong>：static 局部变量<strong>只在第一次调用</strong>该函数时初始化一次，后续调用<strong>保留上次的值</strong><br>• 这是 static 的\"记忆性\"特性<br>• 源码 static.c：<br>　<code>void fun(){ static int a = 0; a++; printf(\"%d\\n\", a); }</code><br>　多次调用 fun()：输出 1, 2, 3, 4, 5（a 累加，不重置）<br>• A：每次重新初始化是普通局部变量的行为；C：程序结束时初始化无意义；D：第一次会初始化<br>📌 static 局部变量有\"记忆性\"，适合计数器、状态缓存！"},
+  {"id":8,"type":"single","kp":"extern声明不分配内存","text":"extern int global_a; 的作用是？","options":["A. 定义一个全局变量 global_a","B. 删除其他文件中的 global_a","C. 让 global_a 只能在本文件使用","D. 声明一个在其他文件中定义的全局变量"],"correct":"D","correctText":"D","expl":"<strong>解析：</strong>• <strong>D正确</strong>：<code>extern int global_a;</code> 是<strong>声明</strong>一个在其他文件中定义的全局变量，告诉编译器 global_a 在别处定义，本文件可以直接使用<br>• 源码 t1.c 中 <code>int global_a = 100;</code>（定义，分配内存）；main.c 中 <code>extern int global_a;</code>（声明，不分配内存）后即可使用<br>• A：extern 是<strong>声明不是定义</strong>，不分配内存；B：extern 不会删除任何东西；C：限制作用域是 static 的作用，不是 extern<br>📌 extern 让多文件协作成为可能，但分清\"声明\"和\"定义\"！"},
+  {"id":9,"type":"single","kp":"volatile防止优化","text":"volatile 关键字的作用是？","options":["A. 让变量存储在寄存器中","B. 让变量成为常量不可修改","C. 防止编译器将变量优化到寄存器，每次从内存读取","D. 让变量生命周期延长"],"correct":"C","correctText":"C","expl":"<strong>解析：</strong>• <strong>C正确</strong>：<code>volatile</code> 防止编译器将变量优化到寄存器，<strong>每次都从内存读取</strong><br>• 源码 volatile.c：<code>volatile int a = 10;</code> 编译器不会把 a 优化到寄存器<br>• 三大应用场景：<br>　① <strong>硬件寄存器映射</strong>：嵌入式中外设寄存器值可能被硬件改变<br>　② <strong>中断服务程序</strong>：中断可能随时修改变量<br>　③ <strong>多线程共享变量</strong>：其他线程可能修改<br>• A：让变量存到寄存器是 <code>register</code> 的作用（与 volatile 相反）；B：常量不可修改是 <code>const</code> 的作用；D：生命周期延长是 <code>static</code> 的作用<br>📌 volatile = \"别优化我，每次都重新读\"，嵌入式/并发编程必备！"},
+  {"id":10,"type":"single","kp":"static修饰全局变量","text":"static 修饰全局变量时，效果是什么？","options":["A. 限制作用域到当前文件","B. 让全局变量存储在寄存器","C. 让全局变量可以被其他文件访问","D. 让全局变量生命周期结束"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>• <strong>A正确</strong>：static 修饰全局变量时，<strong>限制作用域到当前文件</strong>（文件私有）<br>• 普通全局变量：作用域是整个程序（其他文件 extern 后可访问）<br>• static 全局变量：作用域仅限当前文件（其他文件 extern 也访问不到，链接报错）<br>• 源码 static.c：<code>static int file_private = 100;</code> 仅本文件可见<br>• B：寄存器是 register 的作用；C：正好相反，static 是限制不被其他文件访问；D：全局变量生命周期本来就是整个程序<br>📌 static 修饰局部变量改\"生命周期\"，修饰全局变量改\"作用域\"！"},
+  {"id":11,"type":"judge","kp":"auto默认存储类型","text":"auto 是局部变量的默认存储类型，auto int a 等价于 int a。","options":["A. 正确","B. 错误"],"correct":"A","correctText":"A","expl":"<strong>解析：</strong>正确！<code>auto</code> 是局部变量的<strong>默认</strong>存储类型，<code>auto int a = 10;</code> 等价于 <code>int a = 10;</code><br>• 局部变量不写存储类型默认就是 auto<br>• 源码 auto.c：<code>auto int a = 10;</code> 与 <code>int a = 10;</code> 完全等价，都存储在栈区<br>• 通常省略 auto 关键字，但加上也合法（提高可读性）<br>• auto 变量特性：栈区存储、{} 作用域、函数返回时销毁、未初始化为随机值<br>📌 局部变量默认都是 auto，写不写 auto 都一样！"},
+  {"id":12,"type":"judge","kp":"register只是建议编译器决定","text":"register 变量一定存储在 CPU 寄存器中。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误！<code>register</code> 只是<strong>建议</strong>编译器把变量放到寄存器，<strong>编译器决定</strong>是否采纳<br>• 如果寄存器资源紧张，编译器可能不采纳，仍按普通局部变量处理（存栈区）<br>• 现代编译器优化能力很强，会自己选择是否放寄存器，register 关键字作用已减弱<br>• 但无论是否真正在寄存器，<strong>都不能取地址</strong> <code>&i</code>（语法层面禁止）<br>• 源码 register.c：<code>register int i = 0;</code> 是建议，不保证一定在寄存器<br>📌 register 是\"请把它放寄存器\"的建议，编译器不一定会采纳！"},
+  {"id":13,"type":"judge","kp":"extern声明不分配内存","text":"extern int a; 会为变量 a 分配内存。","options":["A. 正确","B. 错误"],"correct":"B","correctText":"B","expl":"<strong>解析：</strong>错误！<code>extern int a;</code> 是<strong>声明</strong>，<strong>不分配内存</strong><br>• extern 告诉编译器变量在别处定义，本文件使用时不分配新内存<br>• 真正的内存分配在<strong>定义</strong>处（如 <code>int a = 100;</code> 所在的文件）<br>• 对比：<br>　<strong>定义</strong> <code>int a = 100;</code>：分配内存，只能出现一次<br>　<strong>声明</strong> <code>extern int a;</code>：不分配内存，可出现多次<br>• 源码 t1.c + main.c：t1.c 定义 <code>int global_a = 100;</code>（分配内存），main.c 用 <code>extern int global_a;</code>（声明借用，不分配）<br>📌 extern 只是\"声明借用\"，不会重复分配内存！"},
+1，输出 1<br>　第二次调用：a=1→2，输出 2（不重置为 0）<br>　第三次调用：a=2→3，输出 3<br>　...<br>• 如果是普通局部变量 <code>int a = 0;</code>，每次都重置为 0，输出永远是 1<br>📌 static \"只初始化一次\"是它和普通局部变量最关键的区别！"}
+];
+
+const codingQuestions = [
+  {"id":101,"type":"coding","kp":"static局部变量","difficulty":"入门","title":"static 局部变量","desc":"实现 void fun()，内部定义 static int a=0，每次调用 a++ 并打印 a 的值。\n在 main 中调用 fun() 5次，输出：\n1\n2\n3\n4\n5\n\n提示：static int a=0; a++; printf(\"%d\\n\",a);\n注意：static 变量只在第一次调用时初始化，后续调用保留上次的值！","hint":"static 变量记忆性：\n① static int a=0; 只在第一次调用 fun() 时初始化\n② 后续调用 a 保留上次的值\n③ 每次调用 a++ 后 a 递增\n\nfun 函数：\nvoid fun(){\n    static int a = 0;\n    a++;\n    printf(\"%d\\n\", a);\n}\n\nmain 中：\nint i;\nfor(i=0;i<5;i++) fun();\n// 或 fun(); fun(); fun(); fun(); fun();","answer":"#include <stdio.h>\n\nvoid fun() {\n    static int a = 0;\n    a++;\n    printf(\"%d\\n\", a);\n}\n\nint main() {\n    int i;\n    for(i = 0; i < 5; i++) {\n        fun();\n    }\n    return 0;\n}","test_input":"","expected_output":"1\n2\n3\n4\n5"},
+  {"id":102,"type":"coding","kp":"extern声明不分配内存","difficulty":"入门","title":"extern 跨文件","desc":"创建两个文件：\n• t1.c：定义 int global_a=100 和 void print_hello() 函数（输出 \"hello world\"）\n• main.c：用 extern 声明后使用\n输出：\nglobal_a=100\nhello world\n\n提示：main.c 中：\nextern int global_a;\nextern void print_hello();\n然后在 main 中使用\n\n注意：extern 是声明不是定义，不会分配内存！\n下载的 .c 文件包含两个源码，请在 VSCode 中拆分成 t1.c 和 main.c 后用 gcc t1.c main.c -o test 编译。","hint":"extern 跨文件协作：\n• t1.c（定义方）：\n  int global_a = 100;\n  void print_hello() { printf(\"hello world\\n\"); }\n• main.c（使用方）：\n  extern int global_a;        // 声明：告诉编译器 global_a 在别处定义\n  extern void print_hello();  // 声明函数\n  int main() {\n      printf(\"global_a=%d\\n\", global_a);\n      print_hello();\n      return 0;\n  }\n\n编译：gcc t1.c main.c -o test\n（下载的文件包含两个 .c 源码，请在 VSCode 中拆分成 t1.c 和 main.c）","answer":"/* ============ t1.c ============ */\n#include <stdio.h>\n\nint global_a = 100;\n\nvoid print_hello() {\n    printf(\"hello world\\n\");\n}\n\n/* ============ main.c ============ */\n#include <stdio.h>\n\nextern int global_a;\nextern void print_hello();\n\nint main() {\n    printf(\"global_a=%d\\n\", global_a);\n    print_hello();\n    return 0;\n}","test_input":"","expected_output":"global_a=100\nhello world"},
+  {"id":103,"type":"coding","kp":"auto出作用域不可访问","difficulty":"中等","title":"auto 作用域验证","desc":"在 main 的 if(1){auto int x=10; printf(\"inside: %d\\n\",x);} 中定义变量 x。\n在 if 外面尝试访问 x 会报错（请注释掉报错行验证）。\n输出：\ninside: 10\n\n提示：\nint main(){\n    if(1){\n        auto int x = 10;\n        printf(\"inside: %d\\n\", x);\n    }\n    // printf(\"%d\\n\", x);  // 这行会报错：x 未声明\n    return 0;\n}\n\n注意：auto 变量作用域只在 {} 内，出 {} 后变量销毁！","hint":"auto 作用域验证：\n• auto int x 在 if 的 {} 内定义\n• 作用域仅限 {} 内，出 {} 后 x 不存在\n• 在 {} 外访问 x 会报 \"x 未声明\" 错误\n\n代码：\nint main(){\n    if(1){\n        auto int x = 10;\n        printf(\"inside: %d\\n\", x);  // 正确：x 在作用域内\n    }\n    // printf(\"%d\\n\", x);  // 错误：x 出作用域已销毁\n    return 0;\n}\n\n注意：注释掉报错行后程序可正常编译运行\nauto 是局部变量默认存储类型，等价于 int x = 10;","answer":"#include <stdio.h>\n\nint main() {\n    if(1) {\n        auto int x = 10;\n        printf(\"inside: %d\\n\", x);\n        // printf(\"%d\\n\", x);  // 这行会报错：x 出作用域已销毁\n    }\n    // printf(\"%d\\n\", x);  // 这行会报错：x 在 if 外不可访问\n    return 0;\n}","test_input":"","expected_output":"inside: 10"}
+];
+
+const kpMap = {
+  "auto默认存储类型":{"title":"auto 默认存储类型（栈区 / {} 作用域）","content":"<strong>auto</strong> 是局部变量的<strong>默认</strong>存储类型，存储在<strong>栈区</strong>。<br>语法：<code>auto int a = 10;</code>（等价于 <code>int a = 10;</code>，auto 通常省略）<br>特性：<br>• <strong>存储位置</strong>：栈区（stack）<br>• <strong>作用域</strong>：只在定义所在的 <code>{}</code> 内<br>• <strong>生命周期</strong>：函数调用时分配，函数返回/出 {} 时自动销毁<br>• <strong>默认值</strong>：未初始化时为随机值（垃圾值）<br>源码 auto.c：<br><code>auto int a = 10;</code>  // 等价于 int a = 10;<br><code>printf(\"%d\\n\", a);</code>  // 输出 10<br>📌 局部变量不写存储类型默认就是 auto，加 auto 关键字通常是为了代码可读性。"},
+  "register不能取地址":{"title":"register 不能取地址","content":"<strong>register</strong> 变量存储在 CPU 寄存器中，<strong>不能取地址</strong>。<br>语法：<code>register int i = 0;</code><br>关键限制：<br>• <strong>不能取地址</strong>：<code>int *p = &i;</code> 编译报错！寄存器没有内存地址<br>• <strong>不能使用 & 运算符</strong>：寄存器变量没有可访问的内存地址<br>• <strong>仅限基本类型</strong>：不能修饰数组、结构体等复杂类型<br>源码 register.c：<br><code>register int i = 0;</code><br><code>// int *p = &i;</code>  // 注释掉了，会报错<br><code>printf(\"%d\\n\", i);</code>  // 合法<br>📌 想用指针操作就不要用 register，否则无法取地址！"},
+ <strong>全局数据区</strong>（静态区）<br>② <strong>生命周期延长</strong>：从函数调用期间 → <strong>整个程序运行期间</strong><br>③ <strong>初始化时机</strong>：只在<strong>第一次调用</strong>函数时初始化一次，后续调用保留上次的值<br>注意：<strong>作用域不变</strong>，仍只在函数内可访问<br>源码 static.c：<br><code>void fun(){</code><br>　<code>static int a = 0;</code>  // 只第一次初始化<br>　<code>a++;</code><br>　<code>printf(\"%d\\n\", a);</code><br><code>}</code><br>多次调用 fun()：输出 1, 2, 3, 4, 5...（a 累加，不重置）<br>📌 static 让局部变量有了\"记忆性\"，适合计数器、缓存状态！"},
+  "static默认值为0":{"title":"static 默认值为 0","content":"<strong>static 局部变量未初始化时默认值为 0</strong>（不是随机值）。<br>原因：static 变量存储在<strong>全局数据区</strong>，该区域自动清零<br>对比：<br>• <strong>普通局部变量</strong>（auto）：未初始化为<strong>随机值</strong>（垃圾值）<br>• <strong>static 局部变量</strong>：未初始化为 <strong>0</strong>（int 为 0，float 为 0.0，指针为 NULL）<br>• <strong>全局变量</strong>：未初始化为 <strong>0</strong>（与 static 相同，都存在全局数据区）<br>源码 static.c：<br><code>static int a;</code>  // 未初始化<br><code>printf(\"%d\\n\", a);</code>  // 输出 0<br>📌 别忘了：static 和全局变量默认 0，普通局部变量默认随机值！"},
+  "extern声明不分配内存":{"title":"extern 声明不分配内存（声明 vs 定义）","content":"<strong>extern</strong> 用于<strong>声明</strong>一个在其他文件中<strong>定义</strong>的全局变量或函数。<br>关键：extern 是<strong>声明不是定义</strong>，不分配内存！<br><table><tr><th>对比</th><th>定义 int a=100;</th><th>extern int a;</th></tr><tr><td>性质</td><td>定义</td><td>声明</td></tr><tr><td>分配内存</td><td>是</td><td>否</td></tr><tr><td>初始值</td><td>100</td><td>无（用别处的值）</td></tr><tr><td>位置</td><td>只能一次</td><td>可多次</td></tr></table><br>源码 t1.c + main.c：<br>• <strong>t1.c（定义方）</strong>：<code>int global_a = 100;</code>（分配内存）<br>• <strong>main.c（使用方）</strong>：<code>extern int global_a;</code>（声明借用，不分配）<br>编译：<code>gcc t1.c main.c -o test</code><br>📌 extern 让多文件协作成为可能，但要分清\"声明\"和\"定义\"！"},
+  "volatile防止优化":{"title":"volatile 防止优化（硬件 / 中断 / 多线程）","content":"<strong>volatile</strong> 防止编译器将变量优化到寄存器，<strong>每次都从内存读取</strong>。<br>语法：<code>volatile int a = 10;</code><br>原理：编译器优化时可能把频繁访问的变量缓存到寄存器加速；用 volatile 后编译器<strong>不优化</strong>，每次都从内存读写<br>三大应用场景：<br>① <strong>硬件寄存器映射</strong>：嵌入式开发中外设寄存器值可能被硬件改变<br>② <strong>中断服务程序</strong>：中断可能随时修改变量，主程序不能缓存旧值<br>③ <strong>多线程共享变量</strong>：其他线程可能修改，不能假设值不变<br>源码 volatile.c：<br><code>volatile int a = 10;</code>  // 每次从内存读取<br><code>printf(\"%d\\n\", a);</code><br>📌 volatile = \"别优化我，每次都重新读\"，是嵌入式/并发编程必备关键字！"},
+  "static修饰全局变量":{"title":"static 修饰全局变量（文件私有）","content":"<strong>static 修饰全局变量</strong>时，限制其作用域到<strong>当前文件</strong>（文件私有）。<br>对比：<br>• <strong>普通全局变量</strong>：作用域是整个程序（其他文件 extern 后可访问）<br>• <strong>static 全局变量</strong>：作用域仅限当前文件（其他文件 extern 也访问不到）<br>用途：<br>• 实现\"文件私有\"的全局变量，避免命名冲突<br>• 模块化设计：每个 .c 文件的内部状态对外不可见<br>• 类似面向对象中的 private 成员<br>源码 static.c：<br><code>static int file_private = 100;</code>  // 仅本文件可见<br>其他文件：<code>extern int file_private;</code>  // 链接错误，找不到<br>📌 static 修饰局部变量改\"生命周期\"，修饰全局变量改\"作用域\"，注意区分！"},
+  "作用域vs生命周期":{"title":"作用域 vs 生命周期（空间 vs 时间）","content":"<strong>作用域</strong>和<strong>生命周期</strong>是两个不同维度的概念：<br><table><tr><th>维度</th><th>作用域</th><th>生命周期</th></tr><tr><td>本质</td><td>空间（在哪可见）</td><td>时间（何时存在）</td></tr><tr><td>问的是</td><td>\"哪里能用\"</td><td>\"何时活着\"</td></tr><tr><td>auto 局部变量</td><td>函数内 / {}内</td><td>函数调用期间</td></tr><tr><td>static 局部变量</td><td>函数内（不变）</td><td>整个程序（延长）</td></tr><tr><td>全局变量</td><td>整个程序</td><td>整个程序</td></tr><tr><td>static 全局变量</td><td>当前文件（缩小）</td><td>整个程序</td></tr></table><br>记忆口诀：<br>• <strong>作用域</strong> = \"名字在<strong>哪</strong>能用\"（空间）<br>• <strong>生命周期</strong> = \"变量<strong>何时</strong>存在\"（时间）<br>📌 static 修饰局部变量改生命周期（延长），修饰全局变量改作用域（缩小），但都不改变对方的维度！"},
+  "auto出作用域不可访问":{"title":"auto 出作用域不可访问","content":"<strong>auto 变量出作用域后不可访问</strong>，访问会报\"未声明\"错误。<br>原因：auto 变量存储在栈区，出 <code>{}</code> 后<strong>变量销毁</strong>，内存被回收<br>验证代码：<br><code>int main(){</code><br>　<code>if(1){</code><br>　　<code>auto int x = 10;</code><br>　　<code>printf(\"inside: %d\\n\", x);</code>  // ✓ 在 {} 内可访问<br>　<code>}</code><br>　<code>// printf(\"%d\\n\", x);</code>  // ✗ 出 {} 后访问报错：x 未声明<br>　<code>return 0;</code><br><code>}</code><br>出 <code>{}</code> 后 x 销毁，再访问 x 会报 \"x 未声明\" 错误<br>源码 auto.c 验证：auto 变量\"用完即销\"，出了 {} 就不存在<br>📌 auto 变量\"用完即销\"，出了 {} 就不存在了，这是局部变量作用域规则的核心！"},
+  "register只是建议编译器决定":{"title":"register 只是建议编译器决定","content":"<strong>register 只是建议</strong>，编译器决定是否真正放入寄存器。<br>语法：<code>register int i = 0;</code><br>关键点：<br>• <strong>不保证在寄存器</strong>：如果寄存器紧张，编译器仍按普通局部变量处理（存栈区）<br>• <strong>编译器决定</strong>：现代编译器优化能力强，会自己选择是否放寄存器<br>• <strong>现代作用减弱</strong>：编译器自动优化，register 关键字实际意义已不大<br>使用建议：<br>• 用作高频访问的循环变量（如 <code>for(register int i=0; i&lt;1000000; i++)</code>）<br>• 不能取地址（无论是否真正在寄存器，都不能 & 取地址）<br>源码 register.c：<br><code>register int i = 0;</code><br><code>for(i=0; i&lt;10; i++) printf(\"%d \", i);</code><br>📌 register 是\"请把它放寄存器\"的<strong>建议</strong>，编译器不一定会采纳！"}
+};
+
+const extraQuestions = [];
+
+let currentQuestions = [];
+let currentQIndex = 0;
+let answers = {};
+let currentMode = 'normal';
+const PROGRESS_KEY = QUIZ_KEY + '_progress';
+
+function getWrongBank(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_KEY)||'[]')}catch(e){return []}
+}
+function saveWrongBank(list){
+  localStorage.setItem(QUIZ_KEY, JSON.stringify(list));
+}
+function addToWrongBank(q, userAns){
+  const bank = getWrongBank();
+  if(!bank.find(function(x){return x.id===q.id})){
+    bank.push({
+      id:q.id,type:q.type,kp:q.kp,text:q.text,
+      options:q.options,correct:q.correct,correctText:q.correctText,
+      expl:q.expl,userAns:userAns,time:Date.now()
+    });
+    saveWrongBank(bank);
+  }
+}
+function saveProgress(){
+  if(currentMode==='review') return;
+  const prog = {
+    mode:currentMode, index:currentQIndex, answers:answers,
+    ids:currentQuestions.map(function(q){return q.id}), time:Date.now()
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+}
+function loadProgress(){
+  try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'null')}catch(e){return null}
+}
+function clearProgress(){
+  localStorage.removeItem(PROGRESS_KEY);
+}
+function shuffle(arr){
+  const a=[];
+  for(let i=0;i<arr.length;i++) a.push(arr[i]);
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+function openInVSCode(q) {
+  const code = q.answer || q.hint || '// 请在此编写代码';
+  const blob = new Blob([code], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Day'+DAY_NUM+'_'+q.id+'.c';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  const info = document.createElement('div');
+  info.className = 'vscode-info';
+ Open File → 选择下载的 '+a.download+'</code><br>或按快捷键 <code>Ctrl+O</code>';
+  const container = document.getElementById('quizContainer');
+  const oldInfo = container.querySelector('.vscode-info');
+  if (oldInfo) oldInfo.remove();
+  container.querySelector('.question-card').appendChild(info);
+}
+
+function startQuiz(mode){
+  clearProgress();
+  currentMode = mode;
+  currentQIndex = 0;
+  answers = {};
+  document.getElementById('resultCard').classList.remove('show');
+  document.getElementById('reviewArea').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+  const tabMap = {normal:0, coding:1, wrongredo:2, review:3};
+  if(tabMap[mode]!==undefined) document.querySelectorAll('.mode-tab')[tabMap[mode]].classList.add('active');
+
+  if(mode==='coding'){
+    currentQuestions = [];
+    for(let i=0;i<codingQuestions.length;i++) currentQuestions.push(codingQuestions[i]);
+  } else if(mode==='wrongredo'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，没有错题可以重做！');
+      switchMode('normal');
+      return;
+    }
+    currentQuestions = bank.map(function(w){return Object.assign({},w,{isWrongRedo:true})});
+  } else if(mode==='consolidate'){
+    const bank = getWrongBank();
+    if(bank.length===0){
+      alert('错题库为空，先去做题吧！');
+      switchMode('normal');
+      return;
+    }
+    const weakKps = [];
+    const seen={};
+    for(let i=0;i<bank.length;i++){if(!seen[bank[i].kp]){weakKps.push(bank[i].kp);seen[bank[i].kp]=true;}}
+    let pool = allQuestions.filter(function(q){return weakKps.indexOf(q.kp)>=0 && !bank.find(function(w){return w.id===q.id})});
+    if(pool.length<5) pool = allQuestions.filter(function(q){return !bank.find(function(w){return w.id===q.id})});
+    currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  } else {
+    currentQuestions = [];
+    for(let i=0;i<allQuestions.length;i++) currentQuestions.push(allQuestions[i]);
+  }
+
+  if(currentQuestions.length===0){
+    alert('没有题目！');
+    return;
+  }
+  renderQuestion();
+}
+
+function switchMode(mode){
+  if(mode==='review'){
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('reviewArea').style.display='block';
+    document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+    document.querySelectorAll('.mode-tab')[3].classList.add('active');
+    currentMode='review';
+    renderReview();
+    return;
+  }
+  startQuiz(mode);
+}
+
+function renderQuestion(){
+  saveProgress();
+  const q = currentQuestions[currentQIndex];
+  const total = currentQuestions.length;
+  const pct = ((currentQIndex+1)/total)*100;
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('progressText').textContent = '第 '+(currentQIndex+1)+' / '+total+' 题';
+
+  let html = '<div class="question-card">';
+  html += '<span class="question-num">第 '+(currentQIndex+1)+' 题</span>';
+  html += '<span class="question-tag">'+q.kp+'</span>';
+  if(q.type==='coding'){
+    const diffMap = {'入门':'difficulty-easy','简单':'difficulty-easy','中等':'difficulty-mid','困难':'difficulty-hard'};
+    html += '<span class="difficulty-tag '+(diffMap[q.difficulty]||'')+'">'+q.difficulty+'</span>';
+  }
+  if(q.type==='coding'){
+    html += '<div class="question-text"><strong>'+q.title+'</strong></div>';
+    html += '<div class="question-desc">'+q.desc.replace(/\n/g,'<br>')+'</div>';
+    html += '<textarea class="code-editor" id="codeEditor" placeholder="// 在这里编写你的代码..."></textarea>';
+    html += '<div class="btn-group">';
+    html += '<button class="btn btn-vscode" onclick="openInVSCode(currentQuestions[currentQIndex])">📂 在VSCode中打开</button>';
+    html += '<button class="btn btn-secondary" onclick="showHint()">💡 提示</button>';
+    html += '<button class="btn btn-warn" onclick="showAnswerCoding()">📖 参考答案</button>';
+    html += '</div>';
+    html += '<div class="hint-box" id="hintBox">💡 '+q.hint+'</div>';
+    html += '<div class="test-result" id="testResult"></div>';
+    html += '<div class="answer-display" id="answerDisplay"><strong>参考答案：</strong><pre>'+q.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre></div>';
+  } else {
+    html += '<div class="question-text">'+q.text+'</div>';
+    if(q.type==='single' || q.type==='judge'){
+      html += '<div class="options">';
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      q.options.forEach(function(opt,i){
+        const sel = answers[q.id]===labels[i]?'selected':'';
+        html += '<div class="option '+sel+'" onclick="selectOption(\''+labels[i]+'\', event)"><span class="option-label">'+labels[i]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    } else if(q.type==='fill'){
+      html += '<div class="question-text">'+q.text+'</div>';
+    }
+  }
+  html += '<div class="explanation" id="expl"><div class="explanation-title">📖 解析</div>'+(q.expl||'')+'</div>';
+  html += '<div class="btn-group">';
+  if(currentQIndex>0) html += '<button class="btn" onclick="prevQ()">上一题</button>';
+  if(q.type==='coding'){
+</button>';
+  } else {
+    html += '<button class="btn btn-primary" onclick="submitQ(event)">提交答案</button>';
+</button>';
+    else html += '<button class="btn btn-secondary" onclick="finishQuiz()" id="finishBtn" style="display:none">🏁 完成答题</button>';
+  }
+  html += '</div></div>';
+  document.getElementById('quizContainer').innerHTML = html;
+}
+
+function selectOption(label, e){
+  const q = currentQuestions[currentQIndex];
+  answers[q.id] = label;
+  document.querySelectorAll('.option').forEach(function(o){o.classList.remove('selected')});
+  e.currentTarget.classList.add('selected');
+}
+
+function showHint(){
+  document.getElementById('hintBox').classList.toggle('show');
+}
+function showAnswerCoding(){
+  document.getElementById('answerDisplay').classList.toggle('show');
+}
+
+function submitQ(e){
+  const q = currentQuestions[currentQIndex];
+  let userAns = answers[q.id];
+  let isCorrect = false;
+
+  if(q.type==='fill'){
+    const inputs = document.querySelectorAll('.fill-blank');
+    userAns = Array.from(inputs).map(function(i){return i.value.trim()});
+    isCorrect = q.correct.every(function(c,i){return userAns[i] && userAns[i].toLowerCase()===c.toLowerCase()});
+    if(!isCorrect) addToWrongBank(q, userAns.join(' | '));
+  } else {
+    if(!userAns){
+      alert('请先选择一个答案！');
+      return;
+    }
+    isCorrect = userAns===q.correct;
+    if(!isCorrect) addToWrongBank(q, userAns||'未作答');
+  }
+
+  if(q.type==='single' || q.type==='judge'){
+    document.querySelectorAll('.option').forEach(function(o,i){
+      const labels = q.type==='judge'?['A','B']:['A','B','C','D'];
+      if(labels[i]===q.correct) o.classList.add('correct');
+      else if(labels[i]===userAns) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+    });
+  } else if(q.type==='fill'){
+    document.querySelectorAll('.fill-blank').forEach(function(inp,i){
+      inp.disabled = true;
+      if(inp.value.trim().toLowerCase()===q.correct[i].toLowerCase()){
+        inp.style.background='#d4edda';inp.style.borderColor='#27ae60';
+      } else {
+        inp.style.background='#f8d7da';inp.style.borderColor='#e74c3c';
+        inp.title = '正确答案: '+q.correct[i];
+      }
+    });
+  }
+
+  document.getElementById('expl').classList.add('show');
+  const nb = document.getElementById('nextBtn');
+  const fb = document.getElementById('finishBtn');
+  if(nb) nb.removeAttribute('style');
+  if(fb) fb.removeAttribute('style');
+  e.currentTarget.style.display='none';
+  saveProgress();
+}
+
+function prevQ(){
+  if(currentQIndex>0){currentQIndex--;renderQuestion()}
+}
+function nextQ(){
+  if(currentQIndex<currentQuestions.length-1){currentQIndex++;renderQuestion()}
+  else finishQuiz();
+}
+
+function finishQuiz(){
+  saveProgress();
+  let correct=0, wrongList=[];
+  currentQuestions.forEach(function(q){
+    if(q.type==='coding') return;
+    const ua = answers[q.id];
+    let ok=false;
+    if(q.type==='fill'){
+      const ual = (ua||[]);
+      ok = Array.isArray(ual) && q.correct.every(function(c,i){return ual[i] && ual[i].toLowerCase()===c.toLowerCase()});
+    } else { ok = ua===q.correct; }
+    if(ok) correct++; else wrongList.push({q:q,userAns:Array.isArray(ua)?ua.join(' | '):(ua||'未作答')});
+  });
+
+  const total = currentQuestions.filter(function(q){return q.type!=='coding'}).length;
+  const wrong = total - correct;
+  const score = total>0 ? Math.round(correct/total*100) : 0;
+
+  document.getElementById('quizArea').style.display='none';
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('score').textContent = score;
+  document.getElementById('score').style.color = score>=90?'#27ae60':score>=60?'#f39c12':'#e74c3c';
+  document.getElementById('message').textContent = score>=90?'🎉 太棒了！掌握得很好！':score>=60?'👍 继续努力，还有提升空间！':'💪 基础还需加强，多复习知识点！';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('totalCount').textContent = total;
+
+  if(wrongList.length>0){
+    document.getElementById('wrongBankPreview').style.display='block';
+    let html='';
+    wrongList.forEach(function(w){
+      html += '<div class="wrong-item"><div class="wq">'+w.q.kp+': '+w.q.text.substring(0,50)+'...</div><div class="wa">你的答案: '+w.userAns+'</div><div class="wc">正确答案: '+(w.q.correctText||w.q.correct)+'</div></div>';
+    });
+    document.getElementById('wrongPreviewList').innerHTML = html;
+  } else {
+    document.getElementById('wrongBankPreview').style.display='none';
+  }
+  clearProgress();
+}
+
+function renderReview(){
+  const bank = getWrongBank();
+  document.getElementById('wrongBankCount').textContent = bank.length;
+  switchReviewTab('list');
+}
+
+function switchReviewTab(tab){
+  document.querySelectorAll('.review-tab').forEach(function(t){t.classList.remove('active')});
+  if(event&&event.target) event.target.classList.add('active');
+  else document.querySelectorAll('.review-tab')[tab==='list'?0:1].classList.add('active');
+  document.getElementById('wrongBankList').style.display = tab==='list'?'block':'none';
+  document.getElementById('knowledgeReview').style.display = tab==='knowledge'?'block':'none';
+  if(tab==='list') renderWrongList();
+  else renderKnowledgeReview();
+}
+
+function renderWrongList(){
+  const bank = getWrongBank();
+  const el = document.getElementById('wrongBankList');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+  let html='';
+  bank.sort(function(a,b){return b.time-a.time}).forEach(function(w,i){
+    html += '<div class="kp-section" style="border-left-color:#e74c3c">';
+    html += '<div class="kp-header"><div class="kp-title">'+(i+1)+'. '+w.kp+'</div>';
+    html += '<button class="btn" style="background:#e74c3c;color:white;padding:3px 10px;font-size:11px" onclick="removeWrong('+w.id+')">删除</button></div>';
+    html += '<div class="kp-content">'+w.text+'</div>';
+    if(w.options){
+      html += '<div class="options" style="margin-top:8px">';
+      const labels = w.type==='judge'?['A','B']:['A','B','C','D'];
+      w.options.forEach(function(opt,j){
+        const cls = labels[j]===w.correct?'correct':(labels[j]===w.userAns?'wrong':'');
+        html += '<div class="option '+cls+'" style="cursor:default;pointer-events:none"><span class="option-label">'+labels[j]+'.</span>'+opt+'</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div class="explanation show"><div class="explanation-title">📖 解析</div>'+(w.expl||'')+'</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function removeWrong(id){
+  if(!confirm('确定删除这道错题吗？')) return;
+  const bank = getWrongBank().filter(function(w){return w.id!==id});
+  saveWrongBank(bank);
+  renderReview();
+}
+
+function clearWrongBank(){
+  if(!confirm('确定清空所有错题吗？此操作不可恢复！')) return;
+  saveWrongBank([]);
+  renderReview();
+}
+
+function renderKnowledgeReview(){
+  const bank = getWrongBank();
+  const el = document.getElementById('knowledgeReview');
+  if(bank.length===0){el.innerHTML='<div class="empty-state">暂无错题，继续加油！</div>';return}
+
+  const kpCount = {};
+  bank.forEach(function(w){kpCount[w.kp]=(kpCount[w.kp]||0)+1});
+  const sorted = Object.keys(kpCount).map(function(k){return [k,kpCount[k]]}).sort(function(a,b){return b[1]-a[1]});
+
+  let html = '<p style="font-size:13px;color:#666;margin-bottom:12px">按错误频率排序，共 '+sorted.length+' 个薄弱知识点</p>';
+  sorted.forEach(function(entry){
+    const kp=entry[0],count=entry[1];
+    const info = kpMap[kp] || {title:kp, content:'暂无详细说明，请看教材。'};
+    const related = bank.filter(function(w){return w.kp===kp});
+    html += '<div class="kp-section">';
+    html += '<div class="kp-header"><div class="kp-title">'+info.title+'</div><span class="kp-badge">错 '+count+' 次</span></div>';
+    html += '<div class="kp-content">'+info.content+'</div>';
+    html += '<div class="kp-wrong-list">相关错题：<br>';
+    related.forEach(function(r){
+      html += '• '+r.text.substring(0,60)+(r.text.length>60?'...':'')+'<br>';
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+window.addEventListener('beforeunload', saveProgress);
+
+(function(){
+  const p = loadProgress();
+  if(p && p.mode && p.ids && p.ids.length>0 && Date.now()-p.time < 3600000){
+    if(confirm('检测到上次未完成的答题进度，是否恢复？')){
+      currentMode = p.mode;
+      currentQIndex = p.index;
+      answers = p.answers || {};
+      let pool;
+      if(p.mode==='coding') pool = codingQuestions;
+      else pool = allQuestions;
+      currentQuestions = p.ids.map(function(id){return pool.find(function(q){return q.id===id})}).filter(Boolean);
+      if(currentQuestions.length>0){
+        document.querySelectorAll('.mode-tab').forEach(function(t){t.classList.remove('active')});
+        const tm = {normal:0,coding:1,wrongredo:2};
+        if(tm[p.mode]!==undefined) document.querySelectorAll('.mode-tab')[tm[p.mode]].classList.add('active');
+        renderQuestion();
+        return;
+      }
+    }
+    clearProgress();
+  }
+  startQuiz('normal');
+})();
+</script>
+</body>
+</html>
