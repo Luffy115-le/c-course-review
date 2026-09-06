@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="utf-8"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Day7 运算符上</title>
+
+<script>
+
+MathJax = {
+
+  tex: {
+
+    inlineMath: [['$', '$'], ['\(', '\)']],
+
+    displayMath: [['$$', '$$'], ['\[', '\]']]
+
+  }
+
+};
+
+</script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+
+<style>
+
+/* === ExamPass Shared Styles === */
+
+/* Paper-like warm background, clean typography, responsive */
+
+
+
+:root {
+
+  --paper: #fdf6e3;
+
+  --paper-dark: #f5ecd7;
+
+  --ink: #2c2c2c;
+
+  --ink-light: #555;
+
+  --accent: #2563eb;
+
+  --accent-hover: #1d4ed8;
+
+  --divider: #d6c8a8;
+
+  --card-bg: #fef9ef;
+
+  --card-border: #e8dcc8;
+
+  --correct: #22c55e;
+
+  --correct-bg: #f0fdf4;
+
+  --wrong: #ef4444;
+
+  --wrong-bg: #fef2f2;
+
+  --tag-bg: #fef3c7;
+
+  --tag-text: #92400e;
+
+  --radius: 6px;
+
+}
+
+
+
+* { box-sizing: border-box; }
+
+
+
+body {
+
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+
+  background: var(--paper);
+
+}
+
+
+
+@media print {
+
+  body { font-size: 10.5pt; background: #fff; }
+
+  .no-print { display: none !important; }
+
+  h1, h2, h3 { page-break-after: avoid; }
+
+}
+
+
+
+/* ── Header ── */
+
+#exampass-header {
+
+  display: flex; justify-content: space-between; align-items: baseline;
+
+  padding: 6px 0; margin-bottom: 0;
+
+}
+
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+
+.header-url  { font-size: 0.78em; color: #999; }
+
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+
+
+/* ── Typography ── */
+
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+
+a { color: var(--accent); text-decoration: none; }
+
+a:hover { text-decoration: underline; }
+
+
+
+/* ── Tables ── */
+
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+
+th { background: var(--paper-dark); font-weight: 700; }
+
+
+
+/* ── Knowledge point vs explanation ── */
+
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+
+
+/* ── Block elements ── */
+
+blockquote {
+
+  border-left: 3px solid #c0392b; background: #fef9ef;
+
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+
+}
+
+/* Modern monospace stack — avoids the ugly Courier New fallback on Windows. */
+
+:root {
+
+  --mono: "Cascadia Code", "JetBrains Mono", "Fira Code", "Source Code Pro",
+
+          Consolas, "SF Mono", Menlo, "DejaVu Sans Mono", monospace;
+
+}
+
+code {
+
+  font-family: var(--mono);
+
+  background: #eee8d8; color: #8a4b1e;
+
+  padding: 1px 5px; border-radius: 4px; font-size: 0.9em;
+
+}
+
+pre {
+
+  font-family: var(--mono);
+
+  background: #2d2a26; color: #ece6da;
+
+  padding: 14px 16px; border-radius: var(--radius);
+
+  overflow-x: auto; line-height: 1.6; font-size: 0.9em;
+
+  border: 1px solid #3d3934; tab-size: 2;
+
+}
+
+pre code {
+
+  background: none; color: inherit; padding: 0; font-size: 1em; border-radius: 0;
+
+}
+
+/* kp/exp spans inside <pre> must inherit the light code color, not their own dark color */
+
+pre .kp, pre .exp { color: inherit; }
+
+
+
+/* ── Long display formulas: scroll inside their column, never overflow ── */
+
+mjx-container[display="true"] {
+
+  max-width: 100%;
+
+  overflow-x: auto;
+
+  overflow-y: hidden;
+
+}
+
+
+
+/* ── TOC ── */
+
+div.toc {
+
+  background: var(--card-bg); padding: 14px 18px;
+
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+
+}
+
+div.toc ul { padding-left: 18px; }
+
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+
+
+/* ── Priority tags ── */
+
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+
+/* ── Checkpoint self-test ── */
+
+.checkpoint {
+
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius);
+
+  padding: 10px 16px; margin: 18px 0;
+
+  font-size: 0.95em;
+
+}
+
+.checkpoint::before {
+
+  content: '🧠 自测：';
+
+  font-weight: 700; color: #1e40af;
+
+}
+
+.checkpoint .cp-answer { margin-top: 10px; border-top: 1px dashed #bfdbfe; padding-top: 8px; }
+
+.checkpoint .cp-answer summary {
+
+  cursor: pointer; color: #1e40af; font-weight: 600; user-select: none;
+
+  list-style: none;
+
+}
+
+.checkpoint .cp-answer summary::before { content: '💡 '; }
+
+.checkpoint .cp-answer summary::-webkit-details-marker { display: none; }
+
+.checkpoint .cp-answer[open] summary { margin-bottom: 6px; }
+
+.checkpoint .cp-answer ol, .checkpoint .cp-answer p { font-weight: 400; color: var(--ink); }
+
+
+
+/* ── TL;DR summary ── */
+
+.tldr {
+
+  background: #fefce8; border-left: 3px solid #eab308;
+
+  padding: 8px 14px; margin: 10px 0;
+
+  font-weight: 600; font-size: 0.95em;
+
+}
+
+
+
+/* ── Responsive ── */
+
+@media (max-width: 640px) {
+
+  body { max-width: 100%; padding: 12px 10px 40px; font-size: 11pt; }
+
+  h1 { font-size: 1.3em; }
+
+  h2 { font-size: 1.12em; }
+
+  table { font-size: 0.85em; }
+
+  td, th { padding: 4px 6px; }
+
+  pre { font-size: 0.85em; padding: 6px; }
+
+}
+
+@media (max-width: 400px) {
+
+  body { padding: 8px 6px 32px; font-size: 10.5pt; }
+
+}
+
+
+
+
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<header id="exampass-header">
+
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+
+  <div class="header-right"><span class="header-url">github.com/WUBING2023/ExamPass-Assistant</span></div>
+
+</header>
+
+<hr class="header-divider">
+
+
+
+<h1>Day7 运算符上</h1>
+
+<div class="toc">
+
+<h2>目录</h2>
+
+<ul>
+
+<li><a href="#s68647699">1. 运算符基础</a></li>
+
+  <li><a href="#s58865346">1.1 运算符分类 </a></li>
+
+  <li><a href="#s15204141">1.2 三个术语 </a></li>
+
+<li><a href="#s43746446">2. 算术运算符</a></li>
+
+  <li><a href="#s73227701">2.1 / 与 % </a></li>
+
+  <li><a href="#s90517553">2.2 应用：闰年判断与数字拆解 </a></li>
+
+<li><a href="#s77461996">3. 赋值运算符</a></li>
+
+  <li><a href="#s21078973">3.1 = 与复合赋值 </a></li>
+
+<li><a href="#s19574392">4. 自增自减运算符</a></li>
+
+  <li><a href="#s41351663">4.1 前置与后置 </a></li>
+
+<li><a href="#s64195058">5. 位运算符</a></li>
+
+  <li><a href="#s47298167">5.1 取反 ~ </a></li>
+
+  <li><a href="#s62095984">5.2 异或 ^ </a></li>
+
+  <li><a href="#s89095802">5.3 异或应用：原地交换两数 </a></li>
+
+  <li><a href="#s32056200">5.4 与 &amp; 或 | </a></li>
+
+  <li><a href="#s60871999">5.5 左移 &lt;&lt; 右移 &gt;&gt; </a></li>
+
+</ul>
+
+</div>
+
+<div class="tldr"><strong>TL;DR：</strong>C 运算符按优先级和结合性执行；算术/赋值/自增自减/位运算符是核心；位运算直接操作二进制位，是底层编程利器。</div>
+
+
+
+<h2 id="s68647699">1. 运算符基础</h2>
+
+<h3 id="s58865346">1.1 运算符分类 <span class="pg-chip" data-page="2-3">页2</span></h3>
+
+<p><span class="kp">算术(+ - * / % ++ --)、关系(&gt; &lt; == !=)、逻辑(&amp;&amp; || !)、赋值(= += 等)、位运算(&amp; | ^ ~ &lt;&lt; &gt;&gt;)、三目(?:)、逗号(,)、sizeof</span>。</p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s15204141">1.2 三个术语 <span class="pg-chip" data-page="4">页4</span></h3>
+
+<p><span class="kp">表达式 = 操作数+运算符；优先级高的先执行；结合性决定优先级相同时的执行顺序</span>。<span class="exp">a = b + 10 * c 先算 *，再 +，最后 =；类别分一元/二元/三元。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h2 id="s43746446">2. 算术运算符</h2>
+
+<h3 id="s73227701">2.1 / 与 % <span class="pg-chip" data-page="3-4">页3</span></h3>
+
+<p><span class="kp">/ 两端都是整数是整数除法(7/2=3)；只要有一个浮点数就是浮点除法(7/2.0=3.5)；% 取余只能用于整数</span>。<span class="exp">% 结果 = 被除数 - (商 × 除数)，例 17%5=2。</span></p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s90517553">2.2 应用：闰年判断与数字拆解 <span class="pg-chip" data-page="6-7">页6</span></h3>
+
+<p><span class="kp">闰年：(year%4==0 &amp;&amp; year%100!=0) || year%400==0；拆数位：43/10=4(十位)，43%10=3(个位)</span>。</p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h2 id="s77461996">3. 赋值运算符</h2>
+
+<h3 id="s21078973">3.1 = 与复合赋值 <span class="pg-chip" data-page="2-4">页2</span></h3>
+
+<p><span class="kp">= 是赋值不是等号；左侧必须是变量不能是表达式；复合赋值 += -= *= /= %= &amp;= |= ^= &lt;&lt;= &gt;&gt;=</span>。<span class="exp">x = x + 1 合法(取 x 加 1 存回)；x + 1 = 2 非法。</span></p>
+
+<blockquote>易错：a *= b + 6 不是 a*b 再加6，而是 a = a * (b+6)，因 + 优先级高于 *=。</blockquote>
+
+<span class="tag-must">必考</span>
+
+
+
+<h2 id="s19574392">4. 自增自减运算符</h2>
+
+<h3 id="s41351663">4.1 前置与后置 <span class="pg-chip" data-page="2-6">页2</span></h3>
+
+<p><span class="kp">前置 ++i：先自增再参与运算；后置 i++：先参与运算再自增</span>。<span class="exp">单独作为语句时 i++ 与 ++i 等效。int a=20, b; b=a++ 得 b=20,a=21；b=++a 得 b=21,a=21。</span></p>
+
+<blockquote>易错：后置「先参与运算」是先把原值读出赋给 b，再自增 a——不是「先算完整个表达式」。</blockquote>
+
+<span class="tag-must">必考</span>
+
+<div class="checkpoint">int a=20, b; b = a++; a、b 各是多少？<details class="cp-answer"><summary>参考答案</summary>b=20(先用原值赋给b)，a=21(后自增)。</details></div>
+
+
+
+<h2 id="s64195058">5. 位运算符</h2>
+
+<h3 id="s47298167">5.1 取反 ~ <span class="pg-chip" data-page="3-5">页3</span></h3>
+
+<p><span class="kp">~ 是单目运算符，0 变 1，1 变 0；只能用于整型，浮点型报错</span>。<span class="exp">int a=10; ~a = -11(因正数取反后符号位变 1)。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s62095984">5.2 异或 ^ <span class="pg-chip" data-page="9-12">页9</span></h3>
+
+<p><span class="kp">^ 相异为真(1)，相同为假(0)，即「无进位相加」</span>。<span class="exp">性质：0^n=n；a^b=b^a(交换律)；a^b^c=a^(b^c)(结合律)。</span></p>
+
+<span class="tag-key">重点</span>
+
+
+
+<h3 id="s89095802">5.3 异或应用：原地交换两数 <span class="pg-chip" data-page="12">页12</span></h3>
+
+<p><span class="kp">a = a^b; b = a^b; a = a^b; 三步实现无第三变量交换</span>。<span class="exp">原理：第二步 b = (a^b)^b = a；第三步 a = (a^b)^a = b。</span></p>
+
+<span class="tag-freq">高频</span>
+
+
+
+<h3 id="s32056200">5.4 与 &amp; 或 | <span class="pg-chip" data-page="2-5">页2</span></h3>
+
+<p><span class="kp">&amp; 两都为 1 才为 1(同 1 与得原值，同 0 与得 0)；| 任一为 1 即为 1(同 1 或得 1，同 0 或得原值)</span>。</p>
+
+<span class="tag-must">必考</span>
+
+
+
+<h3 id="s60871999">5.5 左移 &lt;&lt; 右移 &gt;&gt; <span class="pg-chip" data-page="6-9">页6</span></h3>
+
+<p><span class="kp">&lt;&lt; 左移 n 位 = 乘 $2^n$，右边补 0；&gt;&gt; 右移 n 位 = 除 $2^n$，无符号数左补 0(逻辑移位)，有符号数补符号位(算术移位)</span>。</p>
+
+<span class="tag-key">重点</span>
+
+
+
+
+
+</body>
+
+</html>
+
